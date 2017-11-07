@@ -16,6 +16,8 @@ public interface LinearSpaceObjectStorage<E extends LinearSpaceObjectElement, S 
         }
     }
 
+    double getAt(int[] indices);
+
     int getDimensions();
 
     boolean isSparse();
