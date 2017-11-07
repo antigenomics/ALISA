@@ -22,8 +22,8 @@ public class TwoLayerState<E1 extends Entity, E2 extends Entity>
     }
 
     @Override
-    public Entity getValue(final int site) {
-        switch (site) {
+    public Entity getValue(final int layer) {
+        switch (layer) {
             case 0:
                 return firstValue;
             case 1:

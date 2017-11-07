@@ -3,7 +3,7 @@ package com.antigenomics.pmem.hamiltonian;
 import com.antigenomics.pmem.encoding.Encoder;
 import com.antigenomics.pmem.entities.Entity;
 import com.antigenomics.pmem.representation.LinearSpaceObjectArray;
-import com.antigenomics.pmem.representation.algebra.BilinearComposition;
+import com.antigenomics.pmem.representation.algebra.BilinearMap;
 import com.antigenomics.pmem.representation.algebra.VectorSpace;
 import com.antigenomics.pmem.state.ThreeLayerState;
 import com.sun.istack.internal.NotNull;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends Entity, E3 extends Entity,
         V extends VectorSpace<V, M>,
-        M extends BilinearComposition<V, M>>
+        M extends BilinearMap<V, M>>
         implements SpinGlassHamiltonian<ThreeLayerState<E1, E2, E3>, V, M> {
     private final Encoder<E1, V> firstEncoder;
     private final Encoder<E2, V> secondEncoder;
