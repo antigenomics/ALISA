@@ -2,7 +2,6 @@ package com.antigenomics.pmem.hamiltonian;
 
 import com.antigenomics.pmem.encoding.Encoder;
 import com.antigenomics.pmem.representation.LinearSpaceObjectTrio;
-import com.antigenomics.pmem.representation.Matrix;
 import com.antigenomics.pmem.entities.Entity;
 import com.antigenomics.pmem.state.TwoSiteStateNS;
 import com.sun.istack.internal.NotNull;

@@ -1,7 +1,6 @@
 package com.antigenomics.pmem.hamiltonian;
 
 import com.antigenomics.pmem.encoding.Encoder;
-import com.antigenomics.pmem.representation.Matrix;
 import com.antigenomics.pmem.entities.Entity;
 import com.sun.istack.internal.NotNull;
 

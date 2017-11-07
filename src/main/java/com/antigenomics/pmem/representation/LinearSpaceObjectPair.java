@@ -64,7 +64,7 @@ public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>>
         }
 
         @Override
-        public void minusInplace(@NotNull final LinearSpaceObjectPair<R> other) {
+        public void minusInplace(LinearSpaceObjectPair<R> other) {
             firstMutable.minusInplace(other.first);
             secondMutable.minusInplace(other.second);
         }
