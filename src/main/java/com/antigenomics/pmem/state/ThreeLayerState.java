@@ -3,13 +3,18 @@ package com.antigenomics.pmem.state;
 import com.antigenomics.pmem.entities.Entity;
 import com.sun.istack.internal.NotNull;
 
-public class TwoLayerState<E1 extends Entity, E2 extends Entity> implements State<Entity> {
+public class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 extends Entity>
+        implements State<Entity> {
     private final E1 firstValue;
     private final E2 secondValue;
+    private final E3 thirdValue;
 
-    public TwoLayerState(@NotNull final E1 firstValue, @NotNull final E2 secondValue) {
+    public ThreeLayerState(@NotNull final E1 firstValue,
+                           @NotNull final E2 secondValue,
+                           @NotNull final E3 thirdValue) {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
+        this.thirdValue = thirdValue;
     }
 
     public E1 getFirstValue() {
@@ -20,20 +25,26 @@ public class TwoLayerState<E1 extends Entity, E2 extends Entity> implements Stat
         return secondValue;
     }
 
-    @Override
-    public Entity getValue(final int site) {
-        switch (site) {
-            case 0:
-                return getFirstValue();
-            case 1:
-                return getSecondValue();
-        }
-
-        throw new IllegalArgumentException("Site should equal 0");
+    public E3 getThirdValue() {
+        return thirdValue;
     }
 
     @Override
-    public int getNumberOfSites() {
-        return 2;
+    public Entity getValue(final int layer) {
+        switch (layer) {
+            case 0:
+                return firstValue;
+            case 1:
+                return secondValue;
+            case 2:
+                return thirdValue;
+        }
+
+        throw new IndexOutOfBoundsException("Layer should equal 0, 1 or 2");
+    }
+
+    @Override
+    public int getNumberOfLayers() {
+        return 3;
     }
 }

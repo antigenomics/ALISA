@@ -5,39 +5,70 @@ import com.antigenomics.pmem.entities.Entity;
 import com.antigenomics.pmem.representation.LinearSpaceObjectArray;
 import com.antigenomics.pmem.representation.algebra.BilinearComposition;
 import com.antigenomics.pmem.representation.algebra.VectorSpace;
-import com.antigenomics.pmem.state.OneLayerState;
+import com.antigenomics.pmem.state.TwoLayerState;
 import com.sun.istack.internal.NotNull;
 
-import static java.util.Collections.singletonList;
+import java.util.Arrays;
 
-public final class SingleLayerSpinGlassHamiltonian<T extends Entity,
+public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends Entity,
         V extends VectorSpace<V, M>,
         M extends BilinearComposition<V, M>>
-        implements SpinGlassHamiltonian<OneLayerState<T>, V, M> {
-    private final Encoder<T, V> encoder;
+        implements SpinGlassHamiltonian<TwoLayerState<E1, E2>, V, M> {
+    private final Encoder<E1, V> firstEncoder;
+    private final Encoder<E2, V> secondEncoder;
     private final LinearSpaceObjectArray<M> zeroParameters;
 
-    public SingleLayerSpinGlassHamiltonian(@NotNull final Encoder<T, V> encoder) {
-        this.encoder = encoder;
-        this.zeroParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
+    public TwoLayerSpinGlassHamiltonian(@NotNull final Encoder<E1, V> firstEncoder,
+                                        @NotNull final Encoder<E2, V> secondEncoder) {
+        this.firstEncoder = firstEncoder;
+        this.secondEncoder = secondEncoder;
+        final V z1 = firstEncoder.getZero(),
+                z2 = secondEncoder.getZero();
+        this.zeroParameters = new LinearSpaceObjectArray<>(
+                Arrays.asList(
+                        z1.expand(),
+                        z2.expand(),
+                        z1.outerProduct(z2)
+                )
+        );
     }
 
-    public Encoder<T, V> getEncoder() {
-        return encoder;
+    public Encoder<E1, V> getFirstEncoder() {
+        return firstEncoder;
+    }
+
+    public Encoder<E2, V> getSecondEncoder() {
+        return secondEncoder;
     }
 
     @Override
-    public double computeEnergy(@NotNull final OneLayerState<T> state,
+    public double computeEnergy(@NotNull final TwoLayerState<E1, E2> state,
                                 @NotNull final LinearSpaceObjectArray<M> parameters) {
-        final V encoding = encoder.encode(state.getValue());
-        return parameters.get(0).bilinearForm(encoding, encoding);
+        final V s1 = firstEncoder.encode(state.getFirstValue());
+        final V s2 = secondEncoder.encode(state.getSecondValue());
+
+        final M J1 = parameters.get(0),
+                J2 = parameters.get(1),
+                J12 = parameters.get(2);
+
+        return J1.bilinearForm(s1, s1) +
+                J2.bilinearForm(s2, s2) +
+                J12.bilinearForm(s1, s2);
     }
 
     @Override
-    public LinearSpaceObjectArray<M> computeGradient(@NotNull final OneLayerState<T> state,
+    public LinearSpaceObjectArray<M> computeGradient(@NotNull final TwoLayerState<E1, E2> state,
                                                      @NotNull final LinearSpaceObjectArray<M> parameters) {
-        final V encoding = encoder.encode(state.getValue());
-        return new LinearSpaceObjectArray<>(singletonList(encoding.outerProduct(encoding)));
+        final V s1 = firstEncoder.encode(state.getFirstValue());
+        final V s2 = secondEncoder.encode(state.getSecondValue());
+
+        return new LinearSpaceObjectArray<>(
+                Arrays.asList(
+                        s1.expand(),
+                        s2.expand(),
+                        s1.outerProduct(s2)
+                )
+        );
     }
 
     @Override

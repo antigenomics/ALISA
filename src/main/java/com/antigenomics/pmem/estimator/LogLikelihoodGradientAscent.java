@@ -38,7 +38,7 @@ public abstract class LogLikelihoodGradientAscent<S extends State,
             netGradient.multiplyInplace(-learningRate / states.size());
             parameters.plusInplace(netGradient);
 
-            if ((norm = parameters.norm()) <= tol) {
+            if ((norm = parameters.norm2()) <= tol) {
                 break;
             }
         }

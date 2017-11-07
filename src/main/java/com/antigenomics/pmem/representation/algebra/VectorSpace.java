@@ -8,4 +8,9 @@ public interface VectorSpace<V extends VectorSpace<V, M>, M extends BilinearComp
     double dotProduct(V b);
 
     M outerProduct(V b);
+
+    // self cross-product
+    default M expand() {
+        return outerProduct((V) this);
+    }
 }

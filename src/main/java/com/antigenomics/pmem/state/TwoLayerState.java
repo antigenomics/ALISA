@@ -3,35 +3,38 @@ package com.antigenomics.pmem.state;
 import com.antigenomics.pmem.entities.Entity;
 import com.sun.istack.internal.NotNull;
 
-public class TwoSiteStateNS<T extends Entity, U extends Entity> implements State<Entity> {
-    private final T firstValue;
-    private final U secondValue;
+public class TwoLayerState<E1 extends Entity, E2 extends Entity>
+        implements State<Entity> {
+    private final E1 firstValue;
+    private final E2 secondValue;
 
-    public TwoSiteStateNS(@NotNull final T firstValue, @NotNull final U secondValue) {
+    public TwoLayerState(@NotNull final E1 firstValue, @NotNull final E2 secondValue) {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
     }
 
-    public T getFirstValue() {
+    public E1 getFirstValue() {
         return firstValue;
     }
 
-    public U getSecondValue() {
+    public E2 getSecondValue() {
         return secondValue;
     }
 
     @Override
     public Entity getValue(final int site) {
-        if (site == 0) {
-            return getFirstValue();
-        } else if (site == 1) {
-            return getSecondValue();
+        switch (site) {
+            case 0:
+                return firstValue;
+            case 1:
+                return secondValue;
         }
-        throw new IllegalArgumentException("Site should equal 0");
+
+        throw new IndexOutOfBoundsException("Layer should equal 0 or 1");
     }
 
     @Override
-    public int getNumberOfSites() {
+    public int getNumberOfLayers() {
         return 2;
     }
 }

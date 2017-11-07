@@ -1,9 +1,9 @@
 package com.antigenomics.pmem.estimator.mc;
 
 import com.antigenomics.pmem.entities.Entity;
-import com.antigenomics.pmem.state.OneSiteState;
+import com.antigenomics.pmem.state.OneLayerState;
 
-public final class OneSiteMutator<T extends Entity> implements StateMutator<OneSiteState<T>> {
+public final class OneSiteMutator<T extends Entity> implements StateMutator<OneLayerState<T>> {
     private final EntityMutator<T> entityMutator;
 
     public OneSiteMutator(final EntityMutator<T> entityMutator) {
@@ -15,7 +15,7 @@ public final class OneSiteMutator<T extends Entity> implements StateMutator<OneS
     }
 
     @Override
-    public OneSiteState<T> mutate(OneSiteState<T> state) {
-        return new OneSiteState<>(entityMutator.mutate(state.getValue()));
+    public OneLayerState<T> mutate(OneLayerState<T> state) {
+        return new OneLayerState<>(entityMutator.mutate(state.getValue()));
     }
 }

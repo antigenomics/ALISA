@@ -1,9 +1,9 @@
 package com.antigenomics.pmem.estimator.mc;
 
 import com.antigenomics.pmem.entities.Entity;
-import com.antigenomics.pmem.state.TwoSiteStateNS;
+import com.antigenomics.pmem.state.TwoLayerState;
 
-public class TwoSiteMutatorNS<T extends Entity, U extends Entity> implements StateMutator<TwoSiteStateNS<T, U>> {
+public class TwoSiteMutatorNS<T extends Entity, U extends Entity> implements StateMutator<TwoLayerState<T, U>> {
     private final EntityMutator<T> firstEntityMutator;
     private final EntityMutator<U> secondEntityMutator;
 
@@ -22,8 +22,8 @@ public class TwoSiteMutatorNS<T extends Entity, U extends Entity> implements Sta
     }
 
     @Override
-    public TwoSiteStateNS<T, U> mutate(TwoSiteStateNS<T, U> state) {
-        return new TwoSiteStateNS<>(firstEntityMutator.mutate(state.getFirstValue()),
+    public TwoLayerState<T, U> mutate(TwoLayerState<T, U> state) {
+        return new TwoLayerState<>(firstEntityMutator.mutate(state.getFirstValue()),
                 secondEntityMutator.mutate(state.getSecondValue()));
     }
 }
