@@ -20,7 +20,7 @@ public interface LinearSpaceObjectStorage<E extends LinearSpaceObjectElement, S 
 
     boolean isSparse();
 
-    default void assertCompatible(S other) {
+    default void assertCompatible(LinearSpaceObjectStorage other) {
         if (this.getDimensions() != other.getDimensions()) {
             throw new IllegalArgumentException(this.toString() +
                     "is incompatible to" +

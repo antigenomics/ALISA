@@ -2,28 +2,32 @@ package com.antigenomics.pmem.representation.impl;
 
 import com.antigenomics.pmem.representation.LinearSpaceObject;
 
-public abstract class Matrix implements LinearSpaceObjectStorage<MatrixElement, Matrix> {
-    protected final int[] sizes;
+public abstract class Vector implements LinearSpaceObjectStorage<VectorElement, Vector> {
+    protected final int size;
 
-    public Matrix(final int[] sizes) {
-        this.sizes = sizes;
+    public Vector(final int size) {
+        this.size = size;
     }
 
-    protected abstract Matrix plusInner(Matrix other);
+    protected abstract Vector plusInner(Vector other);
 
     @Override
-    public LinearSpaceObject<Matrix> plus(LinearSpaceObject<Matrix> other) {
-        assertCompatible((Matrix) other);
-        return plusInner((Matrix) other);
+    public LinearSpaceObject<Vector> plus(LinearSpaceObject<Vector> other) {
+        assertCompatible((LinearSpaceObjectStorage) other);
+        return plusInner((Vector) other);
     }
 
     @Override
     public int[] getSizes() {
-        return sizes;
+        return new int[]{size};
     }
 
     @Override
     public int getDimensions() {
-        return 2;
+        return 1;
+    }
+
+    public int getSize() {
+        return size;
     }
 }
