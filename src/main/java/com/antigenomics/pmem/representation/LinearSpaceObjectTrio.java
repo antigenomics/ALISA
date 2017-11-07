@@ -2,8 +2,8 @@ package com.antigenomics.pmem.representation;
 
 import com.sun.istack.internal.NotNull;
 
-public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>>
-        implements LinearSpaceObject<LinearSpaceObjectTrio<R>> {
+public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>, O extends LinearSpaceObjectTrio<R, O>>
+        implements LinearSpaceObject<O> {
     private final R first, second, third;
 
     public LinearSpaceObjectTrio(@NotNull final R first, @NotNull final R second, @NotNull final R third) {
@@ -13,23 +13,25 @@ public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>>
     }
 
     @Override
-    public LinearSpaceObject<LinearSpaceObjectTrio<R>> plus(@NotNull final LinearSpaceObject<LinearSpaceObjectTrio<R>> other) {
-        return new LinearSpaceObjectTrio<>(
-                (R) first.plus(((LinearSpaceObjectTrio<R>) other).first),
-                (R) second.plus(((LinearSpaceObjectTrio<R>) other).second),
-                (R) third.plus(((LinearSpaceObjectTrio<R>) other).third));
+    public O plus(@NotNull final O other) {
+        return (O) new LinearSpaceObjectTrio(
+                first.plus(other.getFirst()),
+                second.plus(other.getSecond()),
+                third.plus(other.getThird())
+        );
     }
 
     @Override
-    public LinearSpaceObject<LinearSpaceObjectTrio<R>> multiply(double scalar) {
-        return new LinearSpaceObjectTrio<>(
-                (R) first.multiply(scalar),
-                (R) second.multiply(scalar),
-                (R) third.multiply(scalar));
+    public O multiply(double scalar) {
+        return (O) new LinearSpaceObjectTrio(
+                first.multiply(scalar),
+                second.multiply(scalar),
+                third.multiply(scalar)
+        );
     }
 
     @Override
-    public MutableLinearSpaceObject<LinearSpaceObjectTrio<R>> toMutable() {
+    public MutableLinearSpaceObject<O> toMutable() {
         return new MutableLinearSpaceObjectTrio(
                 first.toMutable(),
                 second.toMutable(),
@@ -57,8 +59,8 @@ public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>>
     }
 
     private class MutableLinearSpaceObjectTrio
-            extends LinearSpaceObjectTrio<R>
-            implements MutableLinearSpaceObject<LinearSpaceObjectTrio<R>> {
+            extends LinearSpaceObjectTrio<R, O>
+            implements MutableLinearSpaceObject<O> {
         private final MutableLinearSpaceObject<R> firstMutable,
                 secondMutable,
                 thirdMutable;
@@ -75,17 +77,17 @@ public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>>
         }
 
         @Override
-        public void plusInplace(@NotNull final LinearSpaceObjectTrio<R> other) {
-            firstMutable.plusInplace(other.first);
-            secondMutable.plusInplace(other.second);
-            thirdMutable.plusInplace(other.third);
+        public void plusInplace(@NotNull final O other) {
+            firstMutable.plusInplace(other.getFirst());
+            secondMutable.plusInplace(other.getSecond());
+            thirdMutable.plusInplace(other.getThird());
         }
 
         @Override
-        public void minusInplace(@NotNull final LinearSpaceObjectTrio<R> other) {
-            firstMutable.minusInplace(other.first);
-            secondMutable.minusInplace(other.second);
-            thirdMutable.minusInplace(other.third);
+        public void minusInplace(@NotNull final O other) {
+            firstMutable.minusInplace(other.getFirst());
+            secondMutable.minusInplace(other.getSecond());
+            thirdMutable.minusInplace(other.getThird());
         }
 
         @Override
@@ -96,8 +98,8 @@ public class LinearSpaceObjectTrio<R extends LinearSpaceObject<R>>
         }
 
         @Override
-        public LinearSpaceObjectTrio<R> toImmutable() {
-            return new LinearSpaceObjectTrio<>(
+        public O toImmutable() {
+            return (O) new LinearSpaceObjectTrio(
                     firstMutable.toImmutable(),
                     secondMutable.toImmutable(),
                     thirdMutable.toImmutable());

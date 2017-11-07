@@ -13,9 +13,9 @@ public abstract class Matrix implements LinearSpaceObjectStorage<MatrixElement, 
     protected abstract Matrix plusInner(Matrix other);
 
     @Override
-    public LinearSpaceObject<Matrix> plus(LinearSpaceObject<Matrix> other) {
-        assertCompatible((LinearSpaceObjectStorage) other);
-        return plusInner((Matrix) other);
+    public Matrix plus(Matrix other) {
+        assertCompatible(other);
+        return plusInner(other);
     }
 
     @Override

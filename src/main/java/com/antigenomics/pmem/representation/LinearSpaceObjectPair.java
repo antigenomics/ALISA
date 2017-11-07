@@ -2,8 +2,8 @@ package com.antigenomics.pmem.representation;
 
 import com.sun.istack.internal.NotNull;
 
-public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>>
-        implements LinearSpaceObject<LinearSpaceObjectPair<R>> {
+public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>, O extends LinearSpaceObjectPair<R, O>>
+        implements LinearSpaceObject<O> {
     private final R first, second;
 
     public LinearSpaceObjectPair(@NotNull final R first, @NotNull final R second) {
@@ -12,22 +12,27 @@ public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>>
     }
 
     @Override
-    public LinearSpaceObject<LinearSpaceObjectPair<R>> plus(@NotNull final LinearSpaceObject<LinearSpaceObjectPair<R>> other) {
-        return new LinearSpaceObjectPair<>(
-                (R) first.plus(((LinearSpaceObjectPair<R>) other).first),
-                (R) second.plus(((LinearSpaceObjectPair<R>) other).second));
+    public O plus(@NotNull final O other) {
+        return (O) new LinearSpaceObjectPair(
+                first.plus(other.getFirst()),
+                second.plus(other.getSecond())
+        );
     }
 
     @Override
-    public LinearSpaceObject<LinearSpaceObjectPair<R>> multiply(double scalar) {
-        return new LinearSpaceObjectPair<>(
-                (R) first.multiply(scalar),
-                (R) second.multiply(scalar));
+    public O multiply(double scalar) {
+        return (O) new LinearSpaceObjectPair(
+                first.multiply(scalar),
+                second.multiply(scalar)
+        );
     }
 
     @Override
-    public MutableLinearSpaceObject<LinearSpaceObjectPair<R>> toMutable() {
-        return new MutableLinearSpaceObjectPair(first.toMutable(), second.toMutable());
+    public MutableLinearSpaceObject<O> toMutable() {
+        return new MutableLinearSpaceObjectPair(
+                first.toMutable(),
+                second.toMutable()
+        );
     }
 
     @Override
@@ -45,28 +50,27 @@ public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>>
     }
 
     private class MutableLinearSpaceObjectPair
-            extends LinearSpaceObjectPair<R>
-            implements MutableLinearSpaceObject<LinearSpaceObjectPair<R>> {
+            extends LinearSpaceObjectPair<R, O>
+            implements MutableLinearSpaceObject<O> {
         private final MutableLinearSpaceObject<R> firstMutable, secondMutable;
 
         MutableLinearSpaceObjectPair(@NotNull final MutableLinearSpaceObject<R> firstMutable,
                                      @NotNull final MutableLinearSpaceObject<R> secondMutable) {
-            super(firstMutable.asImmutable(),
-                    secondMutable.asImmutable());
+            super(firstMutable.asImmutable(), secondMutable.asImmutable());
             this.firstMutable = firstMutable;
             this.secondMutable = secondMutable;
         }
 
         @Override
-        public void plusInplace(@NotNull final LinearSpaceObjectPair<R> other) {
-            firstMutable.plusInplace(other.first);
-            secondMutable.plusInplace(other.second);
+        public void plusInplace(@NotNull final O other) {
+            firstMutable.plusInplace(other.getFirst());
+            secondMutable.plusInplace(other.getSecond());
         }
 
         @Override
-        public void minusInplace(LinearSpaceObjectPair<R> other) {
-            firstMutable.minusInplace(other.first);
-            secondMutable.minusInplace(other.second);
+        public void minusInplace(O other) {
+            firstMutable.minusInplace(other.getFirst());
+            secondMutable.minusInplace(other.getSecond());
         }
 
         @Override
@@ -76,9 +80,11 @@ public class LinearSpaceObjectPair<R extends LinearSpaceObject<R>>
         }
 
         @Override
-        public LinearSpaceObjectPair<R> toImmutable() {
-            return new LinearSpaceObjectPair<>(firstMutable.toImmutable(),
-                    secondMutable.toImmutable());
+        public O toImmutable() {
+            return (O) new LinearSpaceObjectPair(
+                    firstMutable.toImmutable(),
+                    secondMutable.toImmutable()
+            );
         }
     }
 }

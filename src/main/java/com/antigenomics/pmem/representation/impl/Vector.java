@@ -1,7 +1,5 @@
 package com.antigenomics.pmem.representation.impl;
 
-import com.antigenomics.pmem.representation.LinearSpaceObject;
-
 public abstract class Vector implements LinearSpaceObjectStorage<VectorElement, Vector> {
     protected final int size;
 
@@ -12,9 +10,9 @@ public abstract class Vector implements LinearSpaceObjectStorage<VectorElement, 
     protected abstract Vector plusInner(Vector other);
 
     @Override
-    public LinearSpaceObject<Vector> plus(LinearSpaceObject<Vector> other) {
-        assertCompatible((LinearSpaceObjectStorage) other);
-        return plusInner((Vector) other);
+    public Vector plus(Vector other) {
+        assertCompatible(other);
+        return plusInner(other);
     }
 
     @Override
