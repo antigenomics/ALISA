@@ -2,7 +2,7 @@ package com.antigenomics.pmem.hamiltonian;
 
 import com.antigenomics.pmem.encoding.Encoder;
 import com.antigenomics.pmem.entities.Entity;
-import com.antigenomics.pmem.representation.LinearSpaceObjectArray;
+import com.antigenomics.pmem.representation.ImmutableLSOArray;
 import com.antigenomics.pmem.representation.algebra.BilinearMap;
 import com.antigenomics.pmem.representation.algebra.VectorSpace;
 import com.antigenomics.pmem.state.OneLayerState;
@@ -15,11 +15,11 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
         M extends BilinearMap<V, M>>
         implements SpinGlassHamiltonian<OneLayerState<E>, V, M> {
     private final Encoder<E, V> encoder;
-    private final LinearSpaceObjectArray<M> zeroParameters;
+    private final ImmutableLSOArray<M> zeroParameters;
 
     public SingleLayerSpinGlassHamiltonian(@NotNull final Encoder<E, V> encoder) {
         this.encoder = encoder;
-        this.zeroParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
+        this.zeroParameters = new ImmutableLSOArray<>(singletonList(encoder.getZero().expand()));
     }
 
     public Encoder<E, V> getEncoder() {
@@ -28,20 +28,20 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
 
     @Override
     public double computeEnergy(@NotNull final OneLayerState<E> state,
-                                @NotNull final LinearSpaceObjectArray<M> parameters) {
+                                @NotNull final ImmutableLSOArray<M> parameters) {
         final V encoding = encoder.encode(state.getValue());
         return parameters.get(0).bilinearForm(encoding, encoding);
     }
 
     @Override
-    public LinearSpaceObjectArray<M> computeGradient(@NotNull final OneLayerState<E> state,
-                                                     @NotNull final LinearSpaceObjectArray<M> parameters) {
+    public ImmutableLSOArray<M> computeGradient(@NotNull final OneLayerState<E> state,
+                                                @NotNull final ImmutableLSOArray<M> parameters) {
         final V encoding = encoder.encode(state.getValue());
-        return new LinearSpaceObjectArray<>(singletonList(encoding.outerProduct(encoding)));
+        return new ImmutableLSOArray<>(singletonList(encoding.outerProduct(encoding)));
     }
 
     @Override
-    public LinearSpaceObjectArray<M> getZeroParameters() {
+    public ImmutableLSOArray<M> getZeroParameters() {
         return zeroParameters;
     }
 }
