@@ -1,16 +1,16 @@
 package com.antigenomics.pmem.representation.algebra;
 
 public class RealVectorElement {
-    private final int i;
+    private final int index;
     private final double value;
 
-    public RealVectorElement(int i, double value) {
-        this.i = i;
+    public RealVectorElement(int index, double value) {
+        this.index = index;
         this.value = value;
     }
 
-    public int getI() {
-        return i;
+    public int getIndex() {
+        return index;
     }
 
     public double getValue() {

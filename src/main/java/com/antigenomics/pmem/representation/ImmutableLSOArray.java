@@ -49,12 +49,12 @@ public final class ImmutableLSOArray<O extends ImmutableLinearSpaceObject<O>>
 
     @Override
     public double norm1() {
-        return LSOArrayUtils.norm1(objectList);
+        return LinearSpaceObjectUtils.norm1(objectList);
     }
 
     @Override
     public double norm2() {
-        return LSOArrayUtils.norm2(objectList);
+        return LinearSpaceObjectUtils.norm2(objectList);
     }
 
     @Override

@@ -1,21 +1,21 @@
 package com.antigenomics.pmem.representation.algebra;
 
 public class RealMatrixElement {
-    private final int i, j;
+    private final int index1, index2;
     private final double value;
 
-    public RealMatrixElement(int i, int j, double value) {
-        this.i = i;
-        this.j = j;
+    public RealMatrixElement(int index1, int index2, double value) {
+        this.index1 = index1;
+        this.index2 = index2;
         this.value = value;
     }
 
-    public int getI() {
-        return i;
+    public int getIndex1() {
+        return index1;
     }
 
-    public int getJ() {
-        return j;
+    public int getIndex2() {
+        return index2;
     }
 
     public double getValue() {

@@ -13,7 +13,4 @@ public interface VectorSpace<V extends VectorSpace<V, M>, M extends BilinearMap<
     default M expand() {
         return outerProduct((V) this);
     }
-
-
-    // todo: should not allow mutable
 }

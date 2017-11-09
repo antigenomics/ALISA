@@ -73,11 +73,11 @@ public class MutableLSOArray<O extends ImmutableLinearSpaceObject<O>>
 
     @Override
     public double norm1() {
-        return LSOArrayUtils.norm1(mutableObjectList);
+        return LinearSpaceObjectUtils.norm1(mutableObjectList);
     }
 
     @Override
     public double norm2() {
-        return LSOArrayUtils.norm2(mutableObjectList);
+        return LinearSpaceObjectUtils.norm2(mutableObjectList);
     }
 }
