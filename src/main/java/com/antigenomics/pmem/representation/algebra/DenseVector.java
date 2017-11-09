@@ -46,7 +46,9 @@ public class DenseVector
     @Override
     public RealMatrix outerProduct(RealVector b) {
         // todo: special case b==this
-        // todo:
+        // todo: update when sparse matrices are implementd
+
+
         return null;
     }
 

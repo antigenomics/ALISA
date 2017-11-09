@@ -15,7 +15,7 @@ public abstract class SafeMutableLinearSpaceObject<O extends ImmutableLinearSpac
     protected abstract void minusInplaceUnchecked(MutableLinearSpaceObject<O> other);
 
     @Override
-    public void plusInplace(O other) {
+    public final void plusInplace(O other) {
         if (isCompatible(other)) {
             plusInplaceUnchecked(other);
         } else {
@@ -24,7 +24,7 @@ public abstract class SafeMutableLinearSpaceObject<O extends ImmutableLinearSpac
     }
 
     @Override
-    public void minusInplace(O other) {
+    public final void minusInplace(O other) {
         if (isCompatible(other)) {
             minusInplaceUnchecked(other);
         } else {
@@ -33,7 +33,7 @@ public abstract class SafeMutableLinearSpaceObject<O extends ImmutableLinearSpac
     }
 
     @Override
-    public void plusInplace(MutableLinearSpaceObject<O> other) {
+    public final void plusInplace(MutableLinearSpaceObject<O> other) {
         if (isCompatible(other)) {
             plusInplaceUnchecked(other);
         } else {
@@ -42,7 +42,7 @@ public abstract class SafeMutableLinearSpaceObject<O extends ImmutableLinearSpac
     }
 
     @Override
-    public void minusInplace(MutableLinearSpaceObject<O> other) {
+    public final void minusInplace(MutableLinearSpaceObject<O> other) {
         if (isCompatible(other)) {
             minusInplaceUnchecked(other);
         } else {

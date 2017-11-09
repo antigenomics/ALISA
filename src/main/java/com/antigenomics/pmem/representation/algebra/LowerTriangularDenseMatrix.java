@@ -7,55 +7,70 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class FullDenseMatrix
+public class LowerTriangularDenseMatrix
         extends DenseMatrix {
-    private final int numberOfColumns, numberOfRows;
+    private final int n;
     private List<RealMatrixElement> elementList = null;
 
-    public FullDenseMatrix(double[] elements, int numberOfColumns) {
+    static int getLength(int n) {
+        return (n * (n + 1)) / 2;
+    }
+
+    static int getN(int length) {
+        return (int) ((-1 + Math.sqrt(1 + 8 * length)) / 2);
+    }
+
+    public LowerTriangularDenseMatrix(double[] elements) {
         super(elements);
 
-        if (elements.length % numberOfColumns != 0) {
-            throw new IllegalArgumentException("Number of elements should be a multiple of number of columns.");
-        }
+        n = getN(elements.length);
 
-        this.numberOfColumns = numberOfColumns;
-        this.numberOfRows = elements.length / numberOfColumns;
+        if (getLength(n) == elements.length) {
+            throw new IllegalArgumentException("Wrong number of elements.");
+        }
     }
 
     @Override
     protected int getIndex(int i, int j) {
-        return i * numberOfColumns + j;
+        if (j > i) {
+            return getIndex(j, i);
+        } else {
+            return getLength(i) + j;
+        }
     }
 
     @Override
     protected RealMatrix plusUnchecked(RealMatrix a) {
-        double[] newElements = Arrays.copyOf(elements, elements.length);
+        if (!a.isStrictlySymmetric()) {
+            return a.plus(this);
+        } else {
+            double[] newElements = Arrays.copyOf(elements, elements.length);
 
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                newElements[k] += a.getAt(i, j);
-                k++;
+            int k = 0;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j <= i; j++) {
+                    newElements[k] += a.getAt(i, j);
+                    k++;
+                }
             }
-        }
 
-        return new FullDenseMatrix(newElements, numberOfColumns);
+            return new LowerTriangularDenseMatrix(newElements);
+        }
     }
 
     @Override
     public int getSize1() {
-        return numberOfRows;
+        return n;
     }
 
     @Override
     public int getSize2() {
-        return numberOfColumns;
+        return n;
     }
 
     @Override
     public boolean isStrictlySymmetric() {
-        return false;
+        return true;
     }
 
     @Override
@@ -66,7 +81,7 @@ public class FullDenseMatrix
             newElements[i] *= scalar;
         }
 
-        return new FullDenseMatrix(newElements, numberOfColumns);
+        return new LowerTriangularDenseMatrix(newElements);
     }
 
     @Override
@@ -80,8 +95,8 @@ public class FullDenseMatrix
         if (elementList == null) {
             elementList = new ArrayList<>();
             int k = 0;
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j <= i; j++) {
                     elementList.add(new RealMatrixElement(i, j, elements[k]));
                     k++;
                 }
