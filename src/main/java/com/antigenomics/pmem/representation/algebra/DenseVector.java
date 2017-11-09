@@ -45,6 +45,7 @@ public class DenseVector
 
     @Override
     public RealMatrix outerProduct(RealVector b) {
+        // todo: special case b==this
         // todo:
         return null;
     }

@@ -4,7 +4,7 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 
 public abstract class DenseMatrix
         extends SafeRealMatrix {
-    private final double[] elements;
+    protected final double[] elements;
 
     public DenseMatrix(double[] elements) {
         this.elements = elements;
@@ -93,7 +93,7 @@ public abstract class DenseMatrix
     }
 
     @Override
-    protected final double bilinearFormUnchecked(RealVector a, RealVector b) {
+    protected double bilinearFormUnchecked(RealVector a, RealVector b) {
         if (a.isSparse()) {
             if (b.isSparse()) {
                 return bfSS(a, b);
@@ -117,27 +117,27 @@ public abstract class DenseMatrix
     }
 
     @Override
-    public double getAt(int i, int j) {
+    public final double getAt(int i, int j) {
         return elements[getIndex(i, j)];
     }
 
     @Override
-    public double norm1() {
+    public final double norm1() {
         return LinearSpaceObjectUtils.norm1(elements);
     }
 
     @Override
-    public double norm2() {
+    public final double norm2() {
         return LinearSpaceObjectUtils.norm2(elements);
     }
 
     @Override
-    public boolean isSparse() {
+    public final boolean isSparse() {
         return false;
     }
 
     @Override
-    public int getEffectiveSize() {
+    public final int getEffectiveSize() {
         return getSize1() * getSize2();
     }
 }
