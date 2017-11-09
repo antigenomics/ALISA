@@ -2,7 +2,7 @@ package com.antigenomics.pmem.representation.algebra;
 
 import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 
-public class LowerTriangularMutableMatrix
+public final class LowerTriangularMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
     private final LowerTriangularDenseMatrix.LowerTriangularMatrixLinearIndexing matrixIndexing;
