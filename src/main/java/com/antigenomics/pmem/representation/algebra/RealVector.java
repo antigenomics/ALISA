@@ -4,5 +4,5 @@ public interface RealVector
         extends ElementContainer<RealVectorElement>, VectorSpace<RealVector, RealMatrix> {
     int getSize();
 
-    double getAt(int i);
+    double getAt(int index);
 }

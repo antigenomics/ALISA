@@ -6,5 +6,9 @@ public interface RealMatrix
 
     int getSize2();
 
-    int getAt(int i, int j);
+    double getAt(int i, int j);
+
+    default boolean isSquare() {
+        return getSize1() == getSize2();
+    }
 }

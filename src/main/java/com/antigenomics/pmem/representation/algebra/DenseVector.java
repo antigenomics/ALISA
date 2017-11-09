@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class DenseVector
-        implements RealVector {
+        extends SafeRealVector {
     private final double[] elements;
     private List<RealVectorElement> elementList = null;
 
@@ -29,7 +29,7 @@ public class DenseVector
     }
 
     @Override
-    public double dotProduct(RealVector b) {
+    public double dotProductUnchecked(RealVector b) {
         double res = 0;
 
         if (b.isSparse())
@@ -50,7 +50,7 @@ public class DenseVector
     }
 
     @Override
-    public RealVector plus(RealVector other) {
+    public RealVector plusUnchecked(RealVector other) {
         final double[] newElements = Arrays.copyOf(elements, elements.length);
 
         if (other.isSparse())
