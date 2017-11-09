@@ -71,8 +71,7 @@ public class FullDenseMatrix
 
     @Override
     public MutableLinearSpaceObject<RealMatrix> toMutable() {
-        // todo
-        return null;
+        return new FullMutableMatrix(Arrays.copyOf(elements, elements.length), numberOfColumns);
     }
 
     @Override
