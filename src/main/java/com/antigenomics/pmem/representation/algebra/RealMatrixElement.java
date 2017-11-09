@@ -1,6 +1,6 @@
 package com.antigenomics.pmem.representation.algebra;
 
-public class RealMatrixElement {
+public final class RealMatrixElement {
     private final int index1, index2;
     private final double value;
 

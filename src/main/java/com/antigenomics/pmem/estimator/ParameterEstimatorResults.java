@@ -2,7 +2,7 @@ package com.antigenomics.pmem.estimator;
 
 import com.antigenomics.pmem.representation.Representation;
 
-public class ParameterEstimatorResults<R extends Representation> {
+public final class ParameterEstimatorResults<R extends Representation> {
     private final R parameters;
     private final double gradientNorm;
     private final int iterationsPassed;

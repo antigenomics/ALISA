@@ -7,36 +7,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class LowerTriangularDenseMatrix
+public final class LowerTriangularDenseMatrix
         extends DenseMatrix {
-    private final int n;
     private List<RealMatrixElement> elementList = null;
 
-    static int getLength(int n) {
-        return (n * (n + 1)) / 2;
-    }
-
-    static int getN(int length) {
-        return (int) ((-1 + Math.sqrt(1 + 8 * length)) / 2);
-    }
-
     public LowerTriangularDenseMatrix(double[] elements) {
-        super(elements);
-
-        n = getN(elements.length);
-
-        if (getLength(n) == elements.length) {
-            throw new IllegalArgumentException("Wrong number of elements.");
-        }
-    }
-
-    @Override
-    protected int getIndex(int i, int j) {
-        if (j > i) {
-            return getIndex(j, i);
-        } else {
-            return getLength(i) + j;
-        }
+        super(elements, new LowerTriangularMatrixLinearIndexing(elements.length));
     }
 
     @Override
@@ -47,7 +23,7 @@ public class LowerTriangularDenseMatrix
             double[] newElements = Arrays.copyOf(elements, elements.length);
 
             int k = 0;
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < getNumberOfRows(); i++) {
                 for (int j = 0; j <= i; j++) {
                     newElements[k] += a.getAt(i, j);
                     k++;
@@ -56,16 +32,6 @@ public class LowerTriangularDenseMatrix
 
             return new LowerTriangularDenseMatrix(newElements);
         }
-    }
-
-    @Override
-    public int getSize1() {
-        return n;
-    }
-
-    @Override
-    public int getSize2() {
-        return n;
     }
 
     @Override
@@ -86,8 +52,7 @@ public class LowerTriangularDenseMatrix
 
     @Override
     public MutableLinearSpaceObject<RealMatrix> toMutable() {
-        // todo
-        return null;
+        return new LowerTriangularMutableMatrix(elements);
     }
 
     @Override
@@ -95,7 +60,7 @@ public class LowerTriangularDenseMatrix
         if (elementList == null) {
             elementList = new ArrayList<>();
             int k = 0;
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < getNumberOfRows(); i++) {
                 for (int j = 0; j <= i; j++) {
                     elementList.add(new RealMatrixElement(i, j, elements[k]));
                     k++;
@@ -104,5 +69,45 @@ public class LowerTriangularDenseMatrix
         }
 
         return elementList.iterator();
+    }
+
+    public static final class LowerTriangularMatrixLinearIndexing
+            implements MatrixLinearIndexing {
+        private final int n;
+
+        public LowerTriangularMatrixLinearIndexing(int numberOfElements) {
+            this.n = getN(numberOfElements);
+
+            if (getLength(n) == numberOfElements) {
+                throw new IllegalArgumentException("Wrong number of elements.");
+            }
+        }
+
+        private int getLength(int n) {
+            return (n * (n + 1)) / 2;
+        }
+
+        private int getN(int length) {
+            return (int) ((-1 + Math.sqrt(1 + 8 * length)) / 2);
+        }
+
+        @Override
+        public int getIndex(int i, int j) {
+            if (j > i) {
+                return getIndex(j, i);
+            } else {
+                return getLength(i) + j;
+            }
+        }
+
+        @Override
+        public int getNumberOfRows() {
+            return n;
+        }
+
+        @Override
+        public int getNumberOfColumns() {
+            return n;
+        }
     }
 }

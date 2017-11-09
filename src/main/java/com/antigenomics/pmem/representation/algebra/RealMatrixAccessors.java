@@ -1,14 +1,14 @@
 package com.antigenomics.pmem.representation.algebra;
 
 public interface RealMatrixAccessors {
-    int getSize1();
+    int getNumberOfRows();
 
-    int getSize2();
+    int getNumberOfColumns();
 
     double getAt(int i, int j);
 
     default boolean isSquare() {
-        return getSize1() == getSize2();
+        return getNumberOfRows() == getNumberOfColumns();
     }
 
     boolean isStrictlySymmetric();

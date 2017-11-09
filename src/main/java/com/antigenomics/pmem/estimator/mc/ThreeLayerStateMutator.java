@@ -4,7 +4,7 @@ import com.antigenomics.pmem.entities.Entity;
 import com.antigenomics.pmem.state.ThreeLayerState;
 import com.antigenomics.pmem.state.TwoLayerState;
 
-public class ThreeLayerStateMutator<E1 extends Entity, E2 extends Entity, E3 extends Entity>
+public final class ThreeLayerStateMutator<E1 extends Entity, E2 extends Entity, E3 extends Entity>
         implements StateMutator<ThreeLayerState<E1, E2, E3>> {
     private final EntityMutator<E1> firstEntityMutator;
     private final EntityMutator<E2> secondEntityMutator;

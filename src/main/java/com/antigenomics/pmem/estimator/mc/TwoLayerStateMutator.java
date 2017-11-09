@@ -3,7 +3,7 @@ package com.antigenomics.pmem.estimator.mc;
 import com.antigenomics.pmem.entities.Entity;
 import com.antigenomics.pmem.state.TwoLayerState;
 
-public class TwoLayerStateMutator<E1 extends Entity, E2 extends Entity>
+public final class TwoLayerStateMutator<E1 extends Entity, E2 extends Entity>
         implements StateMutator<TwoLayerState<E1, E2>> {
     private final EntityMutator<E1> firstEntityMutator;
     private final EntityMutator<E2> secondEntityMutator;

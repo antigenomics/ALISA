@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class DenseVector
+public final class DenseVector
         extends SafeRealVector {
     private final double[] elements;
     private List<RealVectorElement> elementList = null;
@@ -32,12 +32,15 @@ public class DenseVector
     public double dotProductUnchecked(RealVector b) {
         double res = 0;
 
-        if (b.isSparse())
-            for (RealVectorElement e : b)
+        if (b.isSparse()) {
+            for (RealVectorElement e : b) {
                 res += elements[e.getIndex()] * e.getValue();
-        else
-            for (int i = 0; i < elements.length; i++)
+            }
+        } else {
+            for (int i = 0; i < elements.length; i++) {
                 res += elements[i] * b.getAt(i);
+            }
+        }
 
 
         return res;
@@ -56,13 +59,15 @@ public class DenseVector
     public RealVector plusUnchecked(RealVector other) {
         final double[] newElements = Arrays.copyOf(elements, elements.length);
 
-        if (other.isSparse())
-            for (RealVectorElement e : other)
+        if (other.isSparse()) {
+            for (RealVectorElement e : other) {
                 newElements[e.getIndex()] += e.getValue();
-        else
-            for (int i = 0; i < elements.length; i++)
+            }
+        } else {
+            for (int i = 0; i < elements.length; i++) {
                 newElements[i] += other.getAt(i);
-
+            }
+        }
 
         return new DenseVector(newElements);
     }
@@ -71,8 +76,9 @@ public class DenseVector
     public RealVector multiply(double scalar) {
         final double[] newElements = Arrays.copyOf(elements, elements.length);
 
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0; i < elements.length; i++) {
             newElements[i] *= scalar;
+        }
 
         return new DenseVector(newElements);
     }

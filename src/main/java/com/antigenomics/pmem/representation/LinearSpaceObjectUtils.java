@@ -2,7 +2,7 @@ package com.antigenomics.pmem.representation;
 
 import java.util.List;
 
-public class LinearSpaceObjectUtils {
+public final class LinearSpaceObjectUtils {
     public static double norm1(List<? extends HasNorm> objectList) {
         double res = 0;
 

@@ -9,7 +9,7 @@ import com.antigenomics.pmem.representation.MutableLinearSpaceObject;
 import java.util.ArrayList;
 import java.util.stream.Collector;
 
-public class ContrastiveDivergence<S extends State,
+public final class ContrastiveDivergence<S extends State,
         R extends ImmutableLinearSpaceObject<R>,
         H extends Hamiltonian<S, R>> extends LogLikelihoodGradientAscent<S, R, H> {
     private final MonteCarloSimulator<S, R, H> simulator;

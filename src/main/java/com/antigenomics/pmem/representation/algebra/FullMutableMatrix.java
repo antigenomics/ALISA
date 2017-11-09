@@ -4,22 +4,23 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 
 import java.util.Arrays;
 
-public class FullMutableMatrix
+public final class FullMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final int numberOfColumns, numberOfRows;
+    private final FullDenseMatrix.DenseMatrixLinearIndexing matrixIndexing;
 
     public FullMutableMatrix(double[] elements, int numberOfColumns) {
         this.elements = elements;
-        this.numberOfColumns = numberOfColumns;
-        this.numberOfRows = elements.length / numberOfColumns;
+        this.matrixIndexing = new FullDenseMatrix.DenseMatrixLinearIndexing(
+                elements.length,
+                numberOfColumns);
     }
 
     @Override
     protected void plusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
+        for (int i = 0; i < getNumberOfRows(); i++) {
+            for (int j = 0; j < getNumberOfColumns(); j++) {
                 elements[k] += other.getAt(i, j);
                 k++;
             }
@@ -29,8 +30,8 @@ public class FullMutableMatrix
     @Override
     protected void minusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
+        for (int i = 0; i < getNumberOfRows(); i++) {
+            for (int j = 0; j < getNumberOfColumns(); j++) {
                 elements[k] -= other.getAt(i, j);
                 k++;
             }
@@ -46,7 +47,7 @@ public class FullMutableMatrix
 
     @Override
     public RealMatrix toImmutable() {
-        return new FullDenseMatrix(Arrays.copyOf(elements, elements.length), numberOfColumns);
+        return new FullDenseMatrix(Arrays.copyOf(elements, elements.length), getNumberOfColumns());
     }
 
     @Override
@@ -60,18 +61,18 @@ public class FullMutableMatrix
     }
 
     @Override
-    public int getSize1() {
-        return numberOfRows;
+    public int getNumberOfRows() {
+        return matrixIndexing.getNumberOfRows();
     }
 
     @Override
-    public int getSize2() {
-        return numberOfColumns;
+    public int getNumberOfColumns() {
+        return matrixIndexing.getNumberOfColumns();
     }
 
     @Override
     public double getAt(int i, int j) {
-        return i * numberOfColumns + j;
+        return elements[matrixIndexing.getIndex(i, j)];
     }
 
     @Override

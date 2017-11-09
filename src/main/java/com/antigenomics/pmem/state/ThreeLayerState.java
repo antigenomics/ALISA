@@ -3,7 +3,7 @@ package com.antigenomics.pmem.state;
 import com.antigenomics.pmem.entities.Entity;
 import com.sun.istack.internal.NotNull;
 
-public class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 extends Entity>
+public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 extends Entity>
         implements State<Entity> {
     private final E1 firstValue;
     private final E2 secondValue;

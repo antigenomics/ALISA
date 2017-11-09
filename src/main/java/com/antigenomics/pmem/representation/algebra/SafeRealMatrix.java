@@ -40,15 +40,15 @@ public abstract class SafeRealMatrix
     }
 
     private boolean isCompatibleLeft(RealVector other) {
-        return this.getSize1() == other.getSize();
+        return this.getNumberOfRows() == other.getSize();
     }
 
     private boolean isCompatibleRight(RealVector other) {
-        return this.getSize1() == other.getSize();
+        return this.getNumberOfRows() == other.getSize();
     }
 
     private boolean isCompatible(RealMatrix other) {
-        return this.getSize1() == other.getSize1() &&
-                this.getSize2() == other.getSize2();
+        return this.getNumberOfRows() == other.getNumberOfRows() &&
+                this.getNumberOfColumns() == other.getNumberOfColumns();
     }
 }

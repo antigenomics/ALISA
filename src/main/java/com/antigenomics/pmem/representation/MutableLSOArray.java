@@ -5,7 +5,7 @@ import com.sun.istack.internal.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MutableLSOArray<O extends ImmutableLinearSpaceObject<O>>
+public final class MutableLSOArray<O extends ImmutableLinearSpaceObject<O>>
         extends SafeMutableLinearSpaceObject<ImmutableLSOArray<O>> {
     protected final List<MutableLinearSpaceObject<O>> mutableObjectList = new ArrayList<>();
 

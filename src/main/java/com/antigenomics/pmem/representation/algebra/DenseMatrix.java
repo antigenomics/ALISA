@@ -5,12 +5,12 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 public abstract class DenseMatrix
         extends SafeRealMatrix {
     protected final double[] elements;
+    protected final MatrixLinearIndexing indexing;
 
-    public DenseMatrix(double[] elements) {
+    public DenseMatrix(double[] elements, MatrixLinearIndexing indexing) {
         this.elements = elements;
+        this.indexing = indexing;
     }
-
-    protected abstract int getIndex(int i, int j);
 
     private double bfSS(RealVector a, RealVector b) {
         if (a.getEffectiveSize() > b.getEffectiveSize()) {
@@ -117,8 +117,18 @@ public abstract class DenseMatrix
     }
 
     @Override
+    public int getNumberOfRows() {
+        return indexing.getNumberOfRows();
+    }
+
+    @Override
+    public int getNumberOfColumns() {
+        return indexing.getNumberOfColumns();
+    }
+
+    @Override
     public final double getAt(int i, int j) {
-        return elements[getIndex(i, j)];
+        return elements[indexing.getIndex(i, j)];
     }
 
     @Override
@@ -138,6 +148,6 @@ public abstract class DenseMatrix
 
     @Override
     public final int getEffectiveSize() {
-        return getSize1() * getSize2();
+        return getNumberOfRows() * getNumberOfColumns();
     }
 }
