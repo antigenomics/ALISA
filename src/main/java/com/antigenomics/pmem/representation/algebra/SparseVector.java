@@ -14,6 +14,19 @@ public class SparseVector
     private final LinkedList<RealVectorElement> elements;
     private final int size;
 
+    public SparseVector(double[] elements) {
+        this.elements = new LinkedList<>();
+        this.size = elements.length;
+
+        for (int i = 0; i < size; i++) {
+            double value = elements[i];
+
+            if (value != 0) {
+                this.elements.addLast(new RealVectorElement(i, value));
+            }
+        }
+    }
+
     public SparseVector(LinkedList<RealVectorElement> elements, int size) {
         this.elements = elements;
         this.size = size;
@@ -31,27 +44,32 @@ public class SparseVector
                 RealVectorElement ai = iterA.next(),
                         bj = iterB.next();
 
+                loop:
                 while (true) {
-                    if (ai.getIndex() == bj.getIndex()) {
-                        res += ai.getValue() * bj.getValue();
-                        if (iterA.hasNext() && iterB.hasNext()) {
-                            ai = iterA.next();
-                            bj = iterB.next();
-                        } else {
+                    switch (ai.compareTo(bj)) {
+                        case -1:
+                            if (iterA.hasNext()) {
+                                ai = iterA.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
-                    } else if (ai.getIndex() > bj.getIndex()) {
-                        if (iterB.hasNext()) {
-                            bj = iterB.next();
-                        } else {
+                        case 0:
+                            res += ai.getValue() * bj.getValue();
+                            if (iterA.hasNext() && iterB.hasNext()) {
+                                ai = iterA.next();
+                                bj = iterB.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
-                    } else {
-                        if (iterA.hasNext()) {
-                            ai = iterA.next();
-                        } else {
+                        case 1:
+                            if (iterB.hasNext()) {
+                                bj = iterB.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
                     }
                 }
             }
@@ -76,34 +94,38 @@ public class SparseVector
                 RealVectorElement ai = iterA.next(),
                         bj = iterB.next();
 
+                loop:
                 while (true) {
-                    if (ai.getIndex() == bj.getIndex()) {
-                        final double value = ai.getValue() * bj.getValue();
+                    switch (ai.compareTo(bj)) {
+                        case -1:
+                            elements.addLast(ai);
 
-                        elements.addLast(new RealVectorElement(ai.getIndex(), value));
-
-                        if (iterA.hasNext() && iterB.hasNext()) {
-                            ai = iterA.next();
-                            bj = iterB.next();
-                        } else {
+                            if (iterA.hasNext()) {
+                                ai = iterA.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
-                    } else if (ai.getIndex() > bj.getIndex()) {
-                        elements.addLast(bj);
+                        case 0:
+                            elements.addLast(new RealVectorElement(ai.getIndex(),
+                                    ai.getValue() + bj.getValue()));
 
-                        if (iterB.hasNext()) {
-                            bj = iterB.next();
-                        } else {
+                            if (iterA.hasNext() && iterB.hasNext()) {
+                                ai = iterA.next();
+                                bj = iterB.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
-                    } else {
-                        elements.addLast(ai);
+                        case 1:
+                            elements.addLast(bj);
 
-                        if (iterA.hasNext()) {
-                            ai = iterA.next();
-                        } else {
+                            if (iterB.hasNext()) {
+                                bj = iterB.next();
+                            } else {
+                                break loop;
+                            }
                             break;
-                        }
                     }
                 }
             }

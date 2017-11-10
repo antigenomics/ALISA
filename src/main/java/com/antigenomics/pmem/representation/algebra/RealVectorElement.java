@@ -1,6 +1,7 @@
 package com.antigenomics.pmem.representation.algebra;
 
-public final class RealVectorElement {
+public final class RealVectorElement
+        implements Comparable<RealVectorElement> {
     private final int index;
     private final double value;
 
@@ -15,5 +16,10 @@ public final class RealVectorElement {
 
     public double getValue() {
         return value;
+    }
+
+    @Override
+    public int compareTo(RealVectorElement o) {
+        return Integer.compare(index, o.index);
     }
 }
