@@ -1,26 +1,22 @@
-package com.antigenomics.pmem.representation.algebra;
+package com.antigenomics.pmem.representation.algebra.matrix;
 
 import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 
-import java.util.Arrays;
-
-public final class FullMutableMatrix
+public final class LowerTriangularMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final FullDenseMatrix.DenseMatrixStorageIndex matrixIndexing;
+    private final LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex matrixIndexing;
 
-    public FullMutableMatrix(double[] elements, int numberOfColumns) {
+    public LowerTriangularMutableMatrix(double[] elements) {
         this.elements = elements;
-        this.matrixIndexing = new FullDenseMatrix.DenseMatrixStorageIndex(
-                elements.length,
-                numberOfColumns);
+        this.matrixIndexing = new LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex(elements.length);
     }
 
     @Override
     protected void plusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
-            for (int j = 0; j < getNumberOfColumns(); j++) {
+            for (int j = 0; j <= i; j++) {
                 elements[k] += other.getAt(i, j);
                 k++;
             }
@@ -31,7 +27,7 @@ public final class FullMutableMatrix
     protected void minusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
-            for (int j = 0; j < getNumberOfColumns(); j++) {
+            for (int j = 0; j <= i; j++) {
                 elements[k] -= other.getAt(i, j);
                 k++;
             }
@@ -47,7 +43,7 @@ public final class FullMutableMatrix
 
     @Override
     public RealMatrix toImmutable() {
-        return new FullDenseMatrix(Arrays.copyOf(elements, elements.length), getNumberOfColumns());
+        return new LowerTriangularDenseMatrix(elements);
     }
 
     @Override
@@ -67,7 +63,7 @@ public final class FullMutableMatrix
 
     @Override
     public int getNumberOfColumns() {
-        return matrixIndexing.getNumberOfColumns();
+        return matrixIndexing.getNumberOfRows();
     }
 
     @Override
@@ -77,6 +73,6 @@ public final class FullMutableMatrix
 
     @Override
     public boolean isStrictlySymmetric() {
-        return false;
+        return true;
     }
 }

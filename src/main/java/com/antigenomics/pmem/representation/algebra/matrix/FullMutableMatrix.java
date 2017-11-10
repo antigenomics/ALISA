@@ -1,22 +1,26 @@
-package com.antigenomics.pmem.representation.algebra;
+package com.antigenomics.pmem.representation.algebra.matrix;
 
 import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 
-public final class LowerTriangularMutableMatrix
+import java.util.Arrays;
+
+public final class FullMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex matrixIndexing;
+    private final FullDenseMatrix.DenseMatrixStorageIndex matrixIndexing;
 
-    public LowerTriangularMutableMatrix(double[] elements) {
+    public FullMutableMatrix(double[] elements, int numberOfColumns) {
         this.elements = elements;
-        this.matrixIndexing = new LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex(elements.length);
+        this.matrixIndexing = new FullDenseMatrix.DenseMatrixStorageIndex(
+                elements.length,
+                numberOfColumns);
     }
 
     @Override
     protected void plusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
-            for (int j = 0; j <= i; j++) {
+            for (int j = 0; j < getNumberOfColumns(); j++) {
                 elements[k] += other.getAt(i, j);
                 k++;
             }
@@ -27,7 +31,7 @@ public final class LowerTriangularMutableMatrix
     protected void minusInplaceUnchecked(RealMatrixAccessors other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
-            for (int j = 0; j <= i; j++) {
+            for (int j = 0; j < getNumberOfColumns(); j++) {
                 elements[k] -= other.getAt(i, j);
                 k++;
             }
@@ -43,7 +47,7 @@ public final class LowerTriangularMutableMatrix
 
     @Override
     public RealMatrix toImmutable() {
-        return new LowerTriangularDenseMatrix(elements);
+        return new FullDenseMatrix(Arrays.copyOf(elements, elements.length), getNumberOfColumns());
     }
 
     @Override
@@ -63,7 +67,7 @@ public final class LowerTriangularMutableMatrix
 
     @Override
     public int getNumberOfColumns() {
-        return matrixIndexing.getNumberOfRows();
+        return matrixIndexing.getNumberOfColumns();
     }
 
     @Override
@@ -73,6 +77,6 @@ public final class LowerTriangularMutableMatrix
 
     @Override
     public boolean isStrictlySymmetric() {
-        return true;
+        return false;
     }
 }

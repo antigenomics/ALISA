@@ -1,4 +1,4 @@
-package com.antigenomics.pmem.representation.algebra;
+package com.antigenomics.pmem.representation.algebra.matrix;
 
 import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 import com.antigenomics.pmem.representation.MutableLinearSpaceObject;

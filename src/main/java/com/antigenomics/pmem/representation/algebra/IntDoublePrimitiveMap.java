@@ -19,6 +19,8 @@ package com.antigenomics.pmem.representation.algebra;
  ******************************************************************************/
 
 
+import com.antigenomics.pmem.representation.algebra.matrix.RealVectorElement;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;

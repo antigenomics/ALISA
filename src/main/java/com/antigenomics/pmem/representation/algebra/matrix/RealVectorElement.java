@@ -1,7 +1,9 @@
-package com.antigenomics.pmem.representation.algebra;
+package com.antigenomics.pmem.representation.algebra.matrix;
+
+import com.antigenomics.pmem.representation.algebra.Element;
 
 public final class RealVectorElement
-        implements Comparable<RealVectorElement> {
+        implements Element<RealVectorElement, Double> {
     private final int index;
     private final double value;
 
@@ -21,5 +23,10 @@ public final class RealVectorElement
     @Override
     public int compareTo(RealVectorElement o) {
         return Integer.compare(index, o.index);
+    }
+
+    @Override
+    public Double getBoxedValue() {
+        return value;
     }
 }

@@ -1,4 +1,4 @@
-package com.antigenomics.pmem.representation.algebra;
+package com.antigenomics.pmem.representation.algebra.matrix;
 
 public abstract class SafeRealMatrix
         implements RealMatrix {
