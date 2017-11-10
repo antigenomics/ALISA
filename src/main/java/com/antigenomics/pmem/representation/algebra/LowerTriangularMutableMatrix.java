@@ -5,11 +5,11 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 public final class LowerTriangularMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final LowerTriangularDenseMatrix.LowerTriangularMatrixLinearIndexing matrixIndexing;
+    private final LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex matrixIndexing;
 
     public LowerTriangularMutableMatrix(double[] elements) {
         this.elements = elements;
-        this.matrixIndexing = new LowerTriangularDenseMatrix.LowerTriangularMatrixLinearIndexing(elements.length);
+        this.matrixIndexing = new LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex(elements.length);
     }
 
     @Override

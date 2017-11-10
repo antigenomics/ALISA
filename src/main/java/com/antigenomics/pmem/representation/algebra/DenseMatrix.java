@@ -5,9 +5,9 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 public abstract class DenseMatrix
         extends SafeRealMatrix {
     protected final double[] elements;
-    protected final MatrixLinearIndexing indexing;
+    protected final MatrixStorageIndex indexing;
 
-    public DenseMatrix(double[] elements, MatrixLinearIndexing indexing) {
+    public DenseMatrix(double[] elements, MatrixStorageIndex indexing) {
         this.elements = elements;
         this.indexing = indexing;
     }

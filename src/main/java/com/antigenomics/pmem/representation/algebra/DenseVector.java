@@ -48,11 +48,31 @@ public final class DenseVector
 
     @Override
     public RealMatrix outerProduct(RealVector b) {
-        // todo: special case b==this
-        // todo: update when sparse matrices are implementd
+        if (b == this) { // strictly symmetric
+            final double[] matElements = new double[LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex
+                    .getLength(elements.length)];
 
+            int k = 0;
+            for (int i = 0; i < elements.length; i++) {
+                for (int j = 0; j <= i; j++) {
+                    matElements[k] = elements[i] * elements[j];
+                    k++;
+                }
+            }
 
-        return null;
+            return new LowerTriangularDenseMatrix(matElements);
+        } else {
+            int numberOfColumns = b.getSize();
+            final double[] matElements = new double[elements.length * numberOfColumns];
+
+            for (int i = 0; i < elements.length; i++) {
+                for (int j = 0; j < numberOfColumns; j++) {
+                    matElements[i * numberOfColumns + j] = elements[i] * b.getAt(j);
+                }
+            }
+
+            return new FullDenseMatrix(matElements, numberOfColumns);
+        }
     }
 
     @Override

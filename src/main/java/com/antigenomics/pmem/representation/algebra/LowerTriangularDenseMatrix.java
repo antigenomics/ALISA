@@ -12,7 +12,7 @@ public final class LowerTriangularDenseMatrix
     private List<RealMatrixElement> elementList = null;
 
     public LowerTriangularDenseMatrix(double[] elements) {
-        super(elements, new LowerTriangularMatrixLinearIndexing(elements.length));
+        super(elements, new LowerTriangularMatrixStorageIndex(elements.length));
     }
 
     @Override
@@ -71,11 +71,11 @@ public final class LowerTriangularDenseMatrix
         return elementList.iterator();
     }
 
-    public static final class LowerTriangularMatrixLinearIndexing
-            implements MatrixLinearIndexing {
+    public static final class LowerTriangularMatrixStorageIndex
+            implements MatrixStorageIndex {
         private final int n;
 
-        public LowerTriangularMatrixLinearIndexing(int numberOfElements) {
+        public LowerTriangularMatrixStorageIndex(int numberOfElements) {
             this.n = getN(numberOfElements);
 
             if (getLength(n) == numberOfElements) {
@@ -83,7 +83,7 @@ public final class LowerTriangularDenseMatrix
             }
         }
 
-        private int getLength(int n) {
+        public static int getLength(int n) {
             return (n * (n + 1)) / 2;
         }
 

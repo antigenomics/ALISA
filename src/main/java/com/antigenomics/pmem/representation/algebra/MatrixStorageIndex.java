@@ -1,6 +1,6 @@
 package com.antigenomics.pmem.representation.algebra;
 
-public interface MatrixLinearIndexing {
+public interface MatrixStorageIndex {
     int getIndex(int i, int j);
 
     int getNumberOfRows();

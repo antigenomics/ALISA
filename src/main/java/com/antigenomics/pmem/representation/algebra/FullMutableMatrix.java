@@ -7,11 +7,11 @@ import java.util.Arrays;
 public final class FullMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final FullDenseMatrix.DenseMatrixLinearIndexing matrixIndexing;
+    private final FullDenseMatrix.DenseMatrixStorageIndex matrixIndexing;
 
     public FullMutableMatrix(double[] elements, int numberOfColumns) {
         this.elements = elements;
-        this.matrixIndexing = new FullDenseMatrix.DenseMatrixLinearIndexing(
+        this.matrixIndexing = new FullDenseMatrix.DenseMatrixStorageIndex(
                 elements.length,
                 numberOfColumns);
     }

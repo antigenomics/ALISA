@@ -25,4 +25,9 @@ public abstract class SafeRealVector
     private boolean isCompatible(RealVector other) {
         return this.getSize() == other.getSize();
     }
+
+    @Override
+    public RealMatrix expand() {
+        return outerProduct(this);
+    }
 }

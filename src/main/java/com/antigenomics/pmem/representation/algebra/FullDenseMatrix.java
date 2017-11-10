@@ -12,7 +12,7 @@ public final class FullDenseMatrix
     private List<RealMatrixElement> elementList = null;
 
     public FullDenseMatrix(double[] elements, int numberOfColumns) {
-        super(elements, new DenseMatrixLinearIndexing(elements.length, numberOfColumns));
+        super(elements, new DenseMatrixStorageIndex(elements.length, numberOfColumns));
     }
 
     @Override
@@ -68,10 +68,11 @@ public final class FullDenseMatrix
         return elementList.iterator();
     }
 
-    public static final class DenseMatrixLinearIndexing implements MatrixLinearIndexing {
+    public static final class DenseMatrixStorageIndex
+            implements MatrixStorageIndex {
         private final int numberOfColumns, numberOfRows;
 
-        public DenseMatrixLinearIndexing(int numberOfElements, int numberOfColumns) {
+        public DenseMatrixStorageIndex(int numberOfElements, int numberOfColumns) {
             if (numberOfElements % numberOfColumns != 0) {
                 throw new IllegalArgumentException("Number of elements should be a multiple of number of columns.");
             }
