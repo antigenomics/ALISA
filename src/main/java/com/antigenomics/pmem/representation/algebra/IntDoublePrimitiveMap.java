@@ -1,4 +1,4 @@
-package thirdparty;
+package com.antigenomics.pmem.representation.algebra;
 
 // Taken from https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/utils/IntIntMap.java
 
@@ -31,13 +31,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * This map performs very fast get, containsKey, and remove (typically O(1), worst case O(log(n))). Put may be a bit slower,
  * depending on hash collisions. Load factors greater than 0.91 greatly increase the chances the map will have to rehash to the
  * next higher POT size.
- *
+ * <p>
  * Modified from https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/utils/IntIntMap.java
  * by removing some methods & replacing int value with double
  *
  * @author Nathan Sweet
  */
-public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Entry> {
+public class IntDoublePrimitiveMap implements Iterable<RealVectorElement> {
     private static final int PRIME2 = 0xb4b82e39;
     private static final int PRIME3 = 0xced1c241;
     private static final int EMPTY = 0;
@@ -182,8 +182,13 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
     }
 
     public void putAll(IntDoublePrimitiveMap map) {
-        for (Entry entry : map.entries())
-            put(entry.key, entry.value);
+        for (RealVectorElement entry : map.entries())
+            put(entry.getIndex(), entry.getValue());
+    }
+
+    public void putAll(Iterable<RealVectorElement> entries) {
+        for (RealVectorElement entry : entries)
+            put(entry.getIndex(), entry.getValue());
     }
 
     /**
@@ -522,7 +527,7 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
         return (h ^ h >>> hashShift) & mask;
     }
 
-    public Iterator<Entry> iterator() {
+    public Iterator<RealVectorElement> iterator() {
         return entries();
     }
 
@@ -589,15 +594,6 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
         return keys2;
     }
 
-    static public class Entry {
-        public int key;
-        public double value;
-
-        public String toString() {
-            return key + "=" + value;
-        }
-    }
-
     static private class MapIterator {
         static final int INDEX_ILLEGAL = -2;
         static final int INDEX_ZERO = -1;
@@ -650,9 +646,7 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
         }
     }
 
-    static public class Entries extends MapIterator implements Iterable<Entry>, Iterator<Entry> {
-        private Entry entry = new Entry();
-
+    static public class Entries extends MapIterator implements Iterable<RealVectorElement>, Iterator<RealVectorElement> {
         public Entries(IntDoublePrimitiveMap map) {
             super(map);
         }
@@ -660,16 +654,15 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
         /**
          * Note the same entry instance is returned each time this method is called.
          */
-        public Entry next() {
+        public RealVectorElement next() {
+            RealVectorElement entry;
             if (!hasNext) throw new NoSuchElementException();
             if (!valid) throw new RuntimeException("#iterator() cannot be used nested.");
             int[] keyTable = map.keyTable;
             if (nextIndex == INDEX_ZERO) {
-                entry.key = 0;
-                entry.value = map.zeroValue;
+                entry = new RealVectorElement(0, map.zeroValue);
             } else {
-                entry.key = keyTable[nextIndex];
-                entry.value = map.valueTable[nextIndex];
+                entry = new RealVectorElement(nextIndex, map.valueTable[nextIndex]);
             }
             currentIndex = nextIndex;
             findNextIndex();
@@ -681,7 +674,7 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
             return hasNext;
         }
 
-        public Iterator<Entry> iterator() {
+        public Iterator<RealVectorElement> iterator() {
             return this;
         }
 
@@ -734,7 +727,7 @@ public class IntDoublePrimitiveMap implements Iterable<IntDoublePrimitiveMap.Ent
         }
     }
 
-    private static int nextPowerOfTwo (int value) {
+    private static int nextPowerOfTwo(int value) {
         if (value == 0) return 1;
         value--;
         value |= value >> 1;
