@@ -2,15 +2,15 @@ package com.antigenomics.alisa.representation.algebra.tensor;
 
 import com.antigenomics.alisa.representation.algebra.IndexingUtils;
 
-public class SemiTriangularTensorIndexing
+public class SemiTriangularCategoricalTensorIndexing
         implements CategoricalTensorIndexing {
     private final int numberOfIndices1,
             numberOfIndices2,
             numberOfCategories;
 
-    public SemiTriangularTensorIndexing(int numberOfIndices1,
-                                        int numberOfIndices2,
-                                        int numberOfCategories) {
+    public SemiTriangularCategoricalTensorIndexing(int numberOfIndices1,
+                                                   int numberOfIndices2,
+                                                   int numberOfCategories) {
         this.numberOfIndices1 = numberOfIndices1;
         this.numberOfIndices2 = numberOfIndices2;
         this.numberOfCategories = numberOfCategories;
@@ -23,6 +23,7 @@ public class SemiTriangularTensorIndexing
                 numberOfIndices2, numberOfCategories);
     }
 
+    @Override
     public int getEffectiveSize() {
         return numberOfIndices1 * numberOfIndices2 *
                 IndexingUtils.getTriangularMatrixLength(numberOfCategories);

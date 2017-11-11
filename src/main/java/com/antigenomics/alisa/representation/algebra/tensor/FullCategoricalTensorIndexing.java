@@ -23,6 +23,7 @@ public class FullCategoricalTensorIndexing
                 numberOfIndices2, numberOfCategories1, numberOfCategories2);
     }
 
+    @Override
     public int getEffectiveSize() {
         return numberOfCategories1 * numberOfCategories2 * numberOfIndices1 * numberOfIndices2;
     }

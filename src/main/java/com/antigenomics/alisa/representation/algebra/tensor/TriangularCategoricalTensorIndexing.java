@@ -2,13 +2,13 @@ package com.antigenomics.alisa.representation.algebra.tensor;
 
 import com.antigenomics.alisa.representation.algebra.IndexingUtils;
 
-public class TriangularTensorIndexing
+public class TriangularCategoricalTensorIndexing
         implements CategoricalTensorIndexing {
     private final int numberOfIndices,
             numberOfCategories;
 
-    public TriangularTensorIndexing(int numberOfIndices,
-                                    int numberOfCategories) {
+    public TriangularCategoricalTensorIndexing(int numberOfIndices,
+                                               int numberOfCategories) {
         this.numberOfIndices = numberOfIndices;
         this.numberOfCategories = numberOfCategories;
     }
@@ -20,6 +20,7 @@ public class TriangularTensorIndexing
                 numberOfCategories);
     }
 
+    @Override
     public int getEffectiveSize() {
         return IndexingUtils.getTriangularMatrixLength(numberOfIndices) *
                 IndexingUtils.getTriangularMatrixLength(numberOfCategories);
