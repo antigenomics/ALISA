@@ -60,7 +60,7 @@ public final class DenseVector
                 }
             }
 
-            return new LowerTriangularDenseMatrix(matElements);
+            return new TriangularDenseMatrix(matElements);
         } else {
             int numberOfColumns = b.getSize();
             final double[] matElements = new double[elements.length * numberOfColumns];

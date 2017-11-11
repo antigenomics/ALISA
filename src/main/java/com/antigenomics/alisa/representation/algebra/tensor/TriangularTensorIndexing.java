@@ -1,23 +1,28 @@
 package com.antigenomics.alisa.representation.algebra.tensor;
 
-public class SymmetricCategoricalTensorIndexing
+import com.antigenomics.alisa.representation.algebra.IndexingUtils;
+
+public class TriangularTensorIndexing
         implements CategoricalTensorIndexing {
-    private final int numberOfCategories,
-            numberOfIndices;
+    private final int numberOfIndices,
+            numberOfCategories;
 
-    public SymmetricCategoricalTensorIndexing(int numberOfCategories, int numberOfIndices) {
-        this.numberOfCategories = numberOfCategories;
+    public TriangularTensorIndexing(int numberOfIndices,
+                                    int numberOfCategories) {
         this.numberOfIndices = numberOfIndices;
+        this.numberOfCategories = numberOfCategories;
     }
 
     @Override
-    public int getIndex(int a, int b, int i, int j) {
-        return 0;
+    public int getIndex(int i, int j, int a, int b) {
+        return IndexingUtils.getTriangularTensorIndex(i, j,
+                a, b,
+                numberOfCategories);
     }
 
-    @Override
     public int getEffectiveSize() {
-        return numberOfCategories * (numberOfCategories + 1) * numberOfIndices * (numberOfIndices + 1) / 4;
+        return IndexingUtils.getTriangularMatrixLength(numberOfIndices) *
+                IndexingUtils.getTriangularMatrixLength(numberOfCategories);
     }
 
     @Override
@@ -26,7 +31,7 @@ public class SymmetricCategoricalTensorIndexing
     }
 
     @Override
-    public boolean isStrictlySymmetricByCategories() {
+    public boolean isStrictlySemiSymmetric() {
         return true;
     }
 

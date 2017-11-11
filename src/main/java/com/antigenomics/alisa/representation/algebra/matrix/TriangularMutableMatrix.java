@@ -2,14 +2,14 @@ package com.antigenomics.alisa.representation.algebra.matrix;
 
 import com.antigenomics.alisa.representation.LinearSpaceObjectUtils;
 
-public final class LowerTriangularMutableMatrix
+public final class TriangularMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final LowerTriangularMatrixIndexing indexing;
+    private final TriangularMatrixIndexing indexing;
 
-    public LowerTriangularMutableMatrix(double[] elements) {
+    public TriangularMutableMatrix(double[] elements) {
         this.elements = elements;
-        this.indexing = new LowerTriangularMatrixIndexing(elements.length);
+        this.indexing = TriangularMatrixIndexing.fromNumberOfElemets(elements.length);
     }
 
     @Override
@@ -48,7 +48,7 @@ public final class LowerTriangularMutableMatrix
 
     @Override
     public RealMatrix toImmutable() {
-        return new LowerTriangularDenseMatrix(elements);
+        return new TriangularDenseMatrix(elements);
     }
 
     @Override

@@ -11,7 +11,7 @@ public interface CategoricalTensorShape {
 
     boolean isStrictlySymmetric();
 
-    boolean isStrictlySymmetricByCategories();
+    boolean isStrictlySemiSymmetric();
 
     int getNumberOfCategories1();
 

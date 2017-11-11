@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public final class LowerTriangularDenseMatrix
+public final class TriangularDenseMatrix
         extends DenseMatrix {
     private List<RealMatrixElement> elementList = null;
 
-    public LowerTriangularDenseMatrix(double[] elements) {
-        super(elements, new LowerTriangularMatrixIndexing(elements.length));
+    public TriangularDenseMatrix(double[] elements) {
+        super(elements, TriangularMatrixIndexing.fromNumberOfElemets(elements.length));
     }
 
     @Override
@@ -30,7 +30,7 @@ public final class LowerTriangularDenseMatrix
                 }
             }
 
-            return new LowerTriangularDenseMatrix(newElements);
+            return new TriangularDenseMatrix(newElements);
         }
     }
 
@@ -42,12 +42,12 @@ public final class LowerTriangularDenseMatrix
             newElements[i] *= scalar;
         }
 
-        return new LowerTriangularDenseMatrix(newElements);
+        return new TriangularDenseMatrix(newElements);
     }
 
     @Override
     public MutableLinearSpaceObject<RealMatrix> toMutable() {
-        return new LowerTriangularMutableMatrix(elements);
+        return new TriangularMutableMatrix(elements);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.antigenomics.alisa.representation.algebra.matrix;
 
+import com.antigenomics.alisa.representation.algebra.IndexingUtils;
+
 public class FullMatrixIndexing
         implements MatrixIndexing {
     private final int numberOfColumns, numberOfRows;
@@ -15,7 +17,7 @@ public class FullMatrixIndexing
 
     @Override
     public int getIndex(int i, int j) {
-        return i * numberOfColumns + j;
+        return IndexingUtils.getFullMatrixIndex(i, j, numberOfColumns);
     }
 
     @Override

@@ -92,7 +92,7 @@ public class RealCategoricalTensorImpl
     }
 
     @Override
-    public boolean isStrictlySymmetricByCategories() {
+    public boolean isStrictlySemiSymmetric() {
         return false;
     }
 
