@@ -35,7 +35,7 @@ public final class MetropolisHastingsSimulator<S extends State,
             // todo: check sign
             final double f = Math.exp(currentEnergy - candidateEnergy);
 
-            if (f >= 1 || MonteCarloUtils.MC_RND.nextDouble() < f) {
+            if (f >= 1 || MonteCarloUtils.nextDouble() < f) {
                 currentState = candidateState;
                 currentEnergy = candidateEnergy;
                 states.add(currentState);

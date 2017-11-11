@@ -1,8 +1,14 @@
 package com.antigenomics.alisa.estimator.mc;
 
-import org.apache.commons.math3.random.MersenneTwister;
-import org.apache.commons.math3.random.RandomGenerator;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MonteCarloUtils {
-    public static final RandomGenerator MC_RND = new MersenneTwister(42);
+    public static int nextInt(int exclusiveBound) {
+        return ThreadLocalRandom.current().nextInt(exclusiveBound);
+    }
+
+    public static double nextDouble() {
+        return ThreadLocalRandom.current().nextDouble();
+    }
 }
