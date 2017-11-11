@@ -1,4 +1,4 @@
-# Algorithms for inverse statistical approaches
+# ALgorithms for Inverse Statistical Approaches (ALISA)
 
 Solving inverse problem of statistical mechanics: determining Hamiltonian representation parameters from an observed sample of states of the system.
 
