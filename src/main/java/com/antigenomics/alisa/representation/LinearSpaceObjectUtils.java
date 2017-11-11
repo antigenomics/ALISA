@@ -1,5 +1,6 @@
 package com.antigenomics.alisa.representation;
 
+import java.util.Arrays;
 import java.util.List;
 
 public final class LinearSpaceObjectUtils {
@@ -42,5 +43,37 @@ public final class LinearSpaceObjectUtils {
             res += x * x;
 
         return Math.sqrt(res);
+    }
+
+    public static double[] scale(double[] elements, double scalar) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+
+        for (int i = 0; i < elements.length; i++) {
+            newElements[i] *= scalar;
+        }
+
+        return newElements;
+    }
+
+    public static void scaleInplace(double[] elements, double scalar) {
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] *= scalar;
+        }
+    }
+
+    public static double[] sumUnchecked(double[] elements1, double[] elements2) {
+        double[] newElements = Arrays.copyOf(elements1, elements1.length);
+
+        for (int i = 0; i < elements1.length; i++) {
+            newElements[i] += elements2[i];
+        }
+
+        return newElements;
+    }
+
+    public static void sumInplaceUnchecked(double[] elements1, double[] elements2) {
+        for (int i = 0; i < elements1.length; i++) {
+            elements1[i] += elements2[i];
+        }
     }
 }
