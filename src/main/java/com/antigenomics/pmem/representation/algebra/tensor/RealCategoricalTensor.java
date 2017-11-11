@@ -5,5 +5,5 @@ import com.antigenomics.pmem.representation.algebra.ElementContainer;
 
 public interface RealCategoricalTensor
         extends ElementContainer<RealCategoricalTensorElement>, BilinearMap<CategoricalVector, RealCategoricalTensor>,
-        RealCategoricalTensorAccessors {
+        RealCategoricalTensorAccessor, CategoricalTensorShape {
 }

@@ -6,14 +6,24 @@ import java.util.Iterator;
 
 public class RealCategoricalTensorImpl
         implements RealCategoricalTensor {
+
     @Override
     public double bilinearForm(CategoricalVector a, CategoricalVector b) {
-        return 0;
+        double res = 0;
+        for (int i = 0; i < a.getSize(); i++) {
+            for (int j = 0; j < b.getSize(); j++) {
+                res += getAt(a.getCategory(i), b.getCategory(j), i, j);
+            }
+        }
+        return res;
     }
 
     @Override
     public double bilinearForm(CategoricalVector a) {
-        return 0;
+        if (isStrictlySymmetric()) {
+            return bilinearForm(a, a);
+        }
+        throw new IllegalArgumentException("Symmetric invocation of a bilinear form with non-symmetric representation.");
     }
 
     @Override
@@ -52,16 +62,6 @@ public class RealCategoricalTensorImpl
     }
 
     @Override
-    public int getNumberOfIndices1() {
-        return 0;
-    }
-
-    @Override
-    public int getNumberOfIndices2() {
-        return 0;
-    }
-
-    @Override
     public int getNumberOfCategories1() {
         return 0;
     }
@@ -72,12 +72,22 @@ public class RealCategoricalTensorImpl
     }
 
     @Override
-    public double getAt(int i, int j, int a, int b) {
+    public int getNumberOfIndices1() {
         return 0;
     }
 
     @Override
-    public boolean isStrictlySymmetricByIndices() {
+    public int getNumberOfIndices2() {
+        return 0;
+    }
+
+    @Override
+    public double getAt(int a, int b, int i, int j) {
+        return 0;
+    }
+
+    @Override
+    public boolean isStrictlySymmetric() {
         return false;
     }
 
