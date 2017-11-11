@@ -8,6 +8,8 @@ public abstract class SafeRealMatrix
 
     protected abstract RealMatrix plusUnchecked(RealMatrix a);
 
+    protected abstract MatrixIndexing getIndexing();
+
     @Override
     public final double bilinearForm(RealVector a, RealVector b) {
         if (isCompatibleLeft(a) && isCompatibleRight(b))
@@ -50,5 +52,25 @@ public abstract class SafeRealMatrix
     private boolean isCompatible(RealMatrix other) {
         return this.getNumberOfRows() == other.getNumberOfRows() &&
                 this.getNumberOfColumns() == other.getNumberOfColumns();
+    }
+
+    @Override
+    public int getNumberOfRows() {
+        return getIndexing().getNumberOfRows();
+    }
+
+    @Override
+    public int getNumberOfColumns() {
+        return getIndexing().getNumberOfColumns();
+    }
+
+    @Override
+    public boolean isSquare() {
+        return getIndexing().isSquare();
+    }
+
+    @Override
+    public boolean isStrictlySymmetric() {
+        return getIndexing().isStrictlySymmetric();
     }
 }

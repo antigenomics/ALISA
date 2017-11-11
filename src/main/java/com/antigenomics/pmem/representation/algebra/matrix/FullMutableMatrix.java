@@ -7,17 +7,17 @@ import java.util.Arrays;
 public final class FullMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final FullDenseMatrix.DenseMatrixStorageIndex matrixIndexing;
+    private final FullMatrixIndexing indexing;
 
     public FullMutableMatrix(double[] elements, int numberOfColumns) {
         this.elements = elements;
-        this.matrixIndexing = new FullDenseMatrix.DenseMatrixStorageIndex(
+        this.indexing = new FullMatrixIndexing(
                 elements.length,
                 numberOfColumns);
     }
 
     @Override
-    protected void plusInplaceUnchecked(RealMatrixAccessors other) {
+    protected void plusInplaceUnchecked(RealMatrixAccessor other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
             for (int j = 0; j < getNumberOfColumns(); j++) {
@@ -28,7 +28,7 @@ public final class FullMutableMatrix
     }
 
     @Override
-    protected void minusInplaceUnchecked(RealMatrixAccessors other) {
+    protected void minusInplaceUnchecked(RealMatrixAccessor other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
             for (int j = 0; j < getNumberOfColumns(); j++) {
@@ -36,6 +36,11 @@ public final class FullMutableMatrix
                 k++;
             }
         }
+    }
+
+    @Override
+    protected MatrixIndexing getIndexing() {
+        return indexing;
     }
 
     @Override
@@ -61,22 +66,7 @@ public final class FullMutableMatrix
     }
 
     @Override
-    public int getNumberOfRows() {
-        return matrixIndexing.getNumberOfRows();
-    }
-
-    @Override
-    public int getNumberOfColumns() {
-        return matrixIndexing.getNumberOfColumns();
-    }
-
-    @Override
     public double getAt(int i, int j) {
-        return elements[matrixIndexing.getIndex(i, j)];
-    }
-
-    @Override
-    public boolean isStrictlySymmetric() {
-        return false;
+        return elements[indexing.getIndex(i, j)];
     }
 }

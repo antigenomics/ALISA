@@ -2,6 +2,7 @@ package com.antigenomics.pmem.representation.algebra.matrix;
 
 import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 import com.antigenomics.pmem.representation.MutableLinearSpaceObject;
+import com.antigenomics.pmem.representation.algebra.IndexingUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -49,8 +50,7 @@ public final class DenseVector
     @Override
     public RealMatrix outerProduct(RealVector b) {
         if (b == this) { // strictly symmetric
-            final double[] matElements = new double[LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex
-                    .getLength(elements.length)];
+            final double[] matElements = new double[IndexingUtils.getTriangularMatrixLength(elements.length)];
 
             int k = 0;
             for (int i = 0; i < elements.length; i++) {

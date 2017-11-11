@@ -5,15 +5,15 @@ import com.antigenomics.pmem.representation.LinearSpaceObjectUtils;
 public final class LowerTriangularMutableMatrix
         extends MutableRealMatrix {
     private final double[] elements;
-    private final LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex matrixIndexing;
+    private final LowerTriangularMatrixIndexing indexing;
 
     public LowerTriangularMutableMatrix(double[] elements) {
         this.elements = elements;
-        this.matrixIndexing = new LowerTriangularDenseMatrix.LowerTriangularMatrixStorageIndex(elements.length);
+        this.indexing = new LowerTriangularMatrixIndexing(elements.length);
     }
 
     @Override
-    protected void plusInplaceUnchecked(RealMatrixAccessors other) {
+    protected void plusInplaceUnchecked(RealMatrixAccessor other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
             for (int j = 0; j <= i; j++) {
@@ -24,7 +24,7 @@ public final class LowerTriangularMutableMatrix
     }
 
     @Override
-    protected void minusInplaceUnchecked(RealMatrixAccessors other) {
+    protected void minusInplaceUnchecked(RealMatrixAccessor other) {
         int k = 0;
         for (int i = 0; i < getNumberOfRows(); i++) {
             for (int j = 0; j <= i; j++) {
@@ -32,6 +32,11 @@ public final class LowerTriangularMutableMatrix
                 k++;
             }
         }
+    }
+
+    @Override
+    protected MatrixIndexing getIndexing() {
+        return indexing;
     }
 
     @Override
@@ -57,22 +62,7 @@ public final class LowerTriangularMutableMatrix
     }
 
     @Override
-    public int getNumberOfRows() {
-        return matrixIndexing.getNumberOfRows();
-    }
-
-    @Override
-    public int getNumberOfColumns() {
-        return matrixIndexing.getNumberOfRows();
-    }
-
-    @Override
     public double getAt(int i, int j) {
-        return elements[matrixIndexing.getIndex(i, j)];
-    }
-
-    @Override
-    public boolean isStrictlySymmetric() {
-        return true;
+        return elements[indexing.getIndex(i, j)];
     }
 }

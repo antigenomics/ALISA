@@ -12,7 +12,7 @@ public final class LowerTriangularDenseMatrix
     private List<RealMatrixElement> elementList = null;
 
     public LowerTriangularDenseMatrix(double[] elements) {
-        super(elements, new LowerTriangularMatrixStorageIndex(elements.length));
+        super(elements, new LowerTriangularMatrixIndexing(elements.length));
     }
 
     @Override
@@ -32,11 +32,6 @@ public final class LowerTriangularDenseMatrix
 
             return new LowerTriangularDenseMatrix(newElements);
         }
-    }
-
-    @Override
-    public boolean isStrictlySymmetric() {
-        return true;
     }
 
     @Override
@@ -69,45 +64,5 @@ public final class LowerTriangularDenseMatrix
         }
 
         return elementList.iterator();
-    }
-
-    public static final class LowerTriangularMatrixStorageIndex
-            implements MatrixStorageIndex {
-        private final int n;
-
-        public LowerTriangularMatrixStorageIndex(int numberOfElements) {
-            this.n = getN(numberOfElements);
-
-            if (getLength(n) == numberOfElements) {
-                throw new IllegalArgumentException("Wrong number of elements.");
-            }
-        }
-
-        public static int getLength(int n) {
-            return (n * (n + 1)) / 2;
-        }
-
-        private int getN(int length) {
-            return (int) ((-1 + Math.sqrt(1 + 8 * length)) / 2);
-        }
-
-        @Override
-        public int getIndex(int i, int j) {
-            if (j > i) {
-                return getIndex(j, i);
-            } else {
-                return getLength(i) + j;
-            }
-        }
-
-        @Override
-        public int getNumberOfRows() {
-            return n;
-        }
-
-        @Override
-        public int getNumberOfColumns() {
-            return n;
-        }
     }
 }

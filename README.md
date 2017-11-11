@@ -2,6 +2,8 @@
 
 Solving inverse problem of statistical mechanics: determining Hamiltonian representation parameters from an observed sample of states of the system.
 
+> Inspired by [Stein et al. Inferring Pairwise Interactions from Biological Data Using Maximum-Entropy Probability Models](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004182), [Nguyen et al. Inverse statistical problems: from the inverse Ising problem to data science](https://arxiv.org/pdf/1702.01522.pdf) and similar works
+
 ### Planned features:
 
 * **Hamiltonians** Spin glass and multi-layer spin glass, pairwise interactions only.

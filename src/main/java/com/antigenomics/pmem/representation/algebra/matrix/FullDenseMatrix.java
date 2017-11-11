@@ -12,7 +12,7 @@ public final class FullDenseMatrix
     private List<RealMatrixElement> elementList = null;
 
     public FullDenseMatrix(double[] elements, int numberOfColumns) {
-        super(elements, new DenseMatrixStorageIndex(elements.length, numberOfColumns));
+        super(elements, new FullMatrixIndexing(elements.length, numberOfColumns));
     }
 
     @Override
@@ -28,11 +28,6 @@ public final class FullDenseMatrix
         }
 
         return new FullDenseMatrix(newElements, getNumberOfColumns());
-    }
-
-    @Override
-    public boolean isStrictlySymmetric() {
-        return false;
     }
 
     @Override
@@ -66,34 +61,5 @@ public final class FullDenseMatrix
         }
 
         return elementList.iterator();
-    }
-
-    public static final class DenseMatrixStorageIndex
-            implements MatrixStorageIndex {
-        private final int numberOfColumns, numberOfRows;
-
-        public DenseMatrixStorageIndex(int numberOfElements, int numberOfColumns) {
-            if (numberOfElements % numberOfColumns != 0) {
-                throw new IllegalArgumentException("Number of elements should be a multiple of number of columns.");
-            }
-
-            this.numberOfColumns = numberOfColumns;
-            this.numberOfRows = numberOfElements / numberOfColumns;
-        }
-
-        @Override
-        public int getIndex(int i, int j) {
-            return i * numberOfColumns + j;
-        }
-
-        @Override
-        public int getNumberOfColumns() {
-            return numberOfColumns;
-        }
-
-        @Override
-        public int getNumberOfRows() {
-            return numberOfRows;
-        }
     }
 }
