@@ -45,9 +45,7 @@ public final class FullMutableMatrix
 
     @Override
     public void multiplyInplace(double scalar) {
-        for (int i = 0; i < elements.length; i++) {
-            elements[i] *= scalar;
-        }
+        LinearSpaceObjectUtils.scaleInplace(elements, scalar);
     }
 
     @Override

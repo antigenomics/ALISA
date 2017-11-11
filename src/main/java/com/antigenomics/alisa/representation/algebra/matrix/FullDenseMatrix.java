@@ -1,5 +1,6 @@
 package com.antigenomics.alisa.representation.algebra.matrix;
 
+import com.antigenomics.alisa.representation.LinearSpaceObjectUtils;
 import com.antigenomics.alisa.representation.MutableLinearSpaceObject;
 
 import java.util.ArrayList;
@@ -32,13 +33,8 @@ public final class FullDenseMatrix
 
     @Override
     public RealMatrix multiply(double scalar) {
-        double[] newElements = Arrays.copyOf(elements, elements.length);
-
-        for (int i = 0; i < elements.length; i++) {
-            newElements[i] *= scalar;
-        }
-
-        return new FullDenseMatrix(newElements, getNumberOfColumns());
+        return new FullDenseMatrix(LinearSpaceObjectUtils.scale(elements, scalar),
+                getNumberOfColumns());
     }
 
     @Override

@@ -94,13 +94,7 @@ public final class DenseVector
 
     @Override
     public RealVector multiply(double scalar) {
-        final double[] newElements = Arrays.copyOf(elements, elements.length);
-
-        for (int i = 0; i < elements.length; i++) {
-            newElements[i] *= scalar;
-        }
-
-        return new DenseVector(newElements);
+        return new DenseVector(LinearSpaceObjectUtils.scale(elements, scalar));
     }
 
     @Override

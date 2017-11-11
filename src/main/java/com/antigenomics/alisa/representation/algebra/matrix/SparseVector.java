@@ -1,5 +1,6 @@
 package com.antigenomics.alisa.representation.algebra.matrix;
 
+import com.antigenomics.alisa.representation.LinearSpaceObjectUtils;
 import com.antigenomics.alisa.representation.MutableLinearSpaceObject;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
