@@ -9,7 +9,7 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 public class SparseVector
         extends Vector {
     // todo: consider using say GlueList here, or a simpler implementation
-    private final LinkedList<IndexedVectorValue> elementList;
+    private final List<IndexedVectorValue> elementList;
 
     public static SparseVector createChecked(LinkedList<IndexedVectorValue> elementList,
                                              int length) {
@@ -31,7 +31,7 @@ public class SparseVector
         return new SparseVector(elementList, length);
     }
 
-    public SparseVector(LinkedList<IndexedVectorValue> elementList,
+    public SparseVector(List<IndexedVectorValue> elementList,
                         int length) {
         super(length);
         this.elementList = elementList;
@@ -56,10 +56,10 @@ public class SparseVector
     }
 
     @Override
-    protected double dotProductUnchecked(Vector b) {
+    protected double dotProductUnchecked(Vector other) {
         return elementList
                 .stream()
-                .mapToDouble(x -> x.getDoubleValue() * b.getAt(x.getIndex()))
+                .mapToDouble(x -> x.getDoubleValue() * other.getAt(x.getIndex()))
                 .sum();
     }
 
@@ -124,8 +124,12 @@ public class SparseVector
         return new SparseTriangularMatrix(matrixValues, this.length);
     }
 
-    private LinkedList<IndexedVectorValue> copyList() {
-        return (LinkedList<IndexedVectorValue>) elementList.clone();
+    private List<IndexedVectorValue> copyList() {
+        List<IndexedVectorValue> storage = new LinkedList<>();
+        for (IndexedVectorValue x : this) {
+            storage.add(x);
+        }
+        return storage;
     }
 
     @Override
