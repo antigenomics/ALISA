@@ -1,14 +1,13 @@
 package com.antigenomics.alisa.estimator;
 
-import com.antigenomics.alisa.state.State;
+import com.antigenomics.alisa.algebra.LinearSpaceObject;
+import com.antigenomics.alisa.encoding.State;
 import com.antigenomics.alisa.hamiltonian.Hamiltonian;
-import com.antigenomics.alisa.representation.ImmutableLinearSpaceObject;
-import com.antigenomics.alisa.representation.MutableLinearSpaceObject;
 
 import java.util.ArrayList;
 
 public abstract class LogLikelihoodGradientAscent<S extends State,
-        R extends ImmutableLinearSpaceObject<R>,
+        R extends LinearSpaceObject<R>,
         H extends Hamiltonian<S, R>>
         implements ParameterEstimator<S, R, H> {
     private final double learningRate, tol;
@@ -20,9 +19,9 @@ public abstract class LogLikelihoodGradientAscent<S extends State,
         this.maxIter = maxIter;
     }
 
-    protected abstract MutableLinearSpaceObject<R> computeNetGradient(final ArrayList<S> states,
-                                                                      final H hamiltonian,
-                                                                      final R parameters);
+    protected abstract R computeNetGradient(final ArrayList<S> states,
+                                            final H hamiltonian,
+                                            final R parameters);
 
     @Override
     public ParameterEstimatorResults<R> learn(final ArrayList<S> states,
@@ -31,17 +30,13 @@ public abstract class LogLikelihoodGradientAscent<S extends State,
         // todo: add logger
 
         int iter = 0;
-        R parameters = parametersGuess;
+        R parameters = parametersGuess.deepCopy();
         double norm = Double.MAX_VALUE;
-        final MutableLinearSpaceObject<R> mutableParameters = parametersGuess.toMutable();
 
         for (; iter < maxIter; iter++) {
-            final MutableLinearSpaceObject<R> netGradient = computeNetGradient(states, hamiltonian, parameters);
-            netGradient.multiplyInplace(-learningRate / states.size());
-
-            mutableParameters.plusInplace(netGradient);
-
-            parameters = mutableParameters.toImmutable();
+            final R netGradient = computeNetGradient(states, hamiltonian, parameters);
+            netGradient.multiplyInplace(learningRate / states.size());
+            parameters.addInplace(netGradient);
 
             if ((norm = netGradient.norm2()) <= tol) {
                 break;

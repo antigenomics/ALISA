@@ -1,10 +1,10 @@
 package com.antigenomics.alisa.hamiltonian;
 
-import com.antigenomics.alisa.representation.ImmutableLinearSpaceObject;
-import com.antigenomics.alisa.representation.ImmutableLSOArray;
-import com.antigenomics.alisa.state.State;
+import com.antigenomics.alisa.algebra.LinearSpaceObject;
+import com.antigenomics.alisa.algebra.LinearSpaceObjectArray;
+import com.antigenomics.alisa.encoding.State;
 
 public interface MatrixHamiltonian<S extends State,
-        M extends ImmutableLinearSpaceObject<M>>
-        extends Hamiltonian<S, ImmutableLSOArray<M>> {
+        M extends LinearSpaceObject<M>>
+        extends Hamiltonian<S, LinearSpaceObjectArray<M>> {
 }

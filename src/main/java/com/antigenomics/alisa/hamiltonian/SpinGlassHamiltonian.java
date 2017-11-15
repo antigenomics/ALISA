@@ -1,11 +1,10 @@
 package com.antigenomics.alisa.hamiltonian;
 
-import com.antigenomics.alisa.representation.algebra.BilinearMap;
-import com.antigenomics.alisa.representation.algebra.VectorSpace;
-import com.antigenomics.alisa.state.State;
+import com.antigenomics.alisa.encoding.State;
+import com.antigenomics.alisa.encoding.VectorEncoding;
 
 public interface SpinGlassHamiltonian<S extends State,
-        V extends VectorSpace<V, M>,
-        M extends BilinearMap<V, M>>
+        V extends VectorEncoding<V, M>,
+        M extends MatrixRepresentation<V, M>>
         extends MatrixHamiltonian<S, M> {
 }

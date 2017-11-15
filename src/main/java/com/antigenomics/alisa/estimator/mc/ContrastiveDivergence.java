@@ -1,16 +1,15 @@
 package com.antigenomics.alisa.estimator.mc;
 
-import com.antigenomics.alisa.state.State;
+import com.antigenomics.alisa.algebra.LinearSpaceObject;
+import com.antigenomics.alisa.encoding.State;
 import com.antigenomics.alisa.estimator.LogLikelihoodGradientAscent;
 import com.antigenomics.alisa.hamiltonian.Hamiltonian;
-import com.antigenomics.alisa.representation.ImmutableLinearSpaceObject;
-import com.antigenomics.alisa.representation.MutableLinearSpaceObject;
 
 import java.util.ArrayList;
 import java.util.stream.Collector;
 
 public final class ContrastiveDivergence<S extends State,
-        R extends ImmutableLinearSpaceObject<R>,
+        R extends LinearSpaceObject<R>,
         H extends Hamiltonian<S, R>> extends LogLikelihoodGradientAscent<S, R, H> {
     private final MonteCarloSimulator<S, R, H> simulator;
 
@@ -21,33 +20,33 @@ public final class ContrastiveDivergence<S extends State,
     }
 
     @Override
-    protected MutableLinearSpaceObject<R> computeNetGradient(final ArrayList<S> states,
-                                                             final H hamiltonian,
-                                                             final R parameters) {
+    protected R computeNetGradient(final ArrayList<S> states,
+                                   final H hamiltonian,
+                                   final R parameters) {
         return states.parallelStream()
                 .map(s -> simulator.simulate(s, parameters, hamiltonian))
                 .map(sL -> computeMcSimulationsGradient(sL, parameters, hamiltonian))
                 .collect(Collector.of(
-                        () -> hamiltonian.getZeroParameters().toMutable(),
-                        MutableLinearSpaceObject::plusInplace,
+                        () -> hamiltonian.getNullParameters().deepCopy(),
+                        LinearSpaceObject::addInplace,
                         (result, newElement) -> {
-                            newElement.plusInplace(result);
+                            newElement.addInplace(result);
                             return newElement;
                         }
                 ));
     }
 
-    private MutableLinearSpaceObject<R> computeMcSimulationsGradient(final ArrayList<S> states,
-                                                                     final R parameters,
-                                                                     final H hamiltonian) {
-        final MutableLinearSpaceObject<R> xS = hamiltonian.getZeroParameters().toMutable();
+    private R computeMcSimulationsGradient(final ArrayList<S> states,
+                                           final R parameters,
+                                           final H hamiltonian) {
+        final R xS = hamiltonian.getNullParameters().deepCopy();
 
         for (S state : states) {
-            xS.plusInplace(hamiltonian.computeGradient(state, parameters));
+            xS.addInplace(hamiltonian.computeGradient(state, parameters));
         }
 
-        xS.multiplyInplace(1.0 / states.size());
-        xS.minusInplace(hamiltonian.computeGradient(states.get(0), parameters));
+        xS.multiplyInplace(-1.0 / states.size());
+        xS.addInplace(hamiltonian.computeGradient(states.get(0), parameters));
 
         return xS;
     }

@@ -1,22 +1,21 @@
 package com.antigenomics.alisa.hamiltonian;
 
+import com.antigenomics.alisa.algebra.LinearSpaceObjectArray;
+import com.antigenomics.alisa.encoding.VectorEncoding;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
-import com.antigenomics.alisa.representation.ImmutableLSOArray;
-import com.antigenomics.alisa.representation.algebra.BilinearMap;
-import com.antigenomics.alisa.representation.algebra.VectorSpace;
-import com.antigenomics.alisa.state.TwoLayerState;
+import com.antigenomics.alisa.encoding.TwoLayerState;
 import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
 
 public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends Entity,
-        V extends VectorSpace<V, M>,
-        M extends BilinearMap<V, M>>
+        V extends VectorEncoding<V, M>,
+        M extends MatrixRepresentation<V, M>>
         implements SpinGlassHamiltonian<TwoLayerState<E1, E2>, V, M> {
     private final Encoder<E1, V> firstEncoder;
     private final Encoder<E2, V> secondEncoder;
-    private final ImmutableLSOArray<M> zeroParameters;
+    private final LinearSpaceObjectArray<M> zeroParameters;
 
     public TwoLayerSpinGlassHamiltonian(@NotNull final Encoder<E1, V> firstEncoder,
                                         @NotNull final Encoder<E2, V> secondEncoder) {
@@ -24,7 +23,7 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
         this.secondEncoder = secondEncoder;
         final V z1 = firstEncoder.getZero(),
                 z2 = secondEncoder.getZero();
-        this.zeroParameters = new ImmutableLSOArray<>(
+        this.zeroParameters = new LinearSpaceObjectArray<>(
                 Arrays.asList(
                         z1.expand(),
                         z2.expand(),
@@ -43,7 +42,7 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
 
     @Override
     public double computeEnergy(@NotNull final TwoLayerState<E1, E2> state,
-                                @NotNull final ImmutableLSOArray<M> parameters) {
+                                @NotNull final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
 
@@ -57,12 +56,12 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     }
 
     @Override
-    public ImmutableLSOArray<M> computeGradient(@NotNull final TwoLayerState<E1, E2> state,
-                                                @NotNull final ImmutableLSOArray<M> parameters) {
+    public LinearSpaceObjectArray<M> computeGradient(@NotNull final TwoLayerState<E1, E2> state,
+                                                     @NotNull final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
 
-        return new ImmutableLSOArray<>(
+        return new LinearSpaceObjectArray<>(
                 Arrays.asList(
                         s1.expand(),
                         s2.expand(),
@@ -72,7 +71,7 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     }
 
     @Override
-    public ImmutableLSOArray<M> getZeroParameters() {
+    public LinearSpaceObjectArray<M> getNullParameters() {
         return zeroParameters;
     }
 }
