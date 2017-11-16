@@ -5,6 +5,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.StringJoiner;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.getTriangularMatrixIndex;
 
@@ -155,6 +156,7 @@ public class DenseTriangularMatrix extends Matrix {
 
     @Override
     public Matrix asSparse() {
+        // todo
         throw new NotImplementedException();
     }
 
@@ -174,5 +176,26 @@ public class DenseTriangularMatrix extends Matrix {
                 elements[i] += other.getAt(i);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+
+        for (int i = 0; i < numberOfRows; i++) {
+            StringJoiner joiner = new StringJoiner(", ");
+            for (int j = 0; j <= i; j++) {
+                joiner.add(Double.toString(getAt(i, j)));
+            }
+            for (int j = i + 1; j < numberOfRows; j++) {
+                joiner.add("-");
+            }
+            res.append("[").append(joiner.toString()).append("]");
+            if (i != numberOfRows - 1) {
+                res.append("\n");
+            }
+        }
+
+        return res.toString();
     }
 }

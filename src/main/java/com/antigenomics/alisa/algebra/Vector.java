@@ -31,7 +31,7 @@ public abstract class Vector
         return new DenseVector(arr);
     }
 
-    public static DenseVector oneHotDense(int pos, int length) {
+    public static DenseVector oneHot(int pos, int length) {
         double[] arr = new double[length];
         arr[pos] = 1;
         return new DenseVector(arr);

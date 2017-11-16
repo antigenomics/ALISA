@@ -31,7 +31,7 @@ public class DenseVector
      * Vector length is equal to the array length.
      * The array is either copied or used as is depending on safe parameter.
      *
-     * @param elements vector elements
+     * @param elements vector values
      * @param safe     if true will use a deep copy of the array
      */
     public DenseVector(@NotNull final double[] elements, final boolean safe) {
@@ -48,7 +48,7 @@ public class DenseVector
      * The elements are copied to a primitive array, length of the array is specified
      * separately.
      *
-     * @param elementList a list of indexed vector elements
+     * @param elementList a list of indexed vector values
      * @param length      vector length
      * @throws IndexOutOfBoundsException if the index of any of elements is greater or equal to the length
      */
@@ -169,7 +169,7 @@ public class DenseVector
      */
     @Override
     public Iterator<IndexedVectorValue> iterator() {
-        return addIndexedValues(new ArrayList<>()).iterator();
+        return indexValues(new ArrayList<>()).iterator();
     }
 
     /**
@@ -208,7 +208,7 @@ public class DenseVector
      */
     @Override
     public Vector asSparse() {
-        return new SparseVector(addIndexedValues(new LinkedList<>()), length);
+        return new SparseVector(indexValues(new LinkedList<>()), length);
     }
 
     /**
@@ -224,10 +224,10 @@ public class DenseVector
     /**
      * Adds all values of this vector to a pre-initialized list.
      *
-     * @param storage an empty list of indexed elements
+     * @param storage an empty list of indexed values
      * @return updated storage
      */
-    private List<IndexedVectorValue> addIndexedValues(List<IndexedVectorValue> storage) {
+    private List<IndexedVectorValue> indexValues(@NotNull final List<IndexedVectorValue> storage) {
         assert storage.isEmpty();
 
         for (int i = 0; i < elements.length; i++) {
@@ -242,12 +242,12 @@ public class DenseVector
     }
 
     /**
-     * Adds (elementwise) elements of a vector to elements in a pre-initialized array
+     * Adds (elementwise) values of a vector to a pre-initialized array
      *
-     * @param elements primitive array
+     * @param elements primitive array, pre-initialized
      * @param other    other vector, either sparse or dense
      */
-    private static void addImpl(double[] elements, Vector other) {
+    private static void addImpl(@NotNull final double[] elements, @NotNull final Vector other) {
         if (other.isSparse()) {
             for (IndexedVectorValue e : other) {
                 elements[e.getIndex()] += e.getDoubleValue();

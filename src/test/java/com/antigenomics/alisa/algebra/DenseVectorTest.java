@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.antigenomics.alisa.algebra.AlgebraTestUtil.assertLSOValuesEqual;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DenseVectorTest {
@@ -54,17 +55,16 @@ public class DenseVectorTest {
 
     @Test
     public void linearOperationsInplaceTest() {
-        Vector v1 = Vector.fromValues(1, 20, 3, -4, 1.1231232e-10);
+        Vector v1 = Vector.fromValues(1, 20, -3, 4, 1.1231232e-10);
         Vector v2 = v1.deepCopy();
 
         v1.multiplyInplace(0);
-        assertEquals(Vector.zeros(v1.length), v1);
+        assertLSOValuesEqual(Vector.zeros(v1.length), v1);
 
         v1.addInplace(v2);
         assertEquals(v2, v1);
 
-        v1.addInplace(v2);
-        System.out.println(v1);
+        v1.addInplace(v1);
         assertEquals(v2.multiply(2), v1);
     }
 
@@ -73,5 +73,23 @@ public class DenseVectorTest {
         Vector v1 = Vector.fromValues(1, -2, 0, -3, 4, 10, 12, 100, -10);
         assertEquals(v1.norm2() * v1.norm2(),
                 v1.dotProduct(v1));
+
+        Vector v3 = Vector.fromValues(1, 2, 3, 4),
+                v4 = Vector.fromValues(3, 2, 1);
+
+        assertEquals(Matrix.fromArray(new double[][]{
+                        {3, 2, 1},
+                        {6, 4, 2},
+                        {9, 6, 3},
+                        {12, 8, 4}
+                }),
+                v3.outerProduct(v4));
+
+        assertLSOValuesEqual(Matrix.fromArray(new double[][]{
+                        {9, 6, 3},
+                        {6, 4, 2},
+                        {3, 2, 1}
+                }),
+                v4.expand());
     }
 }

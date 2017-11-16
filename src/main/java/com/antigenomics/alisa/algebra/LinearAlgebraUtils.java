@@ -145,7 +145,7 @@ public class LinearAlgebraUtils {
     public static int getTriangularMatrixSize(int length) {
         int n = (int) ((-1 + Math.sqrt(1 + 8 * length)) / 2);
 
-        if (getTriangularMatrixLength(n) == length) {
+        if (getTriangularMatrixLength(n) != length) {
             throw new IllegalArgumentException("Wrong number of elements for a " +
                     "triangular matrix.");
         }

@@ -1,19 +1,52 @@
 package com.antigenomics.alisa.algebra;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
+import com.sun.istack.internal.NotNull;
+
+import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 
+/**
+ * A two-dimensional matrix backed by a dense (primitive) array storage.
+ * Fast operations with this matrix involve calling getAt method. Working with this object as an
+ * iterable of IndexedMatrixElement is slow as the inner array is copied to a list every time an iterator is called.
+ * Dense matrix extends mutable linear object and can be scaled/added with matrices of the same row and column count.
+ * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
+ * bilinear forms.
+ */
 public class DenseMatrix
         extends Matrix {
+    /* internal storage */
     private final double[] elements;
-    private LinkedList<IndexedMatrixValue> elementList = null; // todo: faster to provide an iterator
 
-    public DenseMatrix(double[] elements, int numberOfColumns) {
+    /**
+     * Internal unsafe constructor
+     *
+     * @param elements        matrix values
+     * @param numberOfColumns number of columns in matrix
+     */
+    protected DenseMatrix(@NotNull final double[] elements, final int numberOfColumns) {
+        this(elements, numberOfColumns, false);
+    }
+
+    /**
+     * Creates a new dense matrix from a primitive array of elements.
+     * The array is either copied or used as is depending on safe parameter.
+     * Elements array stores matrix values in a linear way, i.e. first row is followed by the second and so on.
+     * The number of rows is computed from the length of provided array and number of columns,
+     * an exception is thrown if lengths are discordant.
+     *
+     * @param elements        matrix values
+     * @param numberOfColumns number of columns in resulting matrix
+     * @param safe            if true will use a deep copy of the array
+     */
+    public DenseMatrix(@NotNull final double[] elements, final int numberOfColumns, final boolean safe) {
         super(computeNumberOfFullMatrixRows(elements.length, numberOfColumns), numberOfColumns);
-        this.elements = elements;
+        if (safe) {
+            this.elements = Arrays.copyOf(elements, elements.length);
+        } else {
+            this.elements = elements;
+        }
     }
 
     public DenseMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows, int numberOfColumns) {
@@ -24,16 +57,25 @@ public class DenseMatrix
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public double getAt(int rowIndex, int columnIndex) {
         return elements[getFullMatrixIndex(rowIndex, columnIndex, numberOfColumns)];
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected double getAt(int linearIndex) {
         return elements[linearIndex];
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix transpose() {
         double[] newElements = new double[elements.length];
@@ -49,6 +91,9 @@ public class DenseMatrix
         return new DenseMatrix(newElements, numberOfRows);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected final double bilinearFormUnchecked(Vector a) {
         if (a.isSparse()) {
@@ -58,6 +103,9 @@ public class DenseMatrix
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected Vector linearFormUnchecked(Vector b) {
         double[] resVector = new double[numberOfRows];
@@ -78,6 +126,9 @@ public class DenseMatrix
         return new DenseVector(resVector);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected double bilinearFormUnchecked(Vector a, Vector b) {
         if (a.isSparse()) {
@@ -93,81 +144,131 @@ public class DenseMatrix
         }
     }
 
-
+    /**
+     * @inheritdoc
+     */
     @Override
     protected Matrix addUnchecked(Matrix other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
-        addImpl(Arrays.copyOf(newElements, elements.length), other);
+        addImpl(newElements, other);
         return new DenseMatrix(newElements, numberOfColumns);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected void addInplaceUnchecked(Matrix other) {
         addImpl(elements, other);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix multiply(double scalar) {
         return new DenseMatrix(LinearAlgebraUtils.scale(elements, scalar),
                 numberOfColumns);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public void multiplyInplace(double scalar) {
         LinearAlgebraUtils.scaleInplace(elements, scalar);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix deepCopy() {
         return new DenseMatrix(Arrays.copyOf(elements, elements.length),
                 numberOfColumns);
     }
 
-    private LinkedList<IndexedMatrixValue> getIndexedValues() {
-        if (elementList == null) {
-            elementList = new LinkedList<>();
-
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
-                    double value = getAt(i, j);
-
-                    if (value != 0) {
-                        elementList.add(new IndexedMatrixValue(i, j, value));
-                    }
-                }
-            }
-        }
-
-        return elementList;
-    }
-
+    /**
+     * @inheritdoc
+     */
     @Override
     public Iterator<IndexedMatrixValue> iterator() {
-        return getIndexedValues().iterator();
+        return indexValues(new ArrayList<>()).iterator();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public boolean isSparse() {
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public int getEffectiveSize() {
-        return numberOfRows * numberOfColumns;
+        int effectiveSize = 0;
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                if (getAt(i, j) != 0) {
+                    effectiveSize++;
+                }
+            }
+        }
+        return effectiveSize;
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix asSparse() {
-        return new SparseMatrix(getIndexedValues(), numberOfRows, numberOfColumns);
+        return new SparseMatrix((LinkedList<IndexedMatrixValue>) indexValues(new LinkedList<>()),
+                numberOfRows, numberOfColumns);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix asDense() {
         return deepCopy();
     }
 
-    /*   aux    */
+    /* Internal auxiliary methods */
 
+    /**
+     * Adds all values of this vector to a pre-initialized list.
+     *
+     * @param storage an empty list of indexed values
+     * @return updated storage
+     */
+    private List<IndexedMatrixValue> indexValues(@NotNull final List<IndexedMatrixValue> storage) {
+        assert storage.isEmpty();
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                double value = getAt(i, j);
+
+                if (value != 0) {
+                    storage.add(new IndexedMatrixValue(i, j, value));
+                }
+            }
+        }
+
+        return storage;
+    }
+
+    /**
+     * Internal. Bilinear form for two sparse vectors.
+     * Calls bfSS2 if first vector has a larger effective size than the second one
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return scalar value
+     */
     private double bfSS(Vector a, Vector b) {
         if (a.getEffectiveSize() > b.getEffectiveSize()) {
             // outer loop should be ran for the smallest of vectors
@@ -185,6 +286,14 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Bilinear form for two sparse vectors.
+     * Second vector should have smaller effective size than the first one
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return scalar value
+     */
     private double bfSS2(Vector a, Vector b) {
         double res = 0;
         for (IndexedVectorValue bj : b) {
@@ -197,6 +306,13 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Bilinear form for dense and sparse vector pair.
+     *
+     * @param a sparse vector
+     * @param b dense vector
+     * @return scalar value
+     */
     private double bfSD(Vector a, Vector b) {
         double res = 0;
         for (IndexedVectorValue ai : a) {
@@ -209,6 +325,13 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Bilinear form for dense and sparse vector pair.
+     *
+     * @param a dense vector
+     * @param b sparse vector
+     * @return scalar value
+     */
     private double bfDS(Vector a, Vector b) {
         double res = 0;
         for (IndexedVectorValue bj : b) {
@@ -221,8 +344,16 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Bilinear form for two dense vectors.
+     * Calls bfDD2 if first vector is longer than the second one
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return scalar value
+     */
     private double bfDD(Vector a, Vector b) {
-        if (a.getEffectiveSize() > b.getEffectiveSize()) {
+        if (a.getLength() > b.getLength()) {
             // outer loop should be ran for the smallest of vectors
             return bfSS2(a, b);
         }
@@ -237,6 +368,14 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Bilinear form for two dense vectors.
+     * Second vector should be shorter than the first one
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return scalar value
+     */
     private double bfDD2(Vector a, Vector b) {
         double res = 0;
         for (int j = 0; j < b.getLength(); j++) {
@@ -248,6 +387,13 @@ public class DenseMatrix
         return res;
     }
 
+    /**
+     * Internal. Adds values from a given matrix to a pre-initialized storage array.
+     * Supports adding dense, sparse, full and triangular matrices.
+     *
+     * @param elements pre-initialized array, to be modified in-place
+     * @param other    matrix to add
+     */
     private void addImpl(double[] elements, Matrix other) {
         if (other.isSparse()) {
             if (other.isLowerTriangular) {
@@ -275,5 +421,38 @@ public class DenseMatrix
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DenseMatrix that = (DenseMatrix) o;
+
+        return Arrays.equals(elements, that.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(elements);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+
+        for (int i = 0; i < numberOfRows; i++) {
+            StringJoiner joiner = new StringJoiner(", ");
+            for (int j = 0; j < numberOfColumns; j++) {
+                joiner.add(Double.toString(getAt(i, j)));
+            }
+            res.append("[").append(joiner.toString()).append("]");
+            if (i != numberOfRows - 1) {
+                res.append("\n");
+            }
+        }
+
+        return res.toString();
     }
 }

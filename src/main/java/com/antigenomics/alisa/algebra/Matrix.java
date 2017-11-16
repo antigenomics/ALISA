@@ -1,18 +1,56 @@
 package com.antigenomics.alisa.algebra;
 
+/**
+ * A generic two-dimensional real vector. The storage type (dense/sparse) depends on implementation.
+ * Based on the storage type, fast access is implemented either via getAt (dense) or iterator (sparse) functions.
+ * This class supports all linear algebra operations and can compute linear and bilinear forms
+ * if supplied with Vector objects. This class implements basic checks to guarantee that
+ * the dimensions of two matrices are matched for operations where it is required.
+ * Linear algebra methods tagged as in-place are not guaranteed to be thread safe.
+ */
 public abstract class Matrix
         implements LinearSpaceObject<Matrix>, BilinearMap<Vector, Matrix>,
         Container<IndexedMatrixValue, Matrix> {
     protected final int numberOfRows, numberOfColumns;
     protected final boolean isLowerTriangular;
 
-    public Matrix(int numberOfRows, int numberOfColumns) {
+    public static DenseMatrix fromArray(double[][] values) {
+        int numberOfRows = values.length,
+                numberOfColumns = values[0].length;
+        double[] arr = new double[numberOfRows * numberOfColumns];
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                arr[i * numberOfColumns + j] = values[i][j];
+            }
+        }
+        return new DenseMatrix(arr, numberOfColumns);
+    }
+
+    public static DenseMatrix fromValues(int numberOfColumns, double... values) {
+        return new DenseMatrix(values,
+                numberOfColumns);
+    }
+
+    public static DenseMatrix zeros(int numberOfRows, int numberOfColumns) {
+        return new DenseMatrix(new double[numberOfRows * numberOfColumns],
+                numberOfColumns);
+    }
+
+    public static DenseMatrix eye(int size) {
+        double[] arr = new double[size * size];
+        for (int i = 0; i < size; i++) {
+            arr[i * (size + 1)] = 1;
+        }
+        return new DenseMatrix(arr, size);
+    }
+
+    protected Matrix(int numberOfRows, int numberOfColumns) {
         this.numberOfRows = numberOfRows;
         this.numberOfColumns = numberOfColumns;
         this.isLowerTriangular = false;
     }
 
-    public Matrix(int size) {
+    protected Matrix(int size) {
         this.numberOfRows = size;
         this.numberOfColumns = size;
         this.isLowerTriangular = true;
