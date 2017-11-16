@@ -1,26 +1,32 @@
 package com.antigenomics.alisa.algebra;
 
-import com.antigenomics.alisa.estimator.mc.MonteCarloUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PerformanceTests {
     @Test
     public void spraseDenseOuterProductSum() {
+        final Random rnd = new Random(42);
         List<Vector> dense = new ArrayList<>(),
                 sparse = new ArrayList<>();
 
         int ndim = 50, nvec = 500;
         double f = 0.1;
 
+        System.out.println("Sparse vs dense vector test. Vector length='" + ndim +
+                "'; Number of vectors='" + nvec + "'; Sparsity='" + f + "'. Preparing random dataset.");
+
         for (int i = 0; i < nvec; i++) {
             double[] arr = new double[ndim];
             List<IndexedVectorValue> values = new ArrayList<>();
 
             for (int j = 0; j < ndim; j++) {
-                if (MonteCarloUtils.nextDouble() < f) {
+                if (rnd.nextDouble() < f) {
                     arr[j] = 1;
                     values.add(new IndexedVectorValue(j, 1.0));
                 }
@@ -30,7 +36,7 @@ public class PerformanceTests {
             sparse.add(new SparseVector(values, ndim));
         }
 
-        long startTime, estimatedTime;
+        long startTime;
         Matrix input;
 
         ///
@@ -42,9 +48,9 @@ public class PerformanceTests {
                 input.addInplace(v.outerProduct(v2));
             }
         }
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(estimatedTime);
-        //System.out.println(input.multiply(1.0 / nvec / nvec / f / f));
+        long timeDenseOuterProductSum = System.currentTimeMillis() - startTime;
+        System.out.println("Dense vector a and b (all combinations) -> dense storage += a*bT: "
+                + timeDenseOuterProductSum + "ms");
 
         //////
 
@@ -55,9 +61,11 @@ public class PerformanceTests {
                 input.addInplace(v.outerProduct(v2));
             }
         }
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(estimatedTime);
-        //System.out.println(input.multiply(1.0 / nvec / nvec / f / f));
+        long timeSparseOuterProductSum = System.currentTimeMillis() - startTime;
+        System.out.println("Sparse vector a and b (all combinations) -> dense storage += a*bT: " +
+                timeSparseOuterProductSum + "ms");
+
+        assertTrue(timeDenseOuterProductSum > 3 * timeSparseOuterProductSum);
 
         ///
 
@@ -65,8 +73,9 @@ public class PerformanceTests {
         for (Vector v : dense) {
             v.expand().norm2();
         }
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(estimatedTime);
+        long timeDenseExpandSum = System.currentTimeMillis() - startTime;
+        System.out.println("Dense vector a -> dense storage += a*aT: " +
+                timeDenseExpandSum + "ms");
 
         //////
 
@@ -74,7 +83,10 @@ public class PerformanceTests {
         for (Vector v : sparse) {
             v.expand().norm2();
         }
-        estimatedTime = System.currentTimeMillis() - startTime;
-        System.out.println(estimatedTime);
+        long timeSparseExpandSum = System.currentTimeMillis() - startTime;
+        System.out.println("Dense vector a -> dense storage += a*aT: " +
+                timeSparseExpandSum + "ms");
+
+        assertTrue(timeDenseExpandSum > 3 * timeSparseExpandSum);
     }
 }
