@@ -9,10 +9,10 @@ import java.util.stream.Collectors;
 
 public class SparseMatrix
         extends Matrix {
-    protected final LinkedList<IndexedMatrixValue> elementList;
+    protected final List<IndexedMatrixValue> elementList;
 
-    public static SparseMatrix createChecked(LinkedList<IndexedMatrixValue> elementList,
-                                             int numberOfRows, int numberOfColumns) {
+    private static void check(Iterable<IndexedMatrixValue> elementList,
+                              int numberOfRows, int numberOfColumns) {
         IndexedMatrixValue prevElement = IndexedMatrixValue.EMPTY;
         for (IndexedMatrixValue indexedMatrixValue : elementList) {
             int i = indexedMatrixValue.getRowIndex(),
@@ -29,15 +29,24 @@ public class SparseMatrix
 
             prevElement = indexedMatrixValue;
         }
+    }
 
-        return new SparseMatrix(elementList, numberOfRows, numberOfColumns);
+    protected SparseMatrix(List<IndexedMatrixValue> elementList,
+                           int numberOfRows, int numberOfColumns) {
+        this(elementList, numberOfRows, numberOfColumns, false);
     }
 
     // todo: only safe constructors public? specific static methods for unsafe
-    public SparseMatrix(LinkedList<IndexedMatrixValue> elementList,
-                        int numberOfRows, int numberOfColumns) {
+    public SparseMatrix(List<IndexedMatrixValue> elementList,
+                        int numberOfRows, int numberOfColumns,
+                        boolean safe) {
         super(numberOfRows, numberOfColumns);
-        this.elementList = elementList;
+        if (safe) {
+            check(elementList, numberOfRows, numberOfColumns);
+            this.elementList = new LinkedList<>(elementList);
+        } else {
+            this.elementList = elementList;
+        }
     }
 
     @Override
@@ -54,36 +63,39 @@ public class SparseMatrix
     protected Vector linearFormUnchecked(Vector b) {
         LinkedList<IndexedVectorValue> values = new LinkedList<>();
 
-        int previousIndex = elementList.getFirst().getRowIndex();
         double res = 0;
 
-        if (b.isSparse()) {
-            Iterator<IndexedVectorValue> iterB = b.iterator();
-            for (IndexedMatrixValue e : elementList) {
-                int currentIndex = e.getRowIndex();
-                if (currentIndex > previousIndex) {
-                    values.add(new IndexedVectorValue(previousIndex, res));
-                    previousIndex = currentIndex;
-                    res = 0;
-                    iterB = b.iterator();
-                } else {
-                    IndexedVectorValue elemB = null;
-                    while (iterB.hasNext() && (elemB = iterB.next()).getIndex() < e.getColIndex()) ;
-                    if (elemB != null && elemB.getIndex() == e.getColIndex()) {
-                        res += e.getDoubleValue() * elemB.getDoubleValue();
+        if (numberOfRows > 0) {
+            int previousIndex = elementList.iterator().next().getRowIndex();
+
+            if (b.isSparse()) {
+                Iterator<IndexedVectorValue> iterB = b.iterator();
+                for (IndexedMatrixValue e : elementList) {
+                    int currentIndex = e.getRowIndex();
+                    if (currentIndex > previousIndex) {
+                        values.add(new IndexedVectorValue(previousIndex, res));
+                        previousIndex = currentIndex;
+                        res = 0;
+                        iterB = b.iterator();
+                    } else {
+                        IndexedVectorValue elemB = null;
+                        while (iterB.hasNext() && (elemB = iterB.next()).getIndex() < e.getColIndex()) ;
+                        if (elemB != null && elemB.getIndex() == e.getColIndex()) {
+                            res += e.getDoubleValue() * elemB.getDoubleValue();
+                        }
                     }
                 }
-            }
-        } else {
-            for (IndexedMatrixValue e : elementList) {
-                int currentIndex = e.getRowIndex();
-                if (currentIndex > previousIndex) {
-                    if (res != 0)
-                        values.add(new IndexedVectorValue(previousIndex, res));
-                    previousIndex = currentIndex;
-                    res = 0;
-                } else {
-                    res += e.getDoubleValue() * b.getAt(e.getColIndex());
+            } else {
+                for (IndexedMatrixValue e : elementList) {
+                    int currentIndex = e.getRowIndex();
+                    if (currentIndex > previousIndex) {
+                        if (res != 0)
+                            values.add(new IndexedVectorValue(previousIndex, res));
+                        previousIndex = currentIndex;
+                        res = 0;
+                    } else {
+                        res += e.getDoubleValue() * b.getAt(e.getColIndex());
+                    }
                 }
             }
         }
@@ -104,7 +116,7 @@ public class SparseMatrix
 
     @Override
     protected void addInplaceUnchecked(Matrix other) {
-        LinkedList<IndexedMatrixValue> elementsCopy = copyList();
+        List<IndexedMatrixValue> elementsCopy = copyList();
         elementList.clear();
         LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other);
     }
@@ -168,8 +180,8 @@ public class SparseMatrix
         LinearAlgebraUtils.scale(elementList, copiedElements, scalar);
     }
 
-    protected LinkedList<IndexedMatrixValue> copyList() {
-        return (LinkedList<IndexedMatrixValue>) elementList.clone();
+    protected List<IndexedMatrixValue> copyList() {
+        return new LinkedList<>(elementList);
     }
 
     @Override

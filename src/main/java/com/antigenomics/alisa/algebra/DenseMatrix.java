@@ -49,11 +49,22 @@ public class DenseMatrix
         }
     }
 
+    /**
+     * Creates a new dense matrix from a list of indexed matrix values.
+     * Elements array stores matrix values in a linear way, i.e. first row is followed by the second and so on.
+     * An exception is thrown if there are elements in the list that have row or column indices that are
+     * out of bounds.
+     *
+     * @param elements        an interable of indexed matrix values
+     * @param numberOfRows    number of rows in resulting matrix
+     * @param numberOfColumns number of columns in resulting matrix
+     */
     public DenseMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows, int numberOfColumns) {
         super(numberOfRows, numberOfColumns);
         this.elements = new double[numberOfRows * numberOfColumns];
         for (IndexedMatrixValue e : elements) {
-            this.elements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] = e.getDoubleValue();
+            int fullMatrixIndex = getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns);
+            this.elements[fullMatrixIndex] = e.getDoubleValue();
         }
     }
 
@@ -118,8 +129,10 @@ public class DenseMatrix
         } else {
             for (int j = 0; j < numberOfColumns; j++) {
                 double bValue = b.getAt(j);
-                for (int i = 0; i < numberOfRows; i++) {
-                    resVector[i] += getAt(i, j) * bValue;
+                if (bValue != 0) {
+                    for (int i = 0; i < numberOfRows; i++) {
+                        resVector[i] += getAt(i, j) * bValue;
+                    }
                 }
             }
         }
@@ -225,7 +238,7 @@ public class DenseMatrix
      */
     @Override
     public Matrix asSparse() {
-        return new SparseMatrix((LinkedList<IndexedMatrixValue>) indexValues(new LinkedList<>()),
+        return new SparseMatrix(indexValues(new LinkedList<>()),
                 numberOfRows, numberOfColumns);
     }
 
@@ -361,8 +374,10 @@ public class DenseMatrix
         double res = 0;
         for (int i = 0; i < a.getLength(); i++) {
             final double aValue = a.getAt(i);
-            for (int j = 0; j < b.getLength(); j++) {
-                res += aValue * getAt(i, j) * b.getAt(j);
+            if (aValue != 0) {
+                for (int j = 0; j < b.getLength(); j++) {
+                    res += aValue * getAt(i, j) * b.getAt(j);
+                }
             }
         }
         return res;
@@ -380,8 +395,10 @@ public class DenseMatrix
         double res = 0;
         for (int j = 0; j < b.getLength(); j++) {
             final double bValue = b.getAt(j);
-            for (int i = 0; i < a.getLength(); i++) {
-                res += a.getAt(i) * getAt(i, j) * bValue;
+            if (bValue != 0) {
+                for (int i = 0; i < a.getLength(); i++) {
+                    res += a.getAt(i) * getAt(i, j) * bValue;
+                }
             }
         }
         return res;
@@ -445,7 +462,7 @@ public class DenseMatrix
         for (int i = 0; i < numberOfRows; i++) {
             StringJoiner joiner = new StringJoiner(", ");
             for (int j = 0; j < numberOfColumns; j++) {
-                joiner.add(Double.toString(getAt(i, j)));
+                joiner.add(Float.toString((float) getAt(i, j)));
             }
             res.append("[").append(joiner.toString()).append("]");
             if (i != numberOfRows - 1) {

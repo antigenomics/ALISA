@@ -1,45 +1,118 @@
 package com.antigenomics.alisa.algebra;
 
+import com.sun.istack.internal.NotNull;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.StringJoiner;
+import java.lang.reflect.Array;
+import java.util.*;
 
-import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.getTriangularMatrixIndex;
+import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 
+/**
+ * A two-dimensional symmetric matrix backed by a dense (primitive) array storage. Only the lower triangle of
+ * full square matrix is stored, i.e. only elements $x_{ij}$ with $i \leq j$.
+ * Fast operations with this matrix involve calling getAt method and work for any i,j combination.
+ * Working with this object as an iterable of IndexedMatrixElement is slow as the inner array is copied
+ * to a list every time an iterator is called, moreover the iteration will run only across lower triangular
+ * elements.
+ * Dense symmetric matrix extends mutable linear object and can be scaled/added with matrices of the same row and column count.
+ * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
+ * bilinear forms. Inplace addition only works if other matrix is also lower triangular.
+ */
 public class DenseTriangularMatrix extends Matrix {
+    /* internal storage */
     private final double[] elements;
 
-    public DenseTriangularMatrix(double[] elements) {
-        super(LinearAlgebraUtils.getTriangularMatrixSize(elements.length));
-        this.elements = elements;
+    /**
+     * Internal unsafe constructor
+     *
+     * @param elements matrix values
+     */
+    protected DenseTriangularMatrix(@NotNull final double[] elements) {
+        this(elements, false);
     }
 
+    /**
+     * Creates a new dense matrix from a primitive array of elements.
+     * The array is either copied or used as is depending on safe parameter.
+     * Elements array stores matrix values in a linear way, i.e. first row elements up to diagonal one
+     * (inclusive) are followed by the second row elements and so on.
+     * Matrix size is computed from the length of provided array,
+     * an exception is thrown if resulting matrix is not square.
+     *
+     * @param elements matrix values
+     * @param safe     if true will use a deep copy of the array
+     */
+    public DenseTriangularMatrix(@NotNull final double[] elements, final boolean safe) {
+        super(getTriangularMatrixSize(elements.length));
+        if (safe) {
+            this.elements = Arrays.copyOf(elements, elements.length);
+        } else {
+            this.elements = elements;
+        }
+    }
+
+    /**
+     * Creates a new dense matrix from a list of indexed matrix values.
+     * Elements array stores matrix values in a linear way, i.e. first row elements up to diagonal one
+     * (inclusive) are followed by the second row elements and so on. All elements that lie above the diagonal
+     * are discarded.
+     * An exception is thrown if there are elements in the list that have row or column indices that are
+     * out of bounds.
+     *
+     * @param elements     an interable of indexed matrix values
+     * @param numberOfRows number of rows in resulting matrix
+     */
+    public DenseTriangularMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows) {
+        super(numberOfRows);
+        this.elements = new double[getTriangularMatrixLength(numberOfRows)];
+        for (IndexedMatrixValue e : elements) {
+            if (e.getRowIndex() <= e.getColIndex()) {
+                int index = getTriangularMatrixIndex(e.getRowIndex(), e.getColIndex());
+                this.elements[index] = e.getDoubleValue();
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     @Override
     public double getAt(int rowIndex, int columnIndex) {
         return elements[getTriangularMatrixIndex(rowIndex, columnIndex)];
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected double getAt(int linearIndex) {
         return elements[linearIndex];
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix transpose() {
         return this;
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected double bilinearFormUnchecked(Vector a, Vector b) {
         if (a == b) {
             return bilinearFormUnchecked(a);
         }
+        // todo: discuss
         throw new NotImplementedException();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected final double bilinearFormUnchecked(Vector a) {
         double res = 0;
@@ -65,6 +138,9 @@ public class DenseTriangularMatrix extends Matrix {
         return res;
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected Vector linearFormUnchecked(Vector b) {
         double[] resVector = new double[numberOfRows];
@@ -87,6 +163,9 @@ public class DenseTriangularMatrix extends Matrix {
         return new DenseVector(resVector);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected Matrix addUnchecked(Matrix other) {
         if (!other.isLowerTriangular) {
@@ -97,6 +176,9 @@ public class DenseTriangularMatrix extends Matrix {
         return new DenseMatrix(newElements, numberOfColumns);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected void addInplaceUnchecked(Matrix other) {
         if (!other.isLowerTriangular) {
@@ -105,23 +187,80 @@ public class DenseTriangularMatrix extends Matrix {
         addImpl(elements, other);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix multiply(double scalar) {
         return new DenseTriangularMatrix(LinearAlgebraUtils.scale(elements, scalar));
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public void multiplyInplace(double scalar) {
         LinearAlgebraUtils.scaleInplace(elements, scalar);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix deepCopy() {
         return new DenseTriangularMatrix(Arrays.copyOf(elements, elements.length));
     }
 
-    private LinkedList<IndexedMatrixValue> getIndexedValues() {
-        LinkedList<IndexedMatrixValue> elementList = new LinkedList<>();
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public Iterator<IndexedMatrixValue> iterator() {
+        return indexValues(new ArrayList<>()).iterator();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public boolean isSparse() {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public int getEffectiveSize() {
+        return elements.length;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public Matrix asSparse() {
+        return new SparseTriangularMatrix(indexValues(new LinkedList<>()), numberOfRows);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public Matrix asDense() {
+        return deepCopy();
+    }
+
+    /* Auxiliary methods */
+
+    /**
+     * Adds all values of this vector to a pre-initialized list.
+     *
+     * @param storage an empty list of indexed values
+     * @return updated storage
+     */
+    private List<IndexedMatrixValue> indexValues(@NotNull final List<IndexedMatrixValue> storage) {
+        assert storage.isEmpty();
 
         int k = 0;
         for (int i = 0; i < numberOfRows; i++) {
@@ -129,42 +268,23 @@ public class DenseTriangularMatrix extends Matrix {
                 double value = elements[k];
 
                 if (value != 0) {
-                    elementList.add(new IndexedMatrixValue(i, j, value));
+                    storage.add(new IndexedMatrixValue(i, j, value));
                 }
 
                 k++;
             }
         }
 
-        return elementList;
+        return storage;
     }
 
-    @Override
-    public Iterator<IndexedMatrixValue> iterator() {
-        return getIndexedValues().iterator();
-    }
-
-    @Override
-    public boolean isSparse() {
-        return false;
-    }
-
-    @Override
-    public int getEffectiveSize() {
-        return elements.length;
-    }
-
-    @Override
-    public Matrix asSparse() {
-        // todo
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public Matrix asDense() {
-        return deepCopy();
-    }
-
+    /**
+     * Internal. Adds values from a given matrix to a pre-initialized storage array.
+     * Supports only lower triangular matrices.
+     *
+     * @param elements pre-initialized array, to be modified in-place
+     * @param other    matrix to add, should be lower triangular
+     */
     private void addImpl(double[] elements, Matrix other) {
         if (other.isSparse()) {
             for (IndexedMatrixValue e : other) {
@@ -197,5 +317,20 @@ public class DenseTriangularMatrix extends Matrix {
         }
 
         return res.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DenseTriangularMatrix that = (DenseTriangularMatrix) o;
+
+        return Arrays.equals(elements, that.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(elements);
     }
 }

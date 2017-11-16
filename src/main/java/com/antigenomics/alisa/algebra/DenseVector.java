@@ -284,7 +284,7 @@ public class DenseVector
     public String toString() {
         StringJoiner joiner = new StringJoiner(", ");
         for (double element : elements) {
-            joiner.add(Double.toString(element));
+            joiner.add(Float.toString((float)element));
         }
         return "[" + joiner.toString() + "]";
     }

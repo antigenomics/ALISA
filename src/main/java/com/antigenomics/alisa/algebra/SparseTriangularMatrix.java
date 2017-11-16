@@ -3,10 +3,11 @@ package com.antigenomics.alisa.algebra;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class SparseTriangularMatrix
         extends SparseMatrix {
-    public SparseTriangularMatrix(LinkedList<IndexedMatrixValue> elementList,
+    public SparseTriangularMatrix(List<IndexedMatrixValue> elementList,
                                   int numberOfRows) {
         super(elementList, numberOfRows, numberOfRows);
     }
