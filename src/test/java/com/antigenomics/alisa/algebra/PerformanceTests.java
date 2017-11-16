@@ -8,9 +8,9 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PerformanceTests {
+class PerformanceTests {
     @Test
-    public void spraseDenseOuterProductSum() {
+    void spraseDenseOuterProductSum() {
         final Random rnd = new Random(42);
         List<Vector> dense = new ArrayList<>(),
                 sparse = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.antigenomics.alisa.algebra;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class LinearAlgebraUtils {
@@ -37,6 +38,36 @@ public class LinearAlgebraUtils {
         for (int i = 0; i < elements.length; i++) {
             elements[i] *= scalar;
         }
+    }
+
+    public static <V extends IndexedValue<V>> boolean checkSortedNoDuplicates(Iterable<V> elementList) {
+        Iterator<V> iter = elementList.iterator();
+
+        if (iter.hasNext()) {
+            V prevIndexedValue = elementList.iterator().next();
+            for (V indexedValue : elementList) {
+                int cmp = prevIndexedValue.compareTo(indexedValue);
+
+                if (cmp >= 0) {
+                    return false;
+                }
+
+                prevIndexedValue = indexedValue;
+            }
+        }
+
+        return true;
+    }
+
+    public static <O extends LinearSpaceObject<O>> boolean equalUpToTol(LinearSpaceObject<O> o1,
+                                                                        LinearSpaceObject<O> o2) {
+        return equalUpToTol(o1, o2, 1e-16);
+    }
+
+    public static <O extends LinearSpaceObject<O>> boolean equalUpToTol(LinearSpaceObject<O> o1,
+                                                                        LinearSpaceObject<O> o2,
+                                                                        double tol) {
+        return o1.add(o2.multiply(-1.0)).norm2() <= tol;
     }
 
     public static <V extends IndexedValue<V>> void scale(List<V> storage,

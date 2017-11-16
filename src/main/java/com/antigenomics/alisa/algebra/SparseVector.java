@@ -1,46 +1,44 @@
 package com.antigenomics.alisa.algebra;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 
 public class SparseVector
         extends Vector {
-    // todo: consider using say GlueList here, or a simpler implementation
+    /* Internal storage - typically a linked list */
     private final List<IndexedVectorValue> elementList;
 
-    public static SparseVector createChecked(LinkedList<IndexedVectorValue> elementList,
-                                             int length) {
-        int prevIndex = -1;
-        for (IndexedVectorValue indexedVectorValue : elementList) {
-            int index = indexedVectorValue.getIndex();
-
-            if (index < 0 || index >= length) {
-                throw new IndexOutOfBoundsException();
-            }
-
-            if (prevIndex >= index) {
-                throw new IllegalArgumentException();
-            }
-
-            prevIndex = index;
-        }
-
-        return new SparseVector(elementList, length);
+    protected SparseVector(List<IndexedVectorValue> elementList,
+                           int length) {
+        this(elementList, length, false);
     }
 
     public SparseVector(List<IndexedVectorValue> elementList,
-                        int length) {
+                        int length, boolean safe) {
         super(length);
-        this.elementList = elementList;
+        if (safe) {
+            this.elementList = checkAndSortIfNeeded(elementList, length);
+        } else {
+            this.elementList = elementList;
+        }
+    }
+
+    public SparseVector(double[] elements) {
+        super(elements.length);
+        this.elementList = new LinkedList<>();
+        for (int i = 0; i < elements.length; i++) {
+            double value = elements[i];
+            if (value != 0) {
+                elementList.add(new IndexedVectorValue(i, value));
+            }
+        }
     }
 
     @Override
     protected Vector addUnchecked(Vector other) {
         if (other.isSparse()) {
-            LinkedList<IndexedVectorValue> elements = new LinkedList<>();
+            List<IndexedVectorValue> elements = new LinkedList<>();
             combineAdd(elements, this, other);
             return new SparseVector(elements, length);
         } else {
@@ -159,5 +157,48 @@ public class SparseVector
 
     public DenseVector asDense() {
         return new DenseVector(elementList, length);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static List<IndexedVectorValue> checkAndSortIfNeeded(List<IndexedVectorValue> elementList,
+                                                                int length) {
+        int prevIndex = -1;
+        boolean sorted = true;
+        for (IndexedVectorValue indexedVectorValue : elementList) {
+            int index = indexedVectorValue.getIndex();
+
+            if (index < 0 || index >= length) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            if (prevIndex >= index) {
+                if (prevIndex == index) {
+                    throw new IllegalArgumentException("Should not contain duplicates");
+                } else {
+                    sorted = false;
+                    break;
+                }
+            }
+
+            prevIndex = index;
+        }
+
+        List<IndexedVectorValue> elementListCopy;
+
+        if (!sorted) {
+            elementListCopy = new LinkedList<>();
+            final Object[] arr = elementList.toArray();
+            Arrays.sort(arr, (Comparator) Comparator.naturalOrder());
+            for (Object a : arr) {
+                IndexedVectorValue v = (IndexedVectorValue) a;
+                if (v.getDoubleValue() != 0) {
+                    elementListCopy.add(v);
+                }
+            }
+        } else {
+            elementListCopy = new LinkedList<>(elementList);
+        }
+
+        return elementListCopy;
     }
 }

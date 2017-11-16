@@ -3,6 +3,8 @@ package com.antigenomics.alisa.algebra;
 import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A generic one-dimensional real vector. The storage type (dense/sparse) depends on implementation.
@@ -15,26 +17,43 @@ import java.util.Arrays;
 public abstract class Vector
         implements LinearSpaceObject<Vector>, VectorSpace<Vector, Matrix>,
         Container<IndexedVectorValue, Vector> {
+    /* true vector size */
     protected final int length;
 
-    public static DenseVector fromValues(double... values) {
+    /* auxiliary constructors */
+
+    public static DenseVector DENSE(double... values) {
         return new DenseVector(values);
     }
 
-    public static DenseVector zeros(int length) {
+    public static SparseVector SPARSE(double... values) {
+        return new SparseVector(values);
+    }
+
+    public static DenseVector DENSE_ZEROS(int length) {
         return new DenseVector(new double[length]);
     }
 
-    public static DenseVector ones(int length) {
+    public static SparseVector SPARSE_ZEROS(int length) {
+        return new SparseVector(new LinkedList<>(), length);
+    }
+
+    public static DenseVector DENSE_ONES(int length) {
         double[] arr = new double[length];
         Arrays.fill(arr, 1);
         return new DenseVector(arr);
     }
 
-    public static DenseVector oneHot(int pos, int length) {
+    public static DenseVector DENSE_ONEHOT(int pos, int length) {
         double[] arr = new double[length];
         arr[pos] = 1;
         return new DenseVector(arr);
+    }
+
+    public static SparseVector SPARSE_ONEHOT(int pos, int length) {
+        List<IndexedVectorValue> elements = new LinkedList<>();
+        elements.add(new IndexedVectorValue(pos, 1));
+        return new SparseVector(elements, length);
     }
 
     /**
