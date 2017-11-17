@@ -1,15 +1,17 @@
 package com.antigenomics.alisa.algebra;
 
+import java.io.Serializable;
+
 /**
  * A generic indexed value that represents a single
  * element of vector, matrix or tensor. No explicit accessors
- * to indices are provided. Indexed values, however, can be
+ * to indices are provided, however, indexed values can be
  * ordered using the Comparable interface method.
  *
  * @param <V> indexed value type
  */
 public interface IndexedValue<V extends IndexedValue<V>>
-        extends Comparable<V> {
+        extends Comparable<V>, Serializable {
     /**
      * Gets or converts the value of this object as double
      *

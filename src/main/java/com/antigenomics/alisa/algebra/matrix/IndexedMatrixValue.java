@@ -48,5 +48,28 @@ public class IndexedMatrixValue
         int cmp1 = Integer.compare(rowIndex, o.rowIndex);
         return cmp1 == 0 ? Integer.compare(colIndex, o.colIndex) : cmp1;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IndexedMatrixValue that = (IndexedMatrixValue) o;
+
+        if (rowIndex != that.rowIndex) return false;
+        if (colIndex != that.colIndex) return false;
+        return Double.compare(that.value, value) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = rowIndex;
+        result = 31 * result + colIndex;
+        temp = Double.doubleToLongBits(value);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }
 

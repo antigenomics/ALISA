@@ -1,5 +1,8 @@
 package com.antigenomics.alisa.algebra;
 
-public interface TypedCloneable<T extends TypedCloneable<T>> {
+import java.io.Serializable;
+
+public interface TypedCloneable<T extends TypedCloneable<T>>
+        extends Serializable {
     T deepCopy();
 }

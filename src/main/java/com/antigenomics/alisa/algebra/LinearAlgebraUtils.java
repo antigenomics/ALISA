@@ -2,9 +2,11 @@ package com.antigenomics.alisa.algebra;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * INTERNAL
+ */
 public class LinearAlgebraUtils {
     public static double norm1(double[] elements) {
         double res = 0;

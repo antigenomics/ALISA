@@ -6,16 +6,40 @@ import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 
+/**
+ * A one-dimensional vector backed by a sparse storage (list of indexed values).
+ * One should work with this object as an iterable of IndexedVectorElement to achieve maximum performance.
+ * Calling getAt method is slow as it requires iterating over the list of indexed values.
+ * Sparse vector extends mutable linear object and can be scaled/added with vectors of the same length.
+ * It also extends a vector space object and can be used in scalar and outer product with other vectors,
+ * as well as linear, bilinear and symmetric bilinear forms with matrices.
+ */
 public class SparseVector
         extends Vector {
     /* Internal storage - typically a linked list */
+    // todo: perhaps we need a custom List impl, although this one shows best performance in tests better than say GlueList, etc
     private final List<IndexedVectorValue> elementList;
 
+    /**
+     * Internal unsafe constructor, use the input list as is.
+     *
+     * @param elementList list of vector elements
+     * @param length      true length of the vector
+     */
     protected SparseVector(List<IndexedVectorValue> elementList,
                            int length) {
         this(elementList, length, false);
     }
 
+    /**
+     * Creates a sparse list from a list of indexed vector elements. If safe
+     * is set to true, ensures that the list is sorted and doesn't contain duplicates;
+     * and copies the list.
+     *
+     * @param elementList list of vector elements
+     * @param length      true length of the vector
+     * @param safe        if true, the list is copied and sorted if required.
+     */
     public SparseVector(List<IndexedVectorValue> elementList,
                         int length, boolean safe) {
         super(length);
@@ -26,6 +50,12 @@ public class SparseVector
         }
     }
 
+    /**
+     * Creates a sparse vector from an array of double values.
+     * Zero values are discarded.
+     *
+     * @param elements an array of vector values
+     */
     public SparseVector(double[] elements) {
         super(elements.length);
         this.elementList = new LinkedList<>();
@@ -37,6 +67,9 @@ public class SparseVector
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected Vector addUnchecked(Vector other) {
         if (other.isSparse()) {
@@ -48,6 +81,9 @@ public class SparseVector
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected void addInplaceUnchecked(Vector other) {
         List<IndexedVectorValue> copy = copyList();
@@ -55,6 +91,9 @@ public class SparseVector
         combineAdd(elementList, copy, other);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     protected double dotProductUnchecked(Vector other) {
         return elementList
@@ -63,6 +102,9 @@ public class SparseVector
                 .sum();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public double getAt(int index) {
         return elementList
@@ -73,6 +115,9 @@ public class SparseVector
                 .getDoubleValue();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Vector multiply(double scalar) {
         LinkedList<IndexedVectorValue> newElements = new LinkedList<>();
@@ -81,6 +126,9 @@ public class SparseVector
         return new SparseVector(newElements, length);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public void multiplyInplace(double scalar) {
         List<IndexedVectorValue> copiedElements = copyList();
@@ -88,6 +136,9 @@ public class SparseVector
         LinearAlgebraUtils.scale(elementList, copiedElements, scalar);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix outerProduct(Vector b) {
         if (this == b) {
@@ -108,6 +159,9 @@ public class SparseVector
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Matrix expand() {
         // todo: can optimize here
@@ -124,48 +178,70 @@ public class SparseVector
         return new SparseTriangularMatrix(matrixValues, this.length);
     }
 
-    private List<IndexedVectorValue> copyList() {
-        List<IndexedVectorValue> storage = new LinkedList<>();
-        for (IndexedVectorValue x : this) {
-            storage.add(x);
-        }
-        return storage;
-    }
-
+    /**
+     * @inheritdoc
+     */
     @Override
     public Iterator<IndexedVectorValue> iterator() {
         return elementList.iterator();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public boolean isSparse() {
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public int getEffectiveSize() {
         return elementList.size();
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Vector deepCopy() {
         return new SparseVector(copyList(), length);
     }
 
+    /**
+     * @inheritdoc
+     */
     @Override
     public Vector asSparse() {
         return deepCopy();
     }
 
+    /**
+     * @inheritdoc
+     */
+    @Override
     public DenseVector asDense() {
         return new DenseVector(elementList, length);
     }
 
+    /* auxiliary methods, note that some methods are in LinearAlgebraUtils class */
+
+    /**
+     * Check the input list of elements, sort if needed and copy it.
+     *
+     * @param elementList input list
+     * @param length      resulting vector length
+     * @return checked input vector
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static List<IndexedVectorValue> checkAndSortIfNeeded(List<IndexedVectorValue> elementList,
                                                                 int length) {
         int prevIndex = -1;
         boolean sorted = true;
+        List<IndexedVectorValue> elementListCopy = new LinkedList<>();
+
         for (IndexedVectorValue indexedVectorValue : elementList) {
             int index = indexedVectorValue.getIndex();
 
@@ -183,13 +259,15 @@ public class SparseVector
             }
 
             prevIndex = index;
+
+            if (indexedVectorValue.getDoubleValue() != 0) {
+                elementListCopy.add(indexedVectorValue);
+            }
         }
 
-        List<IndexedVectorValue> elementListCopy;
-
         if (!sorted) {
+            final Object[] arr = elementListCopy.toArray();
             elementListCopy = new LinkedList<>();
-            final Object[] arr = elementList.toArray();
             Arrays.sort(arr, (Comparator) Comparator.naturalOrder());
             for (Object a : arr) {
                 IndexedVectorValue v = (IndexedVectorValue) a;
@@ -197,10 +275,45 @@ public class SparseVector
                     elementListCopy.add(v);
                 }
             }
-        } else {
-            elementListCopy = new LinkedList<>(elementList);
         }
 
         return elementListCopy;
+    }
+
+    /**
+     * Copy the internal list of elements.
+     *
+     * @return new linked list holding the same elements as the same vector
+     */
+    private List<IndexedVectorValue> copyList() {
+        List<IndexedVectorValue> storage = new LinkedList<>();
+        for (IndexedVectorValue x : this) {
+            storage.add(x);
+        }
+        return storage;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner(", ");
+        for (IndexedVectorValue element : elementList) {
+            joiner.add(element.getIndex() + ":" + Float.toString((float) element.getDoubleValue()));
+        }
+        return "[" + joiner.toString() + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SparseVector that = (SparseVector) o;
+
+        return elementList.equals(that.elementList);
+    }
+
+    @Override
+    public int hashCode() {
+        return elementList.hashCode();
     }
 }

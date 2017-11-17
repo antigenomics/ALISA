@@ -24,34 +24,80 @@ public abstract class Vector
 
     /* auxiliary constructors */
 
+    /**
+     * Creates a dense vector from values.
+     *
+     * @param values an array of vector values
+     * @return a dense vector
+     */
     public static DenseVector DENSE(double... values) {
         return new DenseVector(values);
     }
 
+    /**
+     * Creates a sparse vector from values. Zero values are discarded.
+     *
+     * @param values an array of vector values
+     * @return a sparse vector
+     */
     public static SparseVector SPARSE(double... values) {
         return new SparseVector(values);
     }
 
+    /**
+     * Creates a vector with zero values of a given length.
+     *
+     * @param length length of the vecor
+     * @return a dense zero vector
+     */
     public static DenseVector DENSE_ZEROS(int length) {
         return new DenseVector(new double[length]);
     }
 
+    /**
+     * Creates an empty sparse vector of a given length.
+     *
+     * @param length length of the vector
+     * @return an empty sparse vector
+     */
     public static SparseVector SPARSE_ZEROS(int length) {
         return new SparseVector(new LinkedList<>(), length);
     }
 
+    /**
+     * Creates a vector containing ones of a given length.
+     *
+     * @param length length of the vecor
+     * @return a dense vector with ones
+     */
     public static DenseVector DENSE_ONES(int length) {
         double[] arr = new double[length];
         Arrays.fill(arr, 1);
         return new DenseVector(arr);
     }
 
+    /**
+     * Creates an one-hot encoding, a dense vector with all zeros except
+     * a value that equals to '1' at a specified position
+     *
+     * @param pos    position to hold a '1' value
+     * @param length length of the vector
+     * @return a dense vector featuring one-hot encoding
+     */
     public static DenseVector DENSE_ONEHOT(int pos, int length) {
         double[] arr = new double[length];
         arr[pos] = 1;
         return new DenseVector(arr);
     }
 
+    /**
+     * Creates an one-hot encoding, a sparse vector holding just one
+     * indexed vector value of '1'.
+     *
+     * @param pos    position of element having a value of '1'
+     * @param length length of the vector
+     * @return a sparse vector featuring one-hot encoding
+     */
     public static SparseVector SPARSE_ONEHOT(int pos, int length) {
         List<IndexedVectorValue> elements = new LinkedList<>();
         elements.add(new IndexedVectorValue(pos, 1));
@@ -179,10 +225,7 @@ public abstract class Vector
     }
 
     /**
-     * Computes the L1 norm of vector elements,
-     * that is sum of their absolute values.
-     *
-     * @return L1-norm
+     * @inheritdoc
      */
     @Override
     public double norm1() {
@@ -202,10 +245,7 @@ public abstract class Vector
     }
 
     /**
-     * Computes the L2 norm of vector elements,
-     * that is the square root of the sum of squares of their absolute values.
-     *
-     * @return L2-norm
+     * @inheritdoc
      */
     @Override
     public double norm2() {
@@ -223,5 +263,25 @@ public abstract class Vector
         }
 
         return Math.sqrt(norm2);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    @Override
+    public double normInf() {
+        double normInf = 0;
+
+        if (isSparse()) {
+            for (IndexedVectorValue x : this) {
+                normInf = Math.max(normInf, Math.abs(x.getDoubleValue()));
+            }
+        } else {
+            for (int i = 0; i < length; i++) {
+                normInf = Math.max(normInf, Math.abs(getAt(i)));
+            }
+        }
+
+        return normInf;
     }
 }

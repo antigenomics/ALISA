@@ -4,8 +4,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * An array of linear space objects. Supports elementwise addition and multiplication operations,
+ * including their in-place versions. Throws exceptions in case certain types of addition operations
+ * are not supported by a given linear space object type, or if there is a mismatch between array sizes.
+ *
+ * @param <O> linear space object type.
+ */
 public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
         implements LinearSpaceObject<LinearSpaceObjectArray<O>>, Iterable<O> {
+    /* internal storage */
     private final List<O> objectList;
 
     public LinearSpaceObjectArray(final List<O> objectList) {
@@ -64,6 +72,17 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
         }
 
         return Math.sqrt(norm2);
+    }
+
+    @Override
+    public double normInf() {
+        double norm1 = 0;
+
+        for (O obj : objectList) {
+            norm1 = Math.max(norm1, obj.norm1());
+        }
+
+        return norm1;
     }
 
     @Override

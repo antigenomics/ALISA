@@ -1,9 +1,5 @@
 package com.antigenomics.alisa.algebra.matrix;
 
-import com.antigenomics.alisa.algebra.matrix.DenseVector;
-import com.antigenomics.alisa.algebra.matrix.IndexedVectorValue;
-import com.antigenomics.alisa.algebra.matrix.Matrix;
-import com.antigenomics.alisa.algebra.matrix.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,31 +9,6 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DenseVectorTest {
-    @Test
-    void safetyTest() {
-        // incorrect length
-        List<IndexedVectorValue> valueList = new ArrayList<>();
-        valueList.add(new IndexedVectorValue(0, 1));
-        valueList.add(new IndexedVectorValue(1, 2));
-        assertThrows(Exception.class, () -> new DenseVector(valueList, 1));
-
-        // modification/copy
-        double[] values = new double[10];
-        DenseVector v1 = new DenseVector(values);
-        DenseVector v2 = new DenseVector(values, true);
-        values[1] = values[5] = values[7] = 1;
-        assertNotEquals(v2, v1);
-        Vector v3 = v2.deepCopy();
-        v2.addInplace(v1);
-        assertEquals(v2, v3.add(v1));
-
-        // dimension match
-        DenseVector v4 = new DenseVector(valueList, 2),
-                v5 = new DenseVector(valueList, 3); // should work with missing elements
-        assertThrows(Exception.class, () -> v4.add(v5));
-        assertThrows(Exception.class, () -> v4.addInplace(v5));
-    }
-
     @Test
     void instanceTest() {
         assertEquals(
@@ -64,7 +35,33 @@ class DenseVectorTest {
     }
 
     @Test
+    void safetyTest() {
+        // incorrect length
+        List<IndexedVectorValue> valueList = new ArrayList<>();
+        valueList.add(new IndexedVectorValue(0, 1));
+        valueList.add(new IndexedVectorValue(1, 2));
+        assertThrows(Exception.class, () -> new DenseVector(valueList, 1));
+
+        // modification/copy
+        double[] values = new double[10];
+        DenseVector v1 = new DenseVector(values);
+        DenseVector v2 = new DenseVector(values, true);
+        values[1] = values[5] = values[7] = 1;
+        assertNotEquals(v2, v1);
+        Vector v3 = v2.deepCopy();
+        v2.addInplace(v1);
+        assertEquals(v2, v3.add(v1));
+
+        // dimension match
+        DenseVector v4 = new DenseVector(valueList, 2),
+                v5 = new DenseVector(valueList, 3); // should work with missing elements
+        assertThrows(Exception.class, () -> v4.add(v5));
+        assertThrows(Exception.class, () -> v4.addInplace(v5));
+    }
+
+    @Test
     void normTest() {
+        assertEquals(0, Vector.DENSE_ZEROS(10).norm1());
         assertEquals(10, Vector.DENSE_ONES(10).norm1());
         assertEquals(20, Vector.DENSE_ONES(100).multiply(2.0).norm2());
     }
