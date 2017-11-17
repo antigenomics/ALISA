@@ -1,5 +1,10 @@
 package com.antigenomics.alisa.algebra;
 
+/**
+ *
+ * @param <V>
+ * @param <M>
+ */
 public interface VectorSpace<V extends VectorSpace<V, M>, M extends BilinearMap<V, M>> {
     double dotProduct(V b);
 

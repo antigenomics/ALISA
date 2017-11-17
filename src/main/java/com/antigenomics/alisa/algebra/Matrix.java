@@ -11,10 +11,13 @@ package com.antigenomics.alisa.algebra;
 public abstract class Matrix
         implements LinearSpaceObject<Matrix>, BilinearMap<Vector, Matrix>,
         Container<IndexedMatrixValue, Matrix> {
+    /* true matrix shape */
     protected final int numberOfRows, numberOfColumns;
     protected final boolean isLowerTriangular;
 
-    public static DenseMatrix fromArray(double[][] values) {
+    /* auxiliary constructors */
+
+    public static DenseMatrix DENSE(double[][] values) {
         int numberOfRows = values.length,
                 numberOfColumns = values[0].length;
         double[] arr = new double[numberOfRows * numberOfColumns];
@@ -26,17 +29,17 @@ public abstract class Matrix
         return new DenseMatrix(arr, numberOfColumns);
     }
 
-    public static DenseMatrix fromValues(int numberOfColumns, double... values) {
+    public static DenseMatrix DENSE(int numberOfColumns, double... values) {
         return new DenseMatrix(values,
                 numberOfColumns);
     }
 
-    public static DenseMatrix zeros(int numberOfRows, int numberOfColumns) {
+    public static DenseMatrix ZEROS(int numberOfRows, int numberOfColumns) {
         return new DenseMatrix(new double[numberOfRows * numberOfColumns],
                 numberOfColumns);
     }
 
-    public static DenseMatrix eye(int size) {
+    public static DenseMatrix EYE(int size) {
         double[] arr = new double[size * size];
         for (int i = 0; i < size; i++) {
             arr[i * (size + 1)] = 1;

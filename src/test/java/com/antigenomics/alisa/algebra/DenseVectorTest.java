@@ -120,7 +120,7 @@ class DenseVectorTest {
 
         Matrix v3v4op = v3.outerProduct(v4);
 
-        assertEquals(Matrix.fromArray(new double[][]{
+        assertEquals(Matrix.DENSE(new double[][]{
                         {3, 2, 1},
                         {6, 4, 2},
                         {9, 6, 3},
@@ -134,7 +134,7 @@ class DenseVectorTest {
 
         Matrix v4exp = v4.expand();
 
-        assertTrue(equalUpToTol(Matrix.fromArray(new double[][]{
+        assertTrue(equalUpToTol(Matrix.DENSE(new double[][]{
                         {9, 6, 3},
                         {6, 4, 2},
                         {3, 2, 1}
