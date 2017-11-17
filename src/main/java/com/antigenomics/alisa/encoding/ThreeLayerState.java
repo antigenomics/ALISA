@@ -1,7 +1,6 @@
 package com.antigenomics.alisa.encoding;
 
 import com.antigenomics.alisa.entities.Entity;
-import com.sun.istack.internal.NotNull;
 
 public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 extends Entity>
         implements State<Entity> {
@@ -9,9 +8,9 @@ public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 exte
     private final E2 secondValue;
     private final E3 thirdValue;
 
-    public ThreeLayerState(@NotNull final E1 firstValue,
-                           @NotNull final E2 secondValue,
-                           @NotNull final E3 thirdValue) {
+    public ThreeLayerState(final E1 firstValue,
+                           final E2 secondValue,
+                           final E3 thirdValue) {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
         this.thirdValue = thirdValue;

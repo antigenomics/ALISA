@@ -5,7 +5,6 @@ import com.antigenomics.alisa.encoding.VectorEncoding;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
 import com.antigenomics.alisa.encoding.ThreeLayerState;
-import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
 
@@ -18,9 +17,9 @@ public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends 
     private final Encoder<E3, V> thirdEncoder;
     private final LinearSpaceObjectArray<M> zeroParameters;
 
-    public ThreeLayerSpinGlassHamiltonian(@NotNull final Encoder<E1, V> firstEncoder,
-                                          @NotNull final Encoder<E2, V> secondEncoder,
-                                          @NotNull final Encoder<E3, V> thirdEncoder) {
+    public ThreeLayerSpinGlassHamiltonian(final Encoder<E1, V> firstEncoder,
+                                          final Encoder<E2, V> secondEncoder,
+                                          final Encoder<E3, V> thirdEncoder) {
         this.firstEncoder = firstEncoder;
         this.secondEncoder = secondEncoder;
         this.thirdEncoder = thirdEncoder;
@@ -52,8 +51,8 @@ public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends 
     }
 
     @Override
-    public double computeEnergy(@NotNull final ThreeLayerState<E1, E2, E3> state,
-                                @NotNull final LinearSpaceObjectArray<M> parameters) {
+    public double computeEnergy(final ThreeLayerState<E1, E2, E3> state,
+                                final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
         final V s3 = thirdEncoder.encode(state.getThirdValue());
@@ -74,8 +73,8 @@ public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends 
     }
 
     @Override
-    public LinearSpaceObjectArray<M> computeGradient(@NotNull final ThreeLayerState<E1, E2, E3> state,
-                                                     @NotNull final LinearSpaceObjectArray<M> parameters) {
+    public LinearSpaceObjectArray<M> computeGradient(final ThreeLayerState<E1, E2, E3> state,
+                                                     final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
         final V s3 = thirdEncoder.encode(state.getThirdValue());

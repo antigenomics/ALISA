@@ -1,4 +1,8 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
+
+import com.antigenomics.alisa.algebra.BilinearMap;
+import com.antigenomics.alisa.algebra.Container;
+import com.antigenomics.alisa.algebra.LinearSpaceObject;
 
 /**
  * A generic two-dimensional real vector. The storage type (dense/sparse) depends on implementation.

@@ -1,13 +1,12 @@
 package com.antigenomics.alisa.encoding;
 
 import com.antigenomics.alisa.entities.Entity;
-import com.sun.istack.internal.NotNull;
 
 public final class OneLayerState<E extends Entity>
         implements State<E> {
     private final E value;
 
-    public OneLayerState(@NotNull final E value) {
+    public OneLayerState(final E value) {
         this.value = value;
     }
 

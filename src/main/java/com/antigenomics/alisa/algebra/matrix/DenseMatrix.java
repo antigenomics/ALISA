@@ -1,6 +1,7 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
-import com.sun.istack.internal.NotNull;
+
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class DenseMatrix
      * @param elements        matrix values
      * @param numberOfColumns number of columns in matrix
      */
-    protected DenseMatrix(@NotNull final double[] elements, final int numberOfColumns) {
+    protected DenseMatrix(final double[] elements, final int numberOfColumns) {
         this(elements, numberOfColumns, false);
     }
 
@@ -40,7 +41,7 @@ public class DenseMatrix
      * @param numberOfColumns number of columns in resulting matrix
      * @param safe            if true will use a deep copy of the array
      */
-    public DenseMatrix(@NotNull final double[] elements, final int numberOfColumns, final boolean safe) {
+    public DenseMatrix(final double[] elements, final int numberOfColumns, final boolean safe) {
         super(computeNumberOfFullMatrixRows(elements.length, numberOfColumns), numberOfColumns);
         if (safe) {
             this.elements = Arrays.copyOf(elements, elements.length);
@@ -258,7 +259,7 @@ public class DenseMatrix
      * @param storage an empty list of indexed values
      * @return updated storage
      */
-    private List<IndexedMatrixValue> indexValues(@NotNull final List<IndexedMatrixValue> storage) {
+    private List<IndexedMatrixValue> indexValues(final List<IndexedMatrixValue> storage) {
         assert storage.isEmpty();
 
         for (int i = 0; i < numberOfRows; i++) {

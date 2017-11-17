@@ -4,17 +4,16 @@ import com.antigenomics.alisa.entities.Peptide;
 import com.antigenomics.alisa.estimator.mc.EntityMutator;
 import com.antigenomics.alisa.estimator.mc.MonteCarloUtils;
 import com.milaboratory.core.sequence.AminoAcidSequence;
-import com.sun.istack.internal.NotNull;
 
 import static com.antigenomics.alisa.impl.EncodingUtils.*;
 
 public class PeptideEntityMutator implements EntityMutator<Peptide> {
     @Override
-    public Peptide mutate(@NotNull final Peptide entity) {
+    public Peptide mutate(final Peptide entity) {
         return new Peptide(mutateOnce(entity.getSequence()));
     }
 
-    static AminoAcidSequence mutateOnce(@NotNull final AminoAcidSequence sequence) {
+    static AminoAcidSequence mutateOnce(final AminoAcidSequence sequence) {
         final byte[] aaBytes = sequence.asArray();
         final int mutationPos = MonteCarloUtils.nextInt(aaBytes.length);
         byte mutatedBase;

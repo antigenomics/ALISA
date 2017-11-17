@@ -1,12 +1,11 @@
 package com.antigenomics.alisa.entities;
 
 import com.milaboratory.core.sequence.AminoAcidSequence;
-import com.sun.istack.internal.NotNull;
 
 public class Peptide implements Entity {
     private final AminoAcidSequence sequence;
 
-    public Peptide(@NotNull final AminoAcidSequence sequence) {
+    public Peptide(final AminoAcidSequence sequence) {
         this.sequence = sequence;
     }
 

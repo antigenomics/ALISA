@@ -1,11 +1,9 @@
 package com.antigenomics.alisa.entities;
 
-import com.sun.istack.internal.NotNull;
-
 public class BitString implements Entity {
     private final boolean[] bits;
 
-    public BitString(@NotNull final boolean[] bits) {
+    public BitString(final boolean[] bits) {
         this.bits = bits;
     }
 

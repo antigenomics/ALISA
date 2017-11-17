@@ -1,5 +1,6 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.LinkedList;

@@ -1,7 +1,5 @@
 package com.antigenomics.alisa.algebra;
 
-import com.sun.istack.internal.NotNull;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +21,7 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
     }
 
     @Override
-    public LinearSpaceObjectArray<O> add(@NotNull final LinearSpaceObjectArray<O> other) {
+    public LinearSpaceObjectArray<O> add(final LinearSpaceObjectArray<O> other) {
         checkSizeMatch(other);
         final List<O> newObjectList = new ArrayList<>(objectList.size());
 
@@ -69,7 +67,7 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
     }
 
     @Override
-    public void addInplace(@NotNull LinearSpaceObjectArray<O> other) {
+    public void addInplace(LinearSpaceObjectArray<O> other) {
         checkSizeMatch(other);
         for (int i = 0; i < objectList.size(); i++) {
             objectList.get(i).addInplace(other.objectList.get(i));
@@ -92,7 +90,7 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
         return new LinearSpaceObjectArray<>(newObjectList);
     }
 
-    private void checkSizeMatch(@NotNull LinearSpaceObjectArray<O> other) {
+    private void checkSizeMatch(LinearSpaceObjectArray<O> other) {
         if (objectList.size() != other.objectList.size())
             throw new IllegalArgumentException("Array sizes don't match");
     }

@@ -1,5 +1,9 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
+import com.antigenomics.alisa.algebra.matrix.DenseVector;
+import com.antigenomics.alisa.algebra.matrix.IndexedVectorValue;
+import com.antigenomics.alisa.algebra.matrix.Matrix;
+import com.antigenomics.alisa.algebra.matrix.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

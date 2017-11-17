@@ -5,7 +5,6 @@ import com.antigenomics.alisa.encoding.VectorEncoding;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
 import com.antigenomics.alisa.encoding.TwoLayerState;
-import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
 
@@ -17,8 +16,8 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     private final Encoder<E2, V> secondEncoder;
     private final LinearSpaceObjectArray<M> zeroParameters;
 
-    public TwoLayerSpinGlassHamiltonian(@NotNull final Encoder<E1, V> firstEncoder,
-                                        @NotNull final Encoder<E2, V> secondEncoder) {
+    public TwoLayerSpinGlassHamiltonian(final Encoder<E1, V> firstEncoder,
+                                        final Encoder<E2, V> secondEncoder) {
         this.firstEncoder = firstEncoder;
         this.secondEncoder = secondEncoder;
         final V z1 = firstEncoder.getZero(),
@@ -41,8 +40,8 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     }
 
     @Override
-    public double computeEnergy(@NotNull final TwoLayerState<E1, E2> state,
-                                @NotNull final LinearSpaceObjectArray<M> parameters) {
+    public double computeEnergy(final TwoLayerState<E1, E2> state,
+                                final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
 
@@ -56,8 +55,8 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     }
 
     @Override
-    public LinearSpaceObjectArray<M> computeGradient(@NotNull final TwoLayerState<E1, E2> state,
-                                                     @NotNull final LinearSpaceObjectArray<M> parameters) {
+    public LinearSpaceObjectArray<M> computeGradient(final TwoLayerState<E1, E2> state,
+                                                     final LinearSpaceObjectArray<M> parameters) {
         final V s1 = firstEncoder.encode(state.getFirstValue());
         final V s2 = secondEncoder.encode(state.getSecondValue());
 

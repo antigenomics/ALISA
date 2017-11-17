@@ -1,4 +1,6 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
+
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 
 import java.util.*;
 

@@ -1,5 +1,6 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
+import com.antigenomics.alisa.algebra.matrix.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -8,14 +9,14 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PerformanceTests {
+public class SpeedTest {
     @Test
     void spraseDenseOuterProductSum() {
         final Random rnd = new Random(42);
         List<Vector> dense = new ArrayList<>(),
                 sparse = new ArrayList<>();
 
-        int ndim = 50, nvec = 500;
+        int ndim = 50, nvec = 1000;
         double f = 0.1;
 
         System.out.println("Sparse vs dense vector test. Vector length='" + ndim +
@@ -74,7 +75,7 @@ class PerformanceTests {
             v.expand().norm2();
         }
         long timeDenseExpandSum = System.currentTimeMillis() - startTime;
-        System.out.println("Dense vector a -> dense storage += a*aT: " +
+        System.out.println("Dense vector a -> dense storage -> norm2: " +
                 timeDenseExpandSum + "ms");
 
         //////
@@ -84,7 +85,7 @@ class PerformanceTests {
             v.expand().norm2();
         }
         long timeSparseExpandSum = System.currentTimeMillis() - startTime;
-        System.out.println("Dense vector a -> dense storage += a*aT: " +
+        System.out.println("Sparse vector a -> sparse storage -> norm2: " +
                 timeSparseExpandSum + "ms");
 
         assertTrue(timeDenseExpandSum > 3 * timeSparseExpandSum);

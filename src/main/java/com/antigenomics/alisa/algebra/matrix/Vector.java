@@ -1,6 +1,8 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
-import com.sun.istack.internal.NotNull;
+import com.antigenomics.alisa.algebra.Container;
+import com.antigenomics.alisa.algebra.LinearSpaceObject;
+import com.antigenomics.alisa.algebra.VectorSpace;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -73,7 +75,7 @@ public abstract class Vector
      * @param other vector to add
      * @return vector containing the elementwise sum
      */
-    protected abstract Vector addUnchecked(@NotNull final Vector other);
+    protected abstract Vector addUnchecked(final Vector other);
 
     /**
      * Add elements of another vector in-place.
@@ -82,7 +84,7 @@ public abstract class Vector
      *
      * @param other vector to add
      */
-    protected abstract void addInplaceUnchecked(@NotNull final Vector other);
+    protected abstract void addInplaceUnchecked(final Vector other);
 
     /**
      * A scalar product of two vectors,
@@ -92,7 +94,7 @@ public abstract class Vector
      * @param other vector
      * @return dot product value
      */
-    protected abstract double dotProductUnchecked(@NotNull final Vector other);
+    protected abstract double dotProductUnchecked(final Vector other);
 
     /**
      * Add elements of another vector to this vector and returns the resulting vector.
@@ -103,7 +105,7 @@ public abstract class Vector
      * @return vector containing the elementwise sum
      */
     @Override
-    public final Vector add(@NotNull final Vector other) {
+    public final Vector add(final Vector other) {
         checkSizeMatch(other);
         return addUnchecked(other);
     }
@@ -116,7 +118,7 @@ public abstract class Vector
      * @param other vector of the same length to add
      */
     @Override
-    public final void addInplace(@NotNull final Vector other) {
+    public final void addInplace(final Vector other) {
         if (this == other) {
             multiplyInplace(2.0);
         } else {
@@ -134,7 +136,7 @@ public abstract class Vector
      * @return dot product value
      */
     @Override
-    public final double dotProduct(@NotNull final Vector other) {
+    public final double dotProduct(final Vector other) {
         checkSizeMatch(other);
         return dotProductUnchecked(other);
     }
@@ -144,7 +146,7 @@ public abstract class Vector
      *
      * @param other vector to compare with
      */
-    private void checkSizeMatch(@NotNull final Vector other) {
+    private void checkSizeMatch(final Vector other) {
         if (length != other.length)
             throw new IllegalArgumentException("Vector lengths don't match");
     }
@@ -170,7 +172,7 @@ public abstract class Vector
      * @inheritdoc
      */
     @Override
-    public double getAt(@NotNull final int... indices) {
+    public double getAt(final int... indices) {
         if (indices.length > 1)
             throw new IllegalArgumentException();
         return getAt(indices[0]);

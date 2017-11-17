@@ -1,9 +1,8 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
-import com.sun.istack.internal.NotNull;
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
@@ -28,7 +27,7 @@ public class DenseTriangularMatrix extends Matrix {
      *
      * @param elements matrix values
      */
-    protected DenseTriangularMatrix(@NotNull final double[] elements) {
+    protected DenseTriangularMatrix(final double[] elements) {
         this(elements, false);
     }
 
@@ -43,7 +42,7 @@ public class DenseTriangularMatrix extends Matrix {
      * @param elements matrix values
      * @param safe     if true will use a deep copy of the array
      */
-    public DenseTriangularMatrix(@NotNull final double[] elements, final boolean safe) {
+    public DenseTriangularMatrix(final double[] elements, final boolean safe) {
         super(getTriangularMatrixSize(elements.length));
         if (safe) {
             this.elements = Arrays.copyOf(elements, elements.length);
@@ -259,7 +258,7 @@ public class DenseTriangularMatrix extends Matrix {
      * @param storage an empty list of indexed values
      * @return updated storage
      */
-    private List<IndexedMatrixValue> indexValues(@NotNull final List<IndexedMatrixValue> storage) {
+    private List<IndexedMatrixValue> indexValues(final List<IndexedMatrixValue> storage) {
         assert storage.isEmpty();
 
         int k = 0;

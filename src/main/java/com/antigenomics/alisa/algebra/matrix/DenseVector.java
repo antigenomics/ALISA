@@ -1,6 +1,6 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa.algebra.matrix;
 
-import com.sun.istack.internal.NotNull;
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class DenseVector
      *
      * @param elements vector elements
      */
-    protected DenseVector(@NotNull final double[] elements) {
+    protected DenseVector(final double[] elements) {
         this(elements, false);
     }
 
@@ -34,7 +34,7 @@ public class DenseVector
      * @param elements vector values
      * @param safe     if true will use a deep copy of the array
      */
-    public DenseVector(@NotNull final double[] elements, final boolean safe) {
+    public DenseVector(final double[] elements, final boolean safe) {
         super(elements.length);
         if (safe) {
             this.elements = Arrays.copyOf(elements, length);
@@ -52,7 +52,7 @@ public class DenseVector
      * @param length      vector length
      * @throws IndexOutOfBoundsException if the index of any of elements is greater or equal to the length
      */
-    public DenseVector(@NotNull final List<IndexedVectorValue> elementList, final int length) {
+    public DenseVector(final List<IndexedVectorValue> elementList, final int length) {
         super(length);
         this.elements = new double[length];
 
@@ -227,7 +227,7 @@ public class DenseVector
      * @param storage an empty list of indexed values
      * @return updated storage
      */
-    private List<IndexedVectorValue> indexValues(@NotNull final List<IndexedVectorValue> storage) {
+    private List<IndexedVectorValue> indexValues(final List<IndexedVectorValue> storage) {
         assert storage.isEmpty();
 
         for (int i = 0; i < elements.length; i++) {
@@ -247,7 +247,7 @@ public class DenseVector
      * @param elements primitive array, pre-initialized
      * @param other    other vector, either sparse or dense
      */
-    private static void addImpl(@NotNull final double[] elements, @NotNull final Vector other) {
+    private static void addImpl(final double[] elements, final Vector other) {
         if (other.isSparse()) {
             for (IndexedVectorValue e : other) {
                 elements[e.getIndex()] += e.getDoubleValue();
