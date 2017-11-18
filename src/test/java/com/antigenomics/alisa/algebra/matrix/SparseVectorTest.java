@@ -59,6 +59,17 @@ public class SparseVectorTest {
                 v5 = new SparseVector(valueList, 3); // should work with missing elements
         assertThrows(Exception.class, () -> v4.add(v5));
         assertThrows(Exception.class, () -> v4.addInplace(v5));
+
+        // sort test
+        valueList.add(new IndexedVectorValue(4, 1));
+        valueList.add(new IndexedVectorValue(2, 1));
+
+        IndexedVectorValue prevValue = IndexedVectorValue.EMPTY;
+
+        for (IndexedVectorValue v : new SparseVector(valueList, 5, true)) {
+            assertTrue(v.compareTo(prevValue) > 0);
+            prevValue = v;
+        }
     }
 
     @Test

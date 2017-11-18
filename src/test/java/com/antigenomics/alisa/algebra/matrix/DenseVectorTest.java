@@ -57,6 +57,17 @@ class DenseVectorTest {
                 v5 = new DenseVector(valueList, 3); // should work with missing elements
         assertThrows(Exception.class, () -> v4.add(v5));
         assertThrows(Exception.class, () -> v4.addInplace(v5));
+
+        // sort test
+        valueList.add(new IndexedVectorValue(4, 1));
+        valueList.add(new IndexedVectorValue(2, 1));
+
+        IndexedVectorValue prevValue = IndexedVectorValue.EMPTY;
+
+        for (IndexedVectorValue v : new DenseVector(valueList, 5)) {
+            assertTrue(v.compareTo(prevValue) > 0);
+            prevValue = v;
+        }
     }
 
     @Test

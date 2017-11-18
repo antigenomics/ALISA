@@ -1,9 +1,0 @@
-com.antigenomics.alisa.algebra.matrix
-com.antigenomics.alisa.algebra
-com.antigenomics.alisa.algebra.tensor
-com.antigenomics.alisa.encoding
-com.antigenomics.alisa.hamiltonian
-com.antigenomics.alisa.entities
-com.antigenomics.alisa.impl
-com.antigenomics.alisa.estimator
-com.antigenomics.alisa.estimator.mc
