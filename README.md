@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/antigenomics/ALISA.svg?branch=master)](https://travis-ci.org/antigenomics/ALISA)
+[![Javadoc](https://img.shields.io/badge/javadoc-0.1.0-blue.svg)](https://antigenomics.github.io/ALISA/)
 
 # ALgorithms for Inverse Statistical Approaches (ALISA)
 
