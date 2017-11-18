@@ -7,7 +7,7 @@ public class IndexedCategory
         implements IndexedValue<IndexedCategory> {
     private final int index, category;
 
-    public IndexedCategory(int index, int category) {
+    public IndexedCategory(final int index, final int category) {
         this.index = index;
         this.category = category;
     }
@@ -22,8 +22,16 @@ public class IndexedCategory
         return category;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
     @Override
-    public IndexedCategory add(IndexedCategory other) {
+    public IndexedCategory add(final IndexedCategory other) {
         throw new NotImplementedException();
     }
 
@@ -33,7 +41,7 @@ public class IndexedCategory
     }
 
     @Override
-    public int compareTo(IndexedCategory o) {
+    public int compareTo(final IndexedCategory o) {
         return Integer.compare(category, o.category);
     }
 }

@@ -34,8 +34,8 @@ public class DenseTriangularMatrix extends Matrix {
     /**
      * Creates a new dense matrix from a primitive array of elements.
      * The array is either copied or used as is depending on safe parameter.
-     * Elements array stores matrix values in a linear way, i.e. first row elements up to diagonal one
-     * (inclusive) are followed by the second row elements and so on.
+     * Elements array stores matrix values in a linear way, i.e. first element
+     * followed by two second row elements and so on (all row elements up to diagonal element inclusive).
      * Matrix size is computed from the length of provided array,
      * an exception is thrown if resulting matrix is not square.
      *

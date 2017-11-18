@@ -64,19 +64,6 @@ public abstract class Matrix
         return new SparseMatrix(elements, numberOfRows, numberOfColumns);
     }
 
-
-    /**
-     * Create a dense matrix from a linear array of elements.
-     *
-     * @param numberOfColumns number of columns in matrix
-     * @param values          matrix elements
-     * @return a dense matrix
-     */
-    public static DenseMatrix DENSE(int numberOfColumns, double... values) {
-        return new DenseMatrix(values,
-                numberOfColumns);
-    }
-
     /**
      * Creates a dense matrix of zeros
      *
@@ -84,7 +71,7 @@ public abstract class Matrix
      * @param numberOfColumns number of columns
      * @return a dense matrix
      */
-    public static DenseMatrix ZEROS_DENSE(int numberOfRows, int numberOfColumns) {
+    public static DenseMatrix DENSE_ZEROS(int numberOfRows, int numberOfColumns) {
         return new DenseMatrix(new double[numberOfRows * numberOfColumns],
                 numberOfColumns);
     }
@@ -96,7 +83,7 @@ public abstract class Matrix
      * @param numberOfColumns number of columns
      * @return a sparse matrix
      */
-    public static SparseMatrix ZEROS_SPARSE(int numberOfRows, int numberOfColumns) {
+    public static SparseMatrix SPARSE_ZEROS(int numberOfRows, int numberOfColumns) {
         return new SparseMatrix(new LinkedList<>(), numberOfRows,
                 numberOfColumns);
     }
@@ -109,10 +96,10 @@ public abstract class Matrix
      * @param size number of rows/columns
      * @return a dense matrix
      */
-    public static DenseTriangularMatrix EYE_DENSE(int size) {
-        double[] arr = new double[size * size];
+    public static DenseTriangularMatrix DENSE_EYE(int size) {
+        double[] arr = new double[size * (size + 1) / 2];
         for (int i = 0; i < size; i++) {
-            arr[i * (size + 1)] = 1;
+            arr[i * (i + 3) / 2] = 1;
         }
         return new DenseTriangularMatrix(arr);
     }
@@ -124,7 +111,7 @@ public abstract class Matrix
      * @param size number of rows/columns
      * @return a sparse matrix
      */
-    public static SparseTriangularMatrix EYE_SPARSE(int size) {
+    public static SparseTriangularMatrix SPARSE_EYE(int size) {
         List<IndexedMatrixValue> elements = new LinkedList<>();
         for (int i = 0; i < size; i++) {
             elements.add(new IndexedMatrixValue(i, i, 1));

@@ -1,4 +1,5 @@
 package com.antigenomics.alisa.algebra.tensor;
 
-public class FullTensor {
+public class FullTensor
+        extends Tensor {
 }
