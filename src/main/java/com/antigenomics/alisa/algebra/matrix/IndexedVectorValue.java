@@ -2,6 +2,10 @@ package com.antigenomics.alisa.algebra.matrix;
 
 import com.antigenomics.alisa.algebra.IndexedValue;
 
+/**
+ * An indexed vector element. Contains real value and its indexs.
+ * The comparison operation first compares the index.
+ */
 public class IndexedVectorValue
         implements IndexedValue<IndexedVectorValue> {
     public static final IndexedVectorValue EMPTY = new IndexedVectorValue(-1, 0);
@@ -9,11 +13,20 @@ public class IndexedVectorValue
     private final int index;
     private final double value;
 
+    /**
+     * Creates a new indexed vector value.
+     * @param index position in vector
+     * @param value element value
+     */
     public IndexedVectorValue(int index, double value) {
         this.index = index;
         this.value = value;
     }
 
+    /**
+     * Gets the position in vector
+     * @return index
+     */
     public int getIndex() {
         return index;
     }

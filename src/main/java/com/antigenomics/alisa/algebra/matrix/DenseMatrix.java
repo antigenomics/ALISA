@@ -416,8 +416,11 @@ public class DenseMatrix
         if (other.isSparse()) {
             if (other.isLowerTriangular) {
                 for (IndexedMatrixValue e : other) {
-                    elements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
-                    elements[getFullMatrixIndex(e.getColIndex(), e.getRowIndex(), numberOfColumns)] += e.getDoubleValue();
+                    int i = e.getRowIndex(), j = e.getColIndex();
+                    elements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
+                    if (i != j) {
+                        elements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
+                    }
                 }
             } else {
                 for (IndexedMatrixValue e : other) {

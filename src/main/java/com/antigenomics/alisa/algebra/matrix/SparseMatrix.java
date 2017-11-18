@@ -3,9 +3,7 @@ package com.antigenomics.alisa.algebra.matrix;
 import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SparseMatrix
@@ -35,6 +33,12 @@ public class SparseMatrix
     protected SparseMatrix(List<IndexedMatrixValue> elementList,
                            int numberOfRows, int numberOfColumns) {
         this(elementList, numberOfRows, numberOfColumns, false);
+    }
+
+    protected SparseMatrix(List<IndexedMatrixValue> elementList,
+                           int numberOfRows) {
+        super(numberOfRows);
+        this.elementList = elementList;
     }
 
     // todo: only safe constructors public? specific static methods for unsafe
@@ -108,7 +112,24 @@ public class SparseMatrix
     protected Matrix addUnchecked(Matrix other) {
         if (other.isSparse()) {
             LinkedList<IndexedMatrixValue> newElements = new LinkedList<>();
-            LinearAlgebraUtils.combineAdd(newElements, this, other);
+            if (other.isLowerTriangular) {
+                LinkedList<IndexedMatrixValue> other2 = new LinkedList<>();
+
+                for (IndexedMatrixValue indexedMatrixValue : other) {
+                    other2.add(indexedMatrixValue);
+                    int i = indexedMatrixValue.getRowIndex(),
+                            j = indexedMatrixValue.getColIndex();
+                    if (i != j) {
+                        other2.add(new IndexedMatrixValue(j, i, indexedMatrixValue.getDoubleValue()));
+                    }
+                }
+
+                other2.sort(Comparator.naturalOrder());
+
+                LinearAlgebraUtils.combineAdd(newElements, this, other2);
+            } else {
+                LinearAlgebraUtils.combineAdd(newElements, this, other);
+            }
             return new SparseMatrix(newElements, numberOfRows, numberOfColumns);
         } else {
             return other.addUnchecked(this);
@@ -119,7 +140,25 @@ public class SparseMatrix
     protected void addInplaceUnchecked(Matrix other) {
         List<IndexedMatrixValue> elementsCopy = copyList();
         elementList.clear();
-        LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other);
+
+        if (other.isLowerTriangular) {
+            LinkedList<IndexedMatrixValue> other2 = new LinkedList<>();
+
+            for (IndexedMatrixValue indexedMatrixValue : other) {
+                other2.add(indexedMatrixValue);
+                int i = indexedMatrixValue.getRowIndex(),
+                        j = indexedMatrixValue.getColIndex();
+                if (i != j) {
+                    other2.add(new IndexedMatrixValue(j, i, indexedMatrixValue.getDoubleValue()));
+                }
+            }
+
+            other2.sort(Comparator.naturalOrder());
+
+            LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other2);
+        } else {
+            LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other);
+        }
     }
 
     @Override
@@ -193,5 +232,31 @@ public class SparseMatrix
     @Override
     public Iterator<IndexedMatrixValue> iterator() {
         return elementList.iterator();
+    }
+
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner("; ");
+        for (IndexedMatrixValue element : elementList) {
+            joiner.add(element.getRowIndex() + "," + element.getColIndex() + ":" +
+                    Float.toString((float) element.getDoubleValue()));
+        }
+        return "[" + joiner.toString() + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SparseMatrix that = (SparseMatrix) o;
+
+        return elementList != null ? elementList.equals(that.elementList) : that.elementList == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return elementList != null ? elementList.hashCode() : 0;
     }
 }

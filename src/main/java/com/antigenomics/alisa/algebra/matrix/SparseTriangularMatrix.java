@@ -5,16 +5,18 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class SparseTriangularMatrix
         extends SparseMatrix {
     public SparseTriangularMatrix(List<IndexedMatrixValue> elementList,
-                                  int numberOfRows) {
-        super(elementList, numberOfRows, numberOfRows);
+                                  int size) {
+        super(elementList, size);
     }
 
     private SparseTriangularMatrix(SparseMatrix matrix) {
-        super(matrix.elementList, matrix.numberOfRows, matrix.numberOfRows);
+        super(matrix.elementList, matrix.numberOfRows);
+        assert matrix.numberOfRows == matrix.numberOfColumns;
     }
 
     @Override

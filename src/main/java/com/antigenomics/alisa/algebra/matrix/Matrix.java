@@ -4,6 +4,9 @@ import com.antigenomics.alisa.algebra.VectorMapping;
 import com.antigenomics.alisa.algebra.Container;
 import com.antigenomics.alisa.algebra.LinearSpaceObject;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * A generic two-dimensional real vector. The storage type (dense/sparse) depends on implementation.
  * Based on the storage type, fast access is implemented either via getAt (dense) or iterator (sparse) functions.
@@ -21,6 +24,12 @@ public abstract class Matrix
 
     /* auxiliary constructors */
 
+    /**
+     * Create a dense matrix from an array of elements.
+     *
+     * @param values matrix elements
+     * @return a dense matrix
+     */
     public static DenseMatrix DENSE(double[][] values) {
         int numberOfRows = values.length,
                 numberOfColumns = values[0].length;
@@ -33,22 +42,94 @@ public abstract class Matrix
         return new DenseMatrix(arr, numberOfColumns);
     }
 
+    /**
+     * Create a sparse matrix from an array of elements.
+     *
+     * @param values matrix elements
+     * @return a dense matrix
+     */
+    public static SparseMatrix SPARSE(double[][] values) {
+        int numberOfRows = values.length,
+                numberOfColumns = values[0].length;
+        List<IndexedMatrixValue> elements = new LinkedList<>();
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                double value = values[i][j];
+
+                if (value != 0) {
+                    elements.add(new IndexedMatrixValue(i, j, value));
+                }
+            }
+        }
+        return new SparseMatrix(elements, numberOfRows, numberOfColumns);
+    }
+
+
+    /**
+     * Create a dense matrix from a linear array of elements.
+     *
+     * @param numberOfColumns number of columns in matrix
+     * @param values          matrix elements
+     * @return a dense matrix
+     */
     public static DenseMatrix DENSE(int numberOfColumns, double... values) {
         return new DenseMatrix(values,
                 numberOfColumns);
     }
 
-    public static DenseMatrix ZEROS(int numberOfRows, int numberOfColumns) {
+    /**
+     * Creates a dense matrix of zeros
+     *
+     * @param numberOfRows    number of rows
+     * @param numberOfColumns number of columns
+     * @return a dense matrix
+     */
+    public static DenseMatrix ZEROS_DENSE(int numberOfRows, int numberOfColumns) {
         return new DenseMatrix(new double[numberOfRows * numberOfColumns],
                 numberOfColumns);
     }
 
-    public static DenseMatrix EYE(int size) {
+    /**
+     * Creates an empty sparse matrix
+     *
+     * @param numberOfRows    number of rows
+     * @param numberOfColumns number of columns
+     * @return a sparse matrix
+     */
+    public static SparseMatrix ZEROS_SPARSE(int numberOfRows, int numberOfColumns) {
+        return new SparseMatrix(new LinkedList<>(), numberOfRows,
+                numberOfColumns);
+    }
+
+
+    /**
+     * Creates a dense identity matrix with ones on the diagonal.
+     * The resulting matrix is symmetric.
+     *
+     * @param size number of rows/columns
+     * @return a dense matrix
+     */
+    public static DenseTriangularMatrix EYE_DENSE(int size) {
         double[] arr = new double[size * size];
         for (int i = 0; i < size; i++) {
             arr[i * (size + 1)] = 1;
         }
-        return new DenseMatrix(arr, size);
+        return new DenseTriangularMatrix(arr);
+    }
+
+    /**
+     * Creates a sparse identity matrix with ones on the diagonal.
+     * The resulting matrix is symmetric.
+     *
+     * @param size number of rows/columns
+     * @return a sparse matrix
+     */
+    public static SparseTriangularMatrix EYE_SPARSE(int size) {
+        List<IndexedMatrixValue> elements = new LinkedList<>();
+        for (int i = 0; i < size; i++) {
+            elements.add(new IndexedMatrixValue(i, i, 1));
+        }
+        return new SparseTriangularMatrix(elements, size);
     }
 
     protected Matrix(int numberOfRows, int numberOfColumns) {
