@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/antigenomics/ALISA.svg?branch=master)](https://travis-ci.org/antigenomics/ALISA)
+
 # ALgorithms for Inverse Statistical Approaches (ALISA)
 
 Solving inverse problem of statistical mechanics: determining Hamiltonian representation parameters from an observed sample of states of the system.
