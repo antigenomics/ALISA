@@ -2,6 +2,13 @@ package com.antigenomics.alisa.algebra;
 
 import java.io.Serializable;
 
+/**
+ * A container of indexed values. Can be either accessed by indices or used as an iterable.
+ * The efficiency of fetching an indexed value depends on the implementation (sparse/dense).
+ *
+ * @param <V> element type
+ * @param <C> container type
+ */
 public interface Container<V extends IndexedValue<V>, C extends Container<V, C>>
         extends Iterable<V>, TypedCloneable<C>, Serializable {
     /**
@@ -13,6 +20,7 @@ public interface Container<V extends IndexedValue<V>, C extends Container<V, C>>
 
     /**
      * Fetches the value stored at a given index combination.
+     *
      * @param indices indices of a container element
      * @return double value
      */
