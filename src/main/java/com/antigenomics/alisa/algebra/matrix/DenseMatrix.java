@@ -9,7 +9,7 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
 
 /**
  * A two-dimensional matrix backed by a dense (primitive) array storage.
- * Fast operations with this matrix involve calling getAt method. Working with this object as an
+ * Fast operations with this matrix involve calling getAt() method. Working with this object as an
  * iterable of IndexedMatrixElement is slow as the inner array is copied to a list every time an iterator is called.
  * Dense matrix extends mutable linear object and can be scaled/added with matrices of the same row and column count.
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
@@ -69,25 +69,19 @@ public class DenseMatrix
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(int rowIndex, int columnIndex) {
         return elements[getFullMatrixIndex(rowIndex, columnIndex, numberOfColumns)];
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double getAt(int linearIndex) {
         return elements[linearIndex];
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix transpose() {
         double[] newElements = new double[elements.length];
@@ -103,9 +97,7 @@ public class DenseMatrix
         return new DenseMatrix(newElements, numberOfRows);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected final double bilinearFormUnchecked(Vector a) {
         if (a.isSparse()) {
@@ -115,9 +107,7 @@ public class DenseMatrix
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Vector linearFormUnchecked(Vector b) {
         double[] resVector = new double[numberOfRows];
@@ -140,9 +130,7 @@ public class DenseMatrix
         return new DenseVector(resVector);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double bilinearFormUnchecked(Vector a, Vector b) {
         if (a.isSparse()) {
@@ -158,9 +146,7 @@ public class DenseMatrix
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Matrix addUnchecked(Matrix other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
@@ -168,59 +154,43 @@ public class DenseMatrix
         return new DenseMatrix(newElements, numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected void addInplaceUnchecked(Matrix other) {
         addImpl(elements, other);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix multiply(double scalar) {
         return new DenseMatrix(LinearAlgebraUtils.scale(elements, scalar),
                 numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
     @Override
     public void multiplyInplace(double scalar) {
         LinearAlgebraUtils.scaleInplace(elements, scalar);
     }
 
-    /**
-     * @inheritdoc
-     */
     @Override
     public Matrix deepCopy() {
         return new DenseMatrix(Arrays.copyOf(elements, elements.length),
                 numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Iterator<IndexedMatrixValue> iterator() {
         return indexValues(new ArrayList<>()).iterator();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public boolean isSparse() {
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public int getEffectiveSize() {
         int effectiveSize = 0;
@@ -234,18 +204,14 @@ public class DenseMatrix
         return effectiveSize;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix asSparse() {
         return new SparseMatrix(indexValues(new LinkedList<>()),
                 numberOfRows, numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix asDense() {
         return deepCopy();

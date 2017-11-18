@@ -73,33 +73,25 @@ public class DenseTriangularMatrix extends Matrix {
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(int rowIndex, int columnIndex) {
         return elements[getTriangularMatrixIndex(rowIndex, columnIndex)];
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double getAt(int linearIndex) {
         return elements[linearIndex];
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix transpose() {
         return this;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double bilinearFormUnchecked(Vector a, Vector b) {
         if (a == b) {
@@ -109,9 +101,7 @@ public class DenseTriangularMatrix extends Matrix {
         throw new NotImplementedException();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected final double bilinearFormUnchecked(Vector a) {
         double res = 0;
@@ -137,9 +127,7 @@ public class DenseTriangularMatrix extends Matrix {
         return res;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Vector linearFormUnchecked(Vector b) {
         double[] resVector = new double[numberOfRows];
@@ -162,9 +150,7 @@ public class DenseTriangularMatrix extends Matrix {
         return new DenseVector(resVector);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Matrix addUnchecked(Matrix other) {
         if (!other.isLowerTriangular) {
@@ -175,9 +161,7 @@ public class DenseTriangularMatrix extends Matrix {
         return new DenseMatrix(newElements, numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected void addInplaceUnchecked(Matrix other) {
         if (!other.isLowerTriangular) {
@@ -186,65 +170,49 @@ public class DenseTriangularMatrix extends Matrix {
         addImpl(elements, other);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix multiply(double scalar) {
         return new DenseTriangularMatrix(LinearAlgebraUtils.scale(elements, scalar));
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public void multiplyInplace(double scalar) {
         LinearAlgebraUtils.scaleInplace(elements, scalar);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix deepCopy() {
         return new DenseTriangularMatrix(Arrays.copyOf(elements, elements.length));
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Iterator<IndexedMatrixValue> iterator() {
         return indexValues(new ArrayList<>()).iterator();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public boolean isSparse() {
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public int getEffectiveSize() {
         return elements.length;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix asSparse() {
         return new SparseTriangularMatrix(indexValues(new LinkedList<>()), numberOfRows);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix asDense() {
         return deepCopy();

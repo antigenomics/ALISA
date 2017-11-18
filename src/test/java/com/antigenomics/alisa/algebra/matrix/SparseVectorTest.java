@@ -117,7 +117,8 @@ public class SparseVectorTest {
         // cartesian product
 
         Vector v3 = Vector.SPARSE(1, 2, 3, 4),
-                v4 = Vector.SPARSE(3, 2, 1);
+                v4 = Vector.SPARSE(3, 2, 1),
+                v5 = Vector.SPARSE(0, 2, 1);
 
         // v3 v4T
 
@@ -132,6 +133,20 @@ public class SparseVectorTest {
                 v3v4op);
 
         assertFalse(v3v4op.isLowerTriangular);
+
+        // v3 v5T
+
+        Matrix v3v5op = v3.outerProduct(v5);
+
+        assertEquals(Matrix.SPARSE(new double[][]{
+                        {0, 2, 1},
+                        {0, 4, 2},
+                        {0, 6, 3},
+                        {0, 8, 4}
+                }),
+                v3v5op);
+
+        assertFalse(v3v5op.isLowerTriangular);
 
         // v3 v3T
 

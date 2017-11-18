@@ -6,49 +6,62 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A two-dimensional matrix backed by a sparse (linked list) storage..
+ * Fast operations with this matrix involve calling getAt method. Working with this object as an
+ * iterable of IndexedMatrixElement is slow as the inner array is copied to a list every time an iterator is called.
+ * Dense matrix extends mutable linear object and can be scaled/added with matrices of the same row and column count.
+ * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
+ * bilinear forms.
+ */
 public class SparseMatrix
         extends Matrix {
     protected final List<IndexedMatrixValue> elementList;
 
-    private static void check(Iterable<IndexedMatrixValue> elementList,
-                              int numberOfRows, int numberOfColumns) {
-        IndexedMatrixValue prevElement = IndexedMatrixValue.EMPTY;
-        for (IndexedMatrixValue indexedMatrixValue : elementList) {
-            int i = indexedMatrixValue.getRowIndex(),
-                    j = indexedMatrixValue.getColIndex();
-
-            if (i < 0 || i >= numberOfRows ||
-                    j < 0 || j >= numberOfColumns) {
-                throw new IndexOutOfBoundsException();
-            }
-
-            if (prevElement.compareTo(indexedMatrixValue) >= 0) {
-                throw new IllegalArgumentException();
-            }
-
-            prevElement = indexedMatrixValue;
-        }
-    }
-
+    /**
+     * Internal. Unsafe constructor for full sparse matrix.
+     *
+     * @param elementList     matrix values
+     * @param numberOfRows    number of rows
+     * @param numberOfColumns number of columns
+     */
     protected SparseMatrix(List<IndexedMatrixValue> elementList,
                            int numberOfRows, int numberOfColumns) {
         this(elementList, numberOfRows, numberOfColumns, false);
     }
 
+    /**
+     * Internal. Unsafe constructor for symmetric (lower triangular) sparse matrix.
+     *
+     * @param elementList  matrix values
+     * @param numberOfRows number of rows, equal to number of columns
+     */
     protected SparseMatrix(List<IndexedMatrixValue> elementList,
                            int numberOfRows) {
         super(numberOfRows);
         this.elementList = elementList;
     }
 
-    // todo: only safe constructors public? specific static methods for unsafe
+    /**
+     * Create a sparse matrix with a specified number of rows and columns from a list of indexed values.
+     * If safe is set to true, values will be checked for ordering, sorted if needed and copied, the list of elements
+     * will be used as is otherwise. During the check, an exception will be thrown if there are duplicate elements or
+     * if element indices are out of bounds.
+     * Note that this constructor should never be used for lower triangular matrices, i.e. passing only
+     * lower triangular elements to this constructor and setting number of rows equal to the number of columns
+     * will not yield a symmetric matrix, but rather a matrix with all upper triangular elements being zeros.
+     *
+     * @param elementList     matrix values
+     * @param numberOfRows    number of rows
+     * @param numberOfColumns number of columns
+     * @param safe            if set to true, will check ordering and copy the values list
+     */
     public SparseMatrix(List<IndexedMatrixValue> elementList,
                         int numberOfRows, int numberOfColumns,
                         boolean safe) {
         super(numberOfRows, numberOfColumns);
         if (safe) {
-            check(elementList, numberOfRows, numberOfColumns);
-            this.elementList = new LinkedList<>(elementList);
+            this.elementList = checkAndSortIfNeeded(elementList, numberOfRows, numberOfColumns);
         } else {
             this.elementList = elementList;
         }
@@ -220,10 +233,6 @@ public class SparseMatrix
         LinearAlgebraUtils.scale(elementList, copiedElements, scalar);
     }
 
-    protected List<IndexedMatrixValue> copyList() {
-        return new LinkedList<>(elementList);
-    }
-
     @Override
     public Matrix deepCopy() {
         return new SparseMatrix(copyList(), numberOfRows, numberOfColumns);
@@ -234,12 +243,79 @@ public class SparseMatrix
         return elementList.iterator();
     }
 
+    /* auxiliary methods, note that some methods are in LinearAlgebraUtils class */
+
+    /**
+     * Returns a copy of current element list. As elements are immutable,
+     * only shallow copy is required.
+     *
+     * @return shallow copy of element list
+     */
+    protected List<IndexedMatrixValue> copyList() {
+        return new LinkedList<>(elementList);
+    }
+
+    /**
+     * Check the input list of elements, sort if needed and copy it.
+     *
+     * @param elementList     input list
+     * @param numberOfRows    number of rows in resulting matrix
+     * @param numberOfColumns number of columns in resulting matrix
+     * @return checked input matrix linear storage
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static List<IndexedMatrixValue> checkAndSortIfNeeded(List<IndexedMatrixValue> elementList,
+                                                                int numberOfRows, int numberOfColumns) {
+        int prevRowIndex = -1, prevColIndex = -1;
+        boolean sorted = true;
+        List<IndexedMatrixValue> elementListCopy = new LinkedList<>();
+
+        for (IndexedMatrixValue indexedMatrixValue : elementList) {
+            int rowIndex = indexedMatrixValue.getRowIndex(),
+                    colIndex = indexedMatrixValue.getColIndex();
+
+            if (rowIndex < 0 || rowIndex >= numberOfRows ||
+                    colIndex < 0 || colIndex >= numberOfColumns) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            if (prevRowIndex >= rowIndex || prevColIndex >= colIndex) {
+                if (prevRowIndex == rowIndex || prevColIndex == colIndex) {
+                    throw new IllegalArgumentException("Should not contain duplicates");
+                } else {
+                    sorted = false;
+                    break;
+                }
+            }
+
+            prevRowIndex = rowIndex;
+            prevColIndex = colIndex;
+
+            if (indexedMatrixValue.getDoubleValue() != 0) {
+                elementListCopy.add(indexedMatrixValue);
+            }
+        }
+
+        if (!sorted) {
+            final Object[] arr = elementListCopy.toArray();
+            elementListCopy = new LinkedList<>();
+            Arrays.sort(arr, (Comparator) Comparator.naturalOrder());
+            for (Object a : arr) {
+                IndexedMatrixValue v = (IndexedMatrixValue) a;
+                if (v.getDoubleValue() != 0) {
+                    elementListCopy.add(v);
+                }
+            }
+        }
+
+        return elementListCopy;
+    }
 
     @Override
     public String toString() {
-        StringJoiner joiner = new StringJoiner("; ");
+        StringJoiner joiner = new StringJoiner(", ");
         for (IndexedMatrixValue element : elementList) {
-            joiner.add(element.getRowIndex() + "," + element.getColIndex() + ":" +
+            joiner.add("(" + element.getRowIndex() + "," + element.getColIndex() + "): " +
                     Float.toString((float) element.getDoubleValue()));
         }
         return "[" + joiner.toString() + "]";

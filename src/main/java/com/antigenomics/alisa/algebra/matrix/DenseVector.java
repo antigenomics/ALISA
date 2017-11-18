@@ -61,9 +61,7 @@ public class DenseVector
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Vector addUnchecked(Vector other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
@@ -71,17 +69,13 @@ public class DenseVector
         return new DenseVector(newElements);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected void addInplaceUnchecked(Vector other) {
         addImpl(elements, other);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double dotProductUnchecked(Vector other) {
         double res = 0;
@@ -99,25 +93,19 @@ public class DenseVector
         return res;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector multiply(double scalar) {
         return new DenseVector(LinearAlgebraUtils.scale(elements, scalar));
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public void multiplyInplace(double scalar) {
         LinearAlgebraUtils.scaleInplace(elements, scalar);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix outerProduct(Vector b) {
         if (this == b) {
@@ -138,9 +126,7 @@ public class DenseVector
         return new DenseMatrix(matElements, numberOfColumns);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix expand() {
         double[] matElements = new double[LinearAlgebraUtils.getTriangularMatrixLength(elements.length)];
@@ -156,33 +142,25 @@ public class DenseVector
         return new DenseTriangularMatrix(matElements);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(int index) {
         return elements[index];
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Iterator<IndexedVectorValue> iterator() {
         return indexValues(new ArrayList<>()).iterator();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public boolean isSparse() {
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public int getEffectiveSize() {
         int effectiveSize = 0;
@@ -195,25 +173,19 @@ public class DenseVector
         return effectiveSize;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector deepCopy() {
         return new DenseVector(Arrays.copyOf(elements, elements.length));
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector asSparse() {
         return new SparseVector(indexValues(new LinkedList<>()), length);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector asDense() {
         return deepCopy();
@@ -259,9 +231,7 @@ public class DenseVector
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -272,9 +242,7 @@ public class DenseVector
         return Arrays.equals(elements, that.elements);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public int hashCode() {
         return Arrays.hashCode(elements);

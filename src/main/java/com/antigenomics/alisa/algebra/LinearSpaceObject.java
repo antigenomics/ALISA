@@ -10,14 +10,14 @@ import com.antigenomics.alisa.hamiltonian.Representation;
 public interface LinearSpaceObject<O extends LinearSpaceObject<O>>
         extends TypedCloneable<O>, ImmutableLinearSpaceObject<O>, Representation {
     /**
-     *
-     * @param other
+     * Adds another object of the same type to this one in-place.
+     * @param other linear space object
      */
     void addInplace(final O other);
 
     /**
-     *
-     * @param scalar
+     * Multiplies this linear object in-place by a given value.
+     * @param scalar a value
      */
     void multiplyInplace(final double scalar);
 }

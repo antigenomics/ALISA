@@ -214,9 +214,7 @@ public abstract class Vector
         return length;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(final int... indices) {
         if (indices.length > 1)
@@ -224,9 +222,7 @@ public abstract class Vector
         return getAt(indices[0]);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double norm1() {
         double norm1 = 0;
@@ -244,9 +240,7 @@ public abstract class Vector
         return norm1;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double norm2() {
         double norm2 = 0;
@@ -265,9 +259,7 @@ public abstract class Vector
         return Math.sqrt(norm2);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double normInf() {
         double normInf = 0;

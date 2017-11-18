@@ -9,5 +9,3 @@
 # Maven
 log/
 target/
-
-target/site/apidocs/index.html

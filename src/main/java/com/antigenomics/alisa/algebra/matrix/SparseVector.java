@@ -67,9 +67,7 @@ public class SparseVector
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected Vector addUnchecked(Vector other) {
         if (other.isSparse()) {
@@ -81,9 +79,7 @@ public class SparseVector
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected void addInplaceUnchecked(Vector other) {
         List<IndexedVectorValue> copy = copyList();
@@ -91,9 +87,7 @@ public class SparseVector
         combineAdd(elementList, copy, other);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     protected double dotProductUnchecked(Vector other) {
         return elementList
@@ -102,9 +96,7 @@ public class SparseVector
                 .sum();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(int index) {
         return elementList
@@ -115,9 +107,7 @@ public class SparseVector
                 .getDoubleValue();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector multiply(double scalar) {
         LinkedList<IndexedVectorValue> newElements = new LinkedList<>();
@@ -126,9 +116,7 @@ public class SparseVector
         return new SparseVector(newElements, length);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public void multiplyInplace(double scalar) {
         List<IndexedVectorValue> copiedElements = copyList();
@@ -136,9 +124,7 @@ public class SparseVector
         LinearAlgebraUtils.scale(elementList, copiedElements, scalar);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix outerProduct(Vector b) {
         if (this == b) {
@@ -159,9 +145,7 @@ public class SparseVector
         }
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix expand() {
         // todo: can optimize here
@@ -178,49 +162,37 @@ public class SparseVector
         return new SparseTriangularMatrix(matrixValues, this.length);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Iterator<IndexedVectorValue> iterator() {
         return elementList.iterator();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public boolean isSparse() {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public int getEffectiveSize() {
         return elementList.size();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector deepCopy() {
         return new SparseVector(copyList(), length);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector asSparse() {
         return deepCopy();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public DenseVector asDense() {
         return new DenseVector(elementList, length);
@@ -297,7 +269,7 @@ public class SparseVector
     public String toString() {
         StringJoiner joiner = new StringJoiner(", ");
         for (IndexedVectorValue element : elementList) {
-            joiner.add(element.getIndex() + ":" + Float.toString((float) element.getDoubleValue()));
+            joiner.add(element.getIndex() + ": " + Float.toString((float) element.getDoubleValue()));
         }
         return "[" + joiner.toString() + "]";
     }

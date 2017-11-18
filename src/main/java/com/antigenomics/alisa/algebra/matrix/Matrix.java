@@ -172,9 +172,7 @@ public abstract class Matrix
         return numberOfColumns;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double bilinearForm(Vector a, Vector b) {
         checkSizeMatchLeft(a);
@@ -182,36 +180,28 @@ public abstract class Matrix
         return bilinearFormUnchecked(a, b);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Vector map(Vector b) {
         checkSizeMatchRight(b);
         return linearFormUnchecked(b);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double bilinearForm(Vector a) {
         checkSizeMatchSymmetric(a);
         return bilinearFormUnchecked(a);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public Matrix add(Matrix other) {
         checkSizeMatch(other);
         return addUnchecked(other);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public void addInplace(Matrix other) {
         if (this == other) {
@@ -290,9 +280,7 @@ public abstract class Matrix
      */
     public abstract Matrix transpose();
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double getAt(int... indices) {
         if (indices.length == 2) {
@@ -301,9 +289,7 @@ public abstract class Matrix
         throw new IllegalArgumentException();
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double norm1() {
         double norm1 = 0;
@@ -323,9 +309,7 @@ public abstract class Matrix
         return norm1;
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double norm2() {
         double norm2 = 0;
@@ -346,9 +330,7 @@ public abstract class Matrix
         return Math.sqrt(norm2);
     }
 
-    /**
-     * @inheritdoc
-     */
+
     @Override
     public double normInf() {
         double normInf = 0;
