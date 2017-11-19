@@ -35,6 +35,11 @@ public class FullTensor
     }
 
     @Override
+    protected double getAt(int linearIndex) {
+        return elements[linearIndex];
+    }
+
+    @Override
     protected double bilinearFormUnchecked(CategoricalVector a, CategoricalVector b) {
         double res = 0;
 
@@ -57,12 +62,14 @@ public class FullTensor
 
     @Override
     protected Tensor addUnchecked(Tensor other) {
-
+        //todo
+        throw new NotImplementedException();
     }
 
     @Override
     protected void addInplaceUnchecked(Tensor other) {
-
+        //todo
+        throw new NotImplementedException();
     }
 
     @Override
@@ -72,12 +79,14 @@ public class FullTensor
 
     @Override
     public double getAt(int... indices) {
-
+        //todo
+        throw new NotImplementedException();
     }
 
     @Override
     public int getEffectiveSize() {
-
+        //todo
+        throw new NotImplementedException();
     }
 
     @Override
@@ -109,6 +118,7 @@ public class FullTensor
 
     @Override
     public Iterator<IndexedTensorValue> iterator() {
-
+        //todo
+        throw new NotImplementedException();
     }
 }

@@ -90,6 +90,7 @@ public class CategoricalVector
 
     @Override
     public Tensor outerProduct(CategoricalVector b) {
+        //todo
         double[] tensorElements = new double[elements.length * b.elements.length *
                 numberOfCategories * b.numberOfCategories];
 
@@ -109,7 +110,8 @@ public class CategoricalVector
 
     @Override
     public Tensor expand() {
-
+        //todo
+        throw new NotImplementedException();
     }
 
     @Override
