@@ -15,10 +15,11 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
  * bilinear forms.
  */
-public class DenseMatrix
-        extends Matrix {
+public class DenseMatrix extends Matrix {
     /* internal storage */
     private final double[] elements;
+
+    /* protected constructors */
 
     /**
      * Internal unsafe constructor
@@ -42,7 +43,7 @@ public class DenseMatrix
      * @param safe            if true will use a deep copy of the array
      */
     public DenseMatrix(final double[] elements, final int numberOfColumns, final boolean safe) {
-        super(computeNumberOfFullMatrixRows(elements.length, numberOfColumns), numberOfColumns);
+        super(computeNumberOfFullMatrixRows(elements.length, numberOfColumns), numberOfColumns, false);
         if (safe) {
             this.elements = Arrays.copyOf(elements, elements.length);
         } else {
@@ -61,7 +62,7 @@ public class DenseMatrix
      * @param numberOfColumns number of columns in resulting matrix
      */
     public DenseMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows, int numberOfColumns) {
-        super(numberOfRows, numberOfColumns);
+        super(numberOfRows, numberOfColumns, false);
         this.elements = new double[numberOfRows * numberOfColumns];
         for (IndexedMatrixValue e : elements) {
             int fullMatrixIndex = getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns);
@@ -69,18 +70,226 @@ public class DenseMatrix
         }
     }
 
+    /* overridden internal algebra operations */
+
+    @Override
+    protected double bilinearFormUncheckedDD(Vector a, Vector b) {
+        double res = 0;
+        if (a.getLength() > b.getLength()) {
+            // outer loop should be ran for the smallest of vectors
+            for (int j = 0; j < b.getLength(); j++) {
+                final double bValue = b.getAt(j);
+                if (bValue != 0) {
+                    for (int i = 0; i < a.getLength(); i++) {
+                        res += a.getAt(i) * getAt(i, j) * bValue;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < a.getLength(); i++) {
+                final double aValue = a.getAt(i);
+                if (aValue != 0) {
+                    for (int j = 0; j < b.getLength(); j++) {
+                        res += aValue * getAt(i, j) * b.getAt(j);
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    @Override
+    protected double bilinearFormUncheckedDS(Vector a, Vector b) {
+        double res = 0;
+        for (IndexedVectorValue bj : b) {
+            final double bValue = bj.getDoubleValue();
+            final int j = bj.getIndex();
+            for (int i = 0; i < a.getLength(); i++) {
+                res += a.getAt(i) * getAt(i, j) * bValue;
+            }
+        }
+        return res;
+    }
+
+    @Override
+    protected double bilinearFormUncheckedSD(Vector a, Vector b) {
+        double res = 0;
+        for (IndexedVectorValue ai : a) {
+            final double value = ai.getDoubleValue();
+            final int i = ai.getIndex();
+            for (int j = 0; j < b.getLength(); j++) {
+                res += value * getAt(i, j) * b.getAt(j);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    protected double bilinearFormUncheckedSS(Vector a, Vector b) {
+        double res = 0;
+        if (a.getEffectiveSize() > b.getEffectiveSize()) {
+            // outer loop should be ran for the smallest of vectors
+            for (IndexedVectorValue bj : b) {
+                final double bValue = bj.getDoubleValue();
+                final int j = bj.getIndex();
+                for (IndexedVectorValue ai : a) {
+                    res += ai.getDoubleValue() * getAt(ai.getIndex(), j) * bValue;
+                }
+            }
+        } else {
+            for (IndexedVectorValue ai : a) {
+                final double aValue = ai.getDoubleValue();
+                final int i = ai.getIndex();
+                for (IndexedVectorValue bj : b) {
+                    res += aValue * getAt(i, bj.getIndex()) * bj.getDoubleValue();
+                }
+            }
+        }
+        return res;
+    }
+
+    @Override
+    protected double bilinearFormUncheckedS(Vector a) {
+        return bilinearFormUncheckedSS(a, a);
+    }
+
+    @Override
+    protected double bilinearFormUncheckedD(Vector a) {
+        return bilinearFormUncheckedDD(a, a);
+    }
+
+    @Override
+    protected Vector linearFormUncheckedS(Vector b) {
+        double[] resVector = new double[numberOfRows];
+        for (IndexedVectorValue bj : b) {
+            for (int i = 0; i < numberOfRows; i++) {
+                resVector[i] += getAt(i, bj.getIndex()) * bj.getDoubleValue();
+            }
+        }
+        return new DenseVector(resVector);
+    }
+
+    @Override
+    protected Vector linearFormUncheckedD(Vector b) {
+        double[] resVector = new double[numberOfRows];
+        for (int j = 0; j < numberOfColumns; j++) {
+            double bValue = b.getAt(j);
+            if (bValue != 0) {
+                for (int i = 0; i < numberOfRows; i++) {
+                    resVector[i] += getAt(i, j) * bValue;
+                }
+            }
+        }
+        return new DenseVector(resVector);
+    }
+
+    @Override
+    protected Matrix addUncheckedDF(Matrix other) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+        for (int i = 0; i < newElements.length; i++) {
+            newElements[i] += other.getAt(i);
+        }
+        return new DenseMatrix(newElements, numberOfColumns);
+    }
+
+    @Override
+    protected Matrix addUncheckedDT(Matrix other) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+        int k = 0;
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                newElements[k] += other.getAt(i, j);
+                k++;
+            }
+        }
+        return new DenseMatrix(newElements, numberOfColumns);
+    }
+
+    @Override
+    protected Matrix addUncheckedSF(Matrix other) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+        for (IndexedMatrixValue e : other) {
+            newElements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
+        }
+        return new DenseMatrix(newElements, numberOfColumns);
+    }
+
+    @Override
+    protected Matrix addUncheckedST(Matrix other) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+        for (IndexedMatrixValue e : other) {
+            int i = e.getRowIndex(), j = e.getColIndex();
+            newElements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
+            if (i != j) {
+                newElements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
+            }
+        }
+        return new DenseMatrix(newElements, numberOfColumns);
+    }
+
+    @Override
+    protected void addInplaceUncheckedDF(Matrix other) {
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] += other.getAt(i);
+        }
+    }
+
+    @Override
+    protected void addInplaceUncheckedDT(Matrix other) {
+        int k = 0;
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                elements[k] += other.getAt(i, j);
+                k++;
+            }
+        }
+    }
+
+    @Override
+    protected void addInplaceUncheckedSF(Matrix other) {
+        for (IndexedMatrixValue e : other) {
+            elements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
+        }
+    }
+
+    @Override
+    protected void addInplaceUncheckedST(Matrix other) {
+        for (IndexedMatrixValue e : other) {
+            int i = e.getRowIndex(), j = e.getColIndex();
+            elements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
+            if (i != j) {
+                elements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
+            }
+        }
+    }
+
+    @Override
+    public Matrix multiply(double scalar) {
+        return new DenseMatrix(LinearAlgebraUtils.scale(elements, scalar),
+                numberOfColumns);
+    }
+
+    @Override
+    public void multiplyInplace(double scalar) {
+        LinearAlgebraUtils.scaleInplace(elements, scalar);
+    }
+
+    /* overridden accessors and transformations */
 
     @Override
     public double getAt(int rowIndex, int columnIndex) {
         return elements[getFullMatrixIndex(rowIndex, columnIndex, numberOfColumns)];
     }
 
-
     @Override
     protected double getAt(int linearIndex) {
         return elements[linearIndex];
     }
 
+    @Override
+    public Iterator<IndexedMatrixValue> iterator() {
+        return indexValues(new ArrayList<>()).iterator();
+    }
 
     @Override
     public Matrix transpose() {
@@ -97,99 +306,11 @@ public class DenseMatrix
         return new DenseMatrix(newElements, numberOfRows);
     }
 
-
-    @Override
-    protected final double bilinearFormUnchecked(Vector a) {
-        if (a.isSparse()) {
-            return bfSS2(a, a);
-        } else {
-            return bfDD2(a, a);
-        }
-    }
-
-
-    @Override
-    protected Vector linearFormUnchecked(Vector b) {
-        double[] resVector = new double[numberOfRows];
-        if (b.isSparse()) {
-            for (IndexedVectorValue bj : b) {
-                for (int i = 0; i < numberOfRows; i++) {
-                    resVector[i] += getAt(i, bj.getIndex()) * bj.getDoubleValue();
-                }
-            }
-        } else {
-            for (int j = 0; j < numberOfColumns; j++) {
-                double bValue = b.getAt(j);
-                if (bValue != 0) {
-                    for (int i = 0; i < numberOfRows; i++) {
-                        resVector[i] += getAt(i, j) * bValue;
-                    }
-                }
-            }
-        }
-        return new DenseVector(resVector);
-    }
-
-
-    @Override
-    protected double bilinearFormUnchecked(Vector a, Vector b) {
-        if (a.isSparse()) {
-            if (b.isSparse()) {
-                return bfSS(a, b);
-            } else {
-                return bfSD(a, b);
-            }
-        } else if (b.isSparse()) {
-            return bfDS(a, b);
-        } else {
-            return bfDD(a, b);
-        }
-    }
-
-
-    @Override
-    protected Matrix addUnchecked(Matrix other) {
-        double[] newElements = Arrays.copyOf(elements, elements.length);
-        addImpl(newElements, other);
-        return new DenseMatrix(newElements, numberOfColumns);
-    }
-
-
-    @Override
-    protected void addInplaceUnchecked(Matrix other) {
-        addImpl(elements, other);
-    }
-
-
-    @Override
-    public Matrix multiply(double scalar) {
-        return new DenseMatrix(LinearAlgebraUtils.scale(elements, scalar),
-                numberOfColumns);
-    }
-
-    @Override
-    public void multiplyInplace(double scalar) {
-        LinearAlgebraUtils.scaleInplace(elements, scalar);
-    }
-
     @Override
     public Matrix deepCopy() {
         return new DenseMatrix(Arrays.copyOf(elements, elements.length),
                 numberOfColumns);
     }
-
-
-    @Override
-    public Iterator<IndexedMatrixValue> iterator() {
-        return indexValues(new ArrayList<>()).iterator();
-    }
-
-
-    @Override
-    public boolean isSparse() {
-        return false;
-    }
-
 
     @Override
     public int getEffectiveSize() {
@@ -204,13 +325,11 @@ public class DenseMatrix
         return effectiveSize;
     }
 
-
     @Override
     public Matrix asSparse() {
         return new SparseMatrix(indexValues(new LinkedList<>()),
                 numberOfRows, numberOfColumns);
     }
-
 
     @Override
     public Matrix asDense() {
@@ -239,175 +358,6 @@ public class DenseMatrix
         }
 
         return storage;
-    }
-
-    /**
-     * Internal. Bilinear form for two sparse vectors.
-     * Calls bfSS2 if first vector has a larger effective size than the second one
-     *
-     * @param a first vector
-     * @param b second vector
-     * @return scalar value
-     */
-    private double bfSS(Vector a, Vector b) {
-        if (a.getEffectiveSize() > b.getEffectiveSize()) {
-            // outer loop should be ran for the smallest of vectors
-            return bfSS2(a, b);
-        }
-
-        double res = 0;
-        for (IndexedVectorValue ai : a) {
-            final double aValue = ai.getDoubleValue();
-            final int i = ai.getIndex();
-            for (IndexedVectorValue bj : b) {
-                res += aValue * getAt(i, bj.getIndex()) * bj.getDoubleValue();
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Bilinear form for two sparse vectors.
-     * Second vector should have smaller effective size than the first one
-     *
-     * @param a first vector
-     * @param b second vector
-     * @return scalar value
-     */
-    private double bfSS2(Vector a, Vector b) {
-        double res = 0;
-        for (IndexedVectorValue bj : b) {
-            final double bValue = bj.getDoubleValue();
-            final int j = bj.getIndex();
-            for (IndexedVectorValue ai : a) {
-                res += ai.getDoubleValue() * getAt(ai.getIndex(), j) * bValue;
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Bilinear form for dense and sparse vector pair.
-     *
-     * @param a sparse vector
-     * @param b dense vector
-     * @return scalar value
-     */
-    private double bfSD(Vector a, Vector b) {
-        double res = 0;
-        for (IndexedVectorValue ai : a) {
-            final double value = ai.getDoubleValue();
-            final int i = ai.getIndex();
-            for (int j = 0; j < b.getLength(); j++) {
-                res += value * getAt(i, j) * b.getAt(j);
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Bilinear form for dense and sparse vector pair.
-     *
-     * @param a dense vector
-     * @param b sparse vector
-     * @return scalar value
-     */
-    private double bfDS(Vector a, Vector b) {
-        double res = 0;
-        for (IndexedVectorValue bj : b) {
-            final double bValue = bj.getDoubleValue();
-            final int j = bj.getIndex();
-            for (int i = 0; i < a.getLength(); i++) {
-                res += a.getAt(i) * getAt(i, j) * bValue;
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Bilinear form for two dense vectors.
-     * Calls bfDD2 if first vector is longer than the second one
-     *
-     * @param a first vector
-     * @param b second vector
-     * @return scalar value
-     */
-    private double bfDD(Vector a, Vector b) {
-        if (a.getLength() > b.getLength()) {
-            // outer loop should be ran for the smallest of vectors
-            return bfSS2(a, b);
-        }
-
-        double res = 0;
-        for (int i = 0; i < a.getLength(); i++) {
-            final double aValue = a.getAt(i);
-            if (aValue != 0) {
-                for (int j = 0; j < b.getLength(); j++) {
-                    res += aValue * getAt(i, j) * b.getAt(j);
-                }
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Bilinear form for two dense vectors.
-     * Second vector should be shorter than the first one
-     *
-     * @param a first vector
-     * @param b second vector
-     * @return scalar value
-     */
-    private double bfDD2(Vector a, Vector b) {
-        double res = 0;
-        for (int j = 0; j < b.getLength(); j++) {
-            final double bValue = b.getAt(j);
-            if (bValue != 0) {
-                for (int i = 0; i < a.getLength(); i++) {
-                    res += a.getAt(i) * getAt(i, j) * bValue;
-                }
-            }
-        }
-        return res;
-    }
-
-    /**
-     * Internal. Adds values from a given matrix to a pre-initialized storage array.
-     * Supports adding dense, sparse, full and triangular matrices.
-     *
-     * @param elements pre-initialized array, to be modified in-place
-     * @param other    matrix to add
-     */
-    private void addImpl(double[] elements, Matrix other) {
-        if (other.isSparse()) {
-            if (other.isLowerTriangular) {
-                for (IndexedMatrixValue e : other) {
-                    int i = e.getRowIndex(), j = e.getColIndex();
-                    elements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
-                    if (i != j) {
-                        elements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
-                    }
-                }
-            } else {
-                for (IndexedMatrixValue e : other) {
-                    elements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
-                }
-            }
-        } else {
-            if (other.isLowerTriangular) {
-                int k = 0;
-                for (int i = 0; i < numberOfRows; i++) {
-                    for (int j = 0; j < numberOfColumns; j++) {
-                        elements[k] += other.getAt(i, j);
-                        k++;
-                    }
-                }
-            } else {
-                for (int i = 0; i < elements.length; i++) {
-                    elements[i] += other.getAt(i);
-                }
-            }
-        }
     }
 
     @Override
