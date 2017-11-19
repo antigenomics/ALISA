@@ -18,9 +18,10 @@ import java.util.List;
 public abstract class Matrix
         implements LinearSpaceObject<Matrix>, VectorMapping<Vector, Matrix>,
         Container<IndexedMatrixValue, Matrix> {
-    /* true matrix shape */
+    /* true matrix storage shape */
+
     protected final int numberOfRows, numberOfColumns;
-    protected final boolean isLowerTriangular;
+    protected final boolean isLowerTriangular, sparse;
 
     /* auxiliary constructors */
 
@@ -119,27 +120,83 @@ public abstract class Matrix
         return new SparseTriangularMatrix(elements, size);
     }
 
-    protected Matrix(int numberOfRows, int numberOfColumns) {
+    /* protected constructors */
+
+    protected Matrix(int numberOfRows, int numberOfColumns,
+                     boolean sparse) {
         this.numberOfRows = numberOfRows;
         this.numberOfColumns = numberOfColumns;
         this.isLowerTriangular = false;
+        this.sparse = sparse;
     }
 
-    protected Matrix(int size) {
+    protected Matrix(int size,
+                     boolean sparse) {
         this.numberOfRows = size;
         this.numberOfColumns = size;
         this.isLowerTriangular = true;
+        this.sparse = sparse;
     }
 
-    protected abstract double bilinearFormUnchecked(Vector a, Vector b);
+    /**
+     * Computes a bilinear form
+     *
+     * @param a dense vector
+     * @param b dense vector
+     * @return scalar
+     */
+    protected abstract double bilinearFormUncheckedDD(Vector a, Vector b);
 
-    protected abstract double bilinearFormUnchecked(Vector a);
+    /**
+     * Computes a bilinear form
+     *
+     * @param a dense vector
+     * @param b sparse vector
+     * @return scalar
+     */
+    protected abstract double bilinearFormUncheckedDS(Vector a, Vector b);
 
-    protected abstract Vector linearFormUnchecked(Vector b);
+    /**
+     * Computes a bilinear form
+     *
+     * @param a sparse vector
+     * @param b dense vector
+     * @return scalar
+     */
+    protected abstract double bilinearFormUncheckedSD(Vector a, Vector b);
 
-    protected abstract Matrix addUnchecked(Matrix other);
+    /**
+     * Computes a bilinear form
+     *
+     * @param a sparse vector
+     * @param b sparse vector
+     * @return scalar
+     */
+    protected abstract double bilinearFormUncheckedSS(Vector a, Vector b);
 
-    protected abstract void addInplaceUnchecked(Matrix other);
+    protected abstract double bilinearFormUncheckedS(Vector a);
+
+    protected abstract double bilinearFormUncheckedD(Vector a);
+
+    protected abstract Vector linearFormUncheckedS(Vector b);
+
+    protected abstract Vector linearFormUncheckedD(Vector b);
+
+    protected abstract Matrix addUncheckedDF(Matrix other);
+
+    protected abstract Matrix addUncheckedDT(Matrix other);
+
+    protected abstract Matrix addUncheckedSF(Matrix other);
+
+    protected abstract Matrix addUncheckedST(Matrix other);
+
+    protected abstract void addInplaceUncheckedDF(Matrix other);
+
+    protected abstract void addInplaceUncheckedDT(Matrix other);
+
+    protected abstract void addInplaceUncheckedSF(Matrix other);
+
+    protected abstract void addInplaceUncheckedST(Matrix other);
 
     /**
      * Gets the number of rows in this matrix.

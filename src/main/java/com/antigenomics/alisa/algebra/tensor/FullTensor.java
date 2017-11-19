@@ -57,6 +57,7 @@ public class FullTensor
 
     @Override
     protected CategoricalVector linearFormUnchecked(CategoricalVector b) {
+        //todo
         throw new NotImplementedException();
     }
 
