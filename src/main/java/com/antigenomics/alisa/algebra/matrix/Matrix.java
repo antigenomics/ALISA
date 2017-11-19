@@ -41,7 +41,7 @@ public abstract class Matrix
                 arr[i * numberOfColumns + j] = values[i][j];
             }
         }
-        return new DenseMatrix(arr, numberOfColumns);
+        return new DenseFullMatrix(arr, numberOfColumns, false);
     }
 
     /**
@@ -74,8 +74,8 @@ public abstract class Matrix
      * @return a dense matrix
      */
     public static DenseMatrix DENSE_ZEROS(int numberOfRows, int numberOfColumns) {
-        return new DenseMatrix(new double[numberOfRows * numberOfColumns],
-                numberOfColumns);
+        return new DenseFullMatrix(new double[numberOfRows * numberOfColumns],
+                numberOfColumns, false);
     }
 
     /**
@@ -126,30 +126,17 @@ public abstract class Matrix
     /**
      * Creates a full matrix with specified number of rows and columns.
      *
-     * @param numberOfRows    number of rows
-     * @param numberOfColumns number of columns
-     * @param sparse          true if matrix is sparse
+     * @param numberOfRows      number of rows
+     * @param numberOfColumns   number of columns
+     * @param sparse            true if matrix is sparse
+     * @param isLowerTriangular true if matrix is lower triangular
      */
     protected Matrix(int numberOfRows, int numberOfColumns,
-                     boolean sparse) {
+                     boolean sparse, boolean isLowerTriangular) {
         this.numberOfRows = numberOfRows;
         this.numberOfColumns = numberOfColumns;
-        this.isLowerTriangular = false;
         this.sparse = sparse;
-    }
-
-    /**
-     * Creates a lower triangular matrix with specified size.
-     *
-     * @param size   number of rows / columns
-     * @param sparse true if matrix is sparse
-     */
-    protected Matrix(int size,
-                     boolean sparse) {
-        this.numberOfRows = size;
-        this.numberOfColumns = size;
-        this.isLowerTriangular = true;
-        this.sparse = sparse;
+        this.isLowerTriangular = isLowerTriangular;
     }
 
     /* internal algebra methods */
@@ -225,62 +212,32 @@ public abstract class Matrix
     /**
      * Copies and adds this matrix to other
      *
-     * @param other dense full matrix
+     * @param other dense matrix
      * @return matrix
      */
-    protected abstract Matrix addUncheckedDF(Matrix other);
+    protected abstract Matrix addUncheckedD(Matrix other);
 
     /**
      * Copies and adds this matrix to other
      *
-     * @param other dense lower triangular matrix
+     * @param other sparse matrix
      * @return matrix
      */
-    protected abstract Matrix addUncheckedDT(Matrix other);
-
-    /**
-     * Copies and adds this matrix to other
-     *
-     * @param other sparse full matrix
-     * @return matrix
-     */
-    protected abstract Matrix addUncheckedSF(Matrix other);
-
-    /**
-     * Copies and adds this matrix to other
-     *
-     * @param other sparse lower triangular matrix
-     * @return matrix
-     */
-    protected abstract Matrix addUncheckedST(Matrix other);
+    protected abstract Matrix addUncheckedS(Matrix other);
 
     /**
      * Adds other matrix inplace
      *
-     * @param other dense full matrix
+     * @param other dense matrix
      */
-    protected abstract void addInplaceUncheckedDF(Matrix other);
+    protected abstract void addInplaceUncheckedD(Matrix other);
 
     /**
      * Adds other matrix inplace
      *
-     * @param other dense lower triangular matrix
+     * @param other sparse matrix
      */
-    protected abstract void addInplaceUncheckedDT(Matrix other);
-
-    /**
-     * Adds other matrix inplace
-     *
-     * @param other sparse full matrix
-     */
-    protected abstract void addInplaceUncheckedSF(Matrix other);
-
-    /**
-     * Adds other matrix inplace
-     *
-     * @param other sparse lower triangular matrix
-     */
-    protected abstract void addInplaceUncheckedST(Matrix other);
+    protected abstract void addInplaceUncheckedS(Matrix other);
 
     /* shape */
 
@@ -311,6 +268,11 @@ public abstract class Matrix
         return isLowerTriangular;
     }
 
+    @Override
+    public boolean isSparse() {
+        return sparse;
+    }
+
     /* accessors */
 
     /**
@@ -337,11 +299,6 @@ public abstract class Matrix
      * @return transposed matrix
      */
     public abstract Matrix transpose();
-
-    @Override
-    public boolean isSparse() {
-        return sparse;
-    }
 
     /* overridden methods */
 
@@ -376,7 +333,8 @@ public abstract class Matrix
 
     @Override
     public double bilinearForm(Vector a) {
-        checkSizeMatchSymmetric(a);
+        checkSizeMatchLeft(a);
+        checkSizeMatchRight(a);
         if (a.isSparse()) {
             return bilinearFormUncheckedS(a);
         } else {
@@ -386,37 +344,21 @@ public abstract class Matrix
 
     @Override
     public Matrix add(Matrix other) {
-        checkSizeMatch(other);
+        checkConcordantMatrices(other);
         if (other.sparse) {
-            if (other.isLowerTriangular) {
-                return addUncheckedST(other);
-            } else {
-                return addUncheckedSF(other);
-            }
+            return addUncheckedS(other);
         } else {
-            if (other.isLowerTriangular) {
-                return addUncheckedDT(other);
-            } else {
-                return addUncheckedDF(other);
-            }
+            return addUncheckedD(other);
         }
     }
 
     @Override
     public void addInplace(Matrix other) {
-        checkSizeMatch(other);
+        checkConcordantMatrices(other);
         if (other.sparse) {
-            if (other.isLowerTriangular) {
-                addInplaceUncheckedST(other);
-            } else {
-                addInplaceUncheckedSF(other);
-            }
+            addInplaceUncheckedS(other);
         } else {
-            if (other.isLowerTriangular) {
-                addInplaceUncheckedDT(other);
-            } else {
-                addInplaceUncheckedDF(other);
-            }
+            addInplaceUncheckedD(other);
         }
     }
 
@@ -427,21 +369,12 @@ public abstract class Matrix
      *
      * @param other other matrix
      */
-    private void checkSizeMatch(Matrix other) {
+    private void checkConcordantMatrices(Matrix other) {
+        if (isLowerTriangular != other.isLowerTriangular)
+            throw new IllegalArgumentException("Cannot perform addition between lower triangular and regular matrices");
         if (numberOfRows != other.numberOfRows ||
                 numberOfColumns != other.numberOfColumns)
             throw new IllegalArgumentException("Dimensions of matrices don't match");
-    }
-
-    /**
-     * Internal check for object shape match.
-     *
-     * @param other other vector
-     */
-    private void checkSizeMatchSymmetric(Vector other) {
-        if (!isLowerTriangular || numberOfRows != other.length)
-            throw new IllegalArgumentException("Matrix is non-symmetric or vector length " +
-                    "and number of rows don't match");
     }
 
     /**
@@ -477,25 +410,12 @@ public abstract class Matrix
         double norm1 = 0;
 
         if (sparse) {
-            if (isLowerTriangular) {
-                double diag = 0;
-                for (IndexedMatrixValue x : this) {
-                    double value = Math.abs(x.getDoubleValue());
-                    if (x.getRowIndex() == x.getColIndex()) {
-                        diag += value;
-                    }
-                    norm1 += value;
-                }
-                norm1 *= 2;
-                norm1 -= diag;
-            } else {
-                for (IndexedMatrixValue x : this) {
-                    norm1 += Math.abs(x.getDoubleValue());
-                }
+            for (IndexedMatrixValue x : this) {
+                norm1 += Math.abs(x.getDoubleValue());
             }
         } else {
             for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
+                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
                     norm1 += Math.abs(getAt(i, j));
                 }
             }
@@ -509,25 +429,12 @@ public abstract class Matrix
         double norm2 = 0;
 
         if (sparse) {
-            if (isLowerTriangular) {
-                double diag = 0;
-                for (IndexedMatrixValue x : this) {
-                    double value = x.getDoubleValue() * x.getDoubleValue();
-                    if (x.getRowIndex() == x.getColIndex()) {
-                        diag += value;
-                    }
-                    norm2 += value;
-                }
-                norm2 *= 2;
-                norm2 -= diag;
-            } else {
-                for (IndexedMatrixValue x : this) {
-                    norm2 += x.getDoubleValue() * x.getDoubleValue();
-                }
+            for (IndexedMatrixValue x : this) {
+                norm2 += x.getDoubleValue() * x.getDoubleValue();
             }
         } else {
             for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
+                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
                     double value = getAt(i, j);
                     norm2 += value * value;
                 }
@@ -547,7 +454,7 @@ public abstract class Matrix
             }
         } else {
             for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
+                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
                     normInf = Math.max(normInf, Math.abs(getAt(i, j)));
                 }
             }

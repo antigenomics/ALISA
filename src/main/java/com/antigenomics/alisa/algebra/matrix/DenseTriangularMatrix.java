@@ -1,8 +1,5 @@
 package com.antigenomics.alisa.algebra.matrix;
 
-import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
@@ -18,16 +15,15 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
  * bilinear forms. Inplace addition only works if other matrix is also lower triangular.
  */
-public class DenseTriangularMatrix extends Matrix {
-    /* internal storage */
-    private final double[] elements;
+public class DenseTriangularMatrix extends DenseMatrix {
+    /* constructors */
 
     /**
      * Internal unsafe constructor
      *
      * @param elements matrix values
      */
-    protected DenseTriangularMatrix(final double[] elements) {
+    protected DenseTriangularMatrix(double[] elements) {
         this(elements, false);
     }
 
@@ -42,12 +38,14 @@ public class DenseTriangularMatrix extends Matrix {
      * @param elements matrix values
      * @param safe     if true will use a deep copy of the array
      */
-    public DenseTriangularMatrix(final double[] elements, final boolean safe) {
-        super(getTriangularMatrixSize(elements.length));
+    public DenseTriangularMatrix(double[] elements, final boolean safe) {
+        super(elements,
+                getTriangularMatrixSize(elements.length),
+                getTriangularMatrixSize(elements.length),
+                safe, true);
         if (safe) {
-            this.elements = Arrays.copyOf(elements, elements.length);
-        } else {
-            this.elements = elements;
+            assert numberOfRows == numberOfColumns;
+            assert elements.length == getTriangularMatrixLength(numberOfRows);
         }
     }
 
@@ -63,8 +61,7 @@ public class DenseTriangularMatrix extends Matrix {
      * @param numberOfRows number of rows in resulting matrix
      */
     public DenseTriangularMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows) {
-        super(numberOfRows);
-        this.elements = new double[getTriangularMatrixLength(numberOfRows)];
+        this(new double[getTriangularMatrixLength(numberOfRows)]);
         for (IndexedMatrixValue e : elements) {
             if (e.getRowIndex() <= e.getColIndex()) {
                 int index = getTriangularMatrixIndex(e.getRowIndex(), e.getColIndex());
@@ -73,217 +70,73 @@ public class DenseTriangularMatrix extends Matrix {
         }
     }
 
+    @Override
+    protected Matrix withElements(double[] elements) {
+        return new DenseTriangularMatrix(elements);
+    }
 
     @Override
     public double getAt(int rowIndex, int columnIndex) {
-        return elements[getTriangularMatrixIndex(rowIndex, columnIndex)];
+        return elements[getLinearIndex(rowIndex, columnIndex)];
     }
-
 
     @Override
-    protected double getAt(int linearIndex) {
-        return elements[linearIndex];
+    protected int getLinearIndex(int rowIndex, int columnIndex) {
+        return getTriangularMatrixIndex(rowIndex, columnIndex);
     }
-
 
     @Override
     public Matrix transpose() {
         return this;
     }
 
-
     @Override
-    protected double bilinearFormUnchecked(Vector a, Vector b) {
-        if (a == b) {
-            return bilinearFormUnchecked(a);
-        }
-        // todo: discuss
-        throw new NotImplementedException();
-    }
-
-
-    @Override
-    protected final double bilinearFormUnchecked(Vector a) {
-        double res = 0;
-
-        if (a.isSparse()) {
-            for (IndexedVectorValue ei : a) {
-                for (IndexedVectorValue ej : a) {
-                    // todo: can optimize here?
-                    if (ei.compareTo(ej) > -1) {
-                        res += ei.getDoubleValue() * getAt(ei.getIndex(), ej.getIndex()) * ej.getDoubleValue();
-                    }
+    public int getEffectiveSize() {
+        int effectiveSize = 0;
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j <= i; j++) {
+                if (getAt(i, j) != 0) {
+                    effectiveSize++;
                 }
             }
-        } else {
-            for (int i = 0; i < a.getLength(); i++) {
-                double value = a.getAt(i);
-                for (int j = 0; j <= i; j++) {
-                    res += value * getAt(i, j) * a.getAt(j);
+        }
+        return effectiveSize;
+    }
+
+    /* overridden linear algebra operations */
+
+    @Override
+    protected double bilinearFormUncheckedS(Vector a) {
+        double res = 0;
+
+        for (IndexedVectorValue ai : a) {
+            double aValue = ai.getDoubleValue();
+            int i = ai.getIndex();
+
+            for (IndexedVectorValue bj : a) {
+                int j = bj.getIndex();
+                if (j > i) {
+                    break;
                 }
+                res += aValue * getAt(i, j) * bj.getDoubleValue();
             }
         }
 
         return res;
     }
 
-
     @Override
-    protected Vector linearFormUnchecked(Vector b) {
-        double[] resVector = new double[numberOfRows];
-        if (b.isSparse()) {
-            for (IndexedVectorValue bj : b) {
-                for (int i = 0; i < numberOfRows; i++) {
-                    resVector[i] += getAt(i, bj.getIndex()) * bj.getDoubleValue();
-                }
-            }
-        } else {
-            // todo: can optimize?
-            for (int j = 0; j < numberOfRows; j++) {
-                double bValue = b.getAt(j);
-                for (int i = 0; i < numberOfRows; i++) {
-                    double value = getAt(i, j) * bValue;
-                    resVector[i] += value;
-                }
-            }
-        }
-        return new DenseVector(resVector);
-    }
+    protected double bilinearFormUncheckedD(Vector a) {
+        double res = 0;
 
-
-    @Override
-    protected Matrix addUnchecked(Matrix other) {
-        if (!other.isLowerTriangular) {
-            return other.addUnchecked(this);
-        }
-        double[] newElements = Arrays.copyOf(elements, elements.length);
-        addImpl(Arrays.copyOf(newElements, elements.length), other);
-        return new DenseMatrix(newElements, numberOfColumns);
-    }
-
-
-    @Override
-    protected void addInplaceUnchecked(Matrix other) {
-        if (!other.isLowerTriangular) {
-            throw new IllegalArgumentException("Cannot add non-triangular matrix to triangular one inplace");
-        }
-        addImpl(elements, other);
-    }
-
-
-    @Override
-    public Matrix multiply(double scalar) {
-        return new DenseTriangularMatrix(LinearAlgebraUtils.scale(elements, scalar));
-    }
-
-
-    @Override
-    public void multiplyInplace(double scalar) {
-        LinearAlgebraUtils.scaleInplace(elements, scalar);
-    }
-
-
-    @Override
-    public Matrix deepCopy() {
-        return new DenseTriangularMatrix(Arrays.copyOf(elements, elements.length));
-    }
-
-
-    @Override
-    public Iterator<IndexedMatrixValue> iterator() {
-        return indexValues(new ArrayList<>()).iterator();
-    }
-
-
-    @Override
-    public boolean isSparse() {
-        return false;
-    }
-
-
-    @Override
-    public int getEffectiveSize() {
-        return elements.length;
-    }
-
-
-    @Override
-    public Matrix asSparse() {
-        return new SparseTriangularMatrix(indexValues(new LinkedList<>()), numberOfRows);
-    }
-
-
-    @Override
-    public Matrix asDense() {
-        return deepCopy();
-    }
-
-    /* Auxiliary methods */
-
-    /**
-     * Adds all values of this vector to a pre-initialized list.
-     *
-     * @param storage an empty list of indexed values
-     * @return updated storage
-     */
-    private List<IndexedMatrixValue> indexValues(final List<IndexedMatrixValue> storage) {
-        assert storage.isEmpty();
-
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
+        for (int i = 0; i < a.getLength(); i++) {
+            final double aValue = a.getAt(i);
             for (int j = 0; j <= i; j++) {
-                double value = elements[k];
-
-                if (value != 0) {
-                    storage.add(new IndexedMatrixValue(i, j, value));
-                }
-
-                k++;
+                res += aValue * getAt(i, j) * a.getAt(j);
             }
         }
 
-        return storage;
-    }
-
-    /**
-     * Internal. Adds values from a given matrix to a pre-initialized storage array.
-     * Supports only lower triangular matrices.
-     *
-     * @param elements pre-initialized array, to be modified in-place
-     * @param other    matrix to add, should be lower triangular
-     */
-    private void addImpl(double[] elements, Matrix other) {
-        if (other.isSparse()) {
-            for (IndexedMatrixValue e : other) {
-                int index = LinearAlgebraUtils.getTriangularMatrixIndex(e.getRowIndex(), e.getColIndex());
-                elements[index] += e.getDoubleValue();
-            }
-        } else {
-            for (int i = 0; i < elements.length; i++) {
-                elements[i] += other.getAt(i);
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder res = new StringBuilder();
-
-        for (int i = 0; i < numberOfRows; i++) {
-            StringJoiner joiner = new StringJoiner(", ");
-            for (int j = 0; j <= i; j++) {
-                joiner.add(Double.toString(getAt(i, j)));
-            }
-            for (int j = i + 1; j < numberOfRows; j++) {
-                joiner.add("-");
-            }
-            res.append("[").append(joiner.toString()).append("]");
-            if (i != numberOfRows - 1) {
-                res.append("\n");
-            }
-        }
-
-        return res.toString();
+        return res;
     }
 
     @Override
@@ -299,5 +152,26 @@ public class DenseTriangularMatrix extends Matrix {
     @Override
     public int hashCode() {
         return Arrays.hashCode(elements);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+
+        for (int i = 0; i < numberOfRows; i++) {
+            StringJoiner joiner = new StringJoiner(", ");
+            for (int j = 0; j <= i; j++) {
+                joiner.add(Float.toString((float) getAt(i, j)));
+            }
+            for (int j = i + 1; j < numberOfColumns; j++) {
+                joiner.add("_");
+            }
+            res.append("[").append(joiner.toString()).append("]");
+            if (i != numberOfRows - 1) {
+                res.append("\n");
+            }
+        }
+
+        return res.toString();
     }
 }

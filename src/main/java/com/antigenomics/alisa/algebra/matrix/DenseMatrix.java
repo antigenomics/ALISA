@@ -5,8 +5,6 @@ import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 
 import java.util.*;
 
-import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
-
 /**
  * A two-dimensional matrix backed by a dense (primitive) array storage.
  * Fast operations with this matrix involve calling getAt() method. Working with this object as an
@@ -15,35 +13,26 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
  * bilinear forms.
  */
-public class DenseMatrix extends Matrix {
+public abstract class DenseMatrix extends Matrix {
     /* internal storage */
-    private final double[] elements;
+    protected final double[] elements;
 
-    /* protected constructors */
-
-    /**
-     * Internal unsafe constructor
-     *
-     * @param elements        matrix values
-     * @param numberOfColumns number of columns in matrix
-     */
-    protected DenseMatrix(final double[] elements, final int numberOfColumns) {
-        this(elements, numberOfColumns, false);
-    }
+    /* constructors */
 
     /**
-     * Creates a new dense matrix from a primitive array of elements.
-     * The array is either copied or used as is depending on safe parameter.
-     * Elements array stores matrix values in a linear way, i.e. first row is followed by the second and so on.
-     * The number of rows is computed from the length of provided array and number of columns,
-     * an exception is thrown if lengths are discordant.
+     * A general purpose constructor of a dense matrix backed by a primitive array storage.
      *
-     * @param elements        matrix values
-     * @param numberOfColumns number of columns in resulting matrix
-     * @param safe            if true will use a deep copy of the array
+     * @param elements        an array of matrix values
+     * @param numberOfRows    number of rows
+     * @param numberOfColumns number of columns
+     * @param safe            if true will use a deep copy of the input array
+     * @param lowerTriangular true if only lower triangular elements are stored
      */
-    public DenseMatrix(final double[] elements, final int numberOfColumns, final boolean safe) {
-        super(computeNumberOfFullMatrixRows(elements.length, numberOfColumns), numberOfColumns, false);
+    protected DenseMatrix(double[] elements,
+                          int numberOfRows, int numberOfColumns,
+                          boolean safe,
+                          boolean lowerTriangular) {
+        super(numberOfRows, numberOfColumns, false, lowerTriangular);
         if (safe) {
             this.elements = Arrays.copyOf(elements, elements.length);
         } else {
@@ -52,25 +41,25 @@ public class DenseMatrix extends Matrix {
     }
 
     /**
-     * Creates a new dense matrix from a list of indexed matrix values.
-     * Elements array stores matrix values in a linear way, i.e. first row is followed by the second and so on.
-     * An exception is thrown if there are elements in the list that have row or column indices that are
-     * out of bounds.
+     * Create a new matrix of the same type (full/lower triangular)
+     * from an array of elements
      *
-     * @param elements        an interable of indexed matrix values
-     * @param numberOfRows    number of rows in resulting matrix
-     * @param numberOfColumns number of columns in resulting matrix
+     * @param elements an array of matrix values
+     * @return a matrix
      */
-    public DenseMatrix(Iterable<IndexedMatrixValue> elements, int numberOfRows, int numberOfColumns) {
-        super(numberOfRows, numberOfColumns, false);
-        this.elements = new double[numberOfRows * numberOfColumns];
-        for (IndexedMatrixValue e : elements) {
-            int fullMatrixIndex = getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns);
-            this.elements[fullMatrixIndex] = e.getDoubleValue();
-        }
-    }
+    protected abstract Matrix withElements(double[] elements);
 
     /* overridden internal algebra operations */
+
+    @Override
+    public Matrix multiply(double scalar) {
+        return withElements(LinearAlgebraUtils.scale(elements, scalar));
+    }
+
+    @Override
+    public void multiplyInplace(double scalar) {
+        LinearAlgebraUtils.scaleInplace(elements, scalar);
+    }
 
     @Override
     protected double bilinearFormUncheckedDD(Vector a, Vector b) {
@@ -149,16 +138,6 @@ public class DenseMatrix extends Matrix {
     }
 
     @Override
-    protected double bilinearFormUncheckedS(Vector a) {
-        return bilinearFormUncheckedSS(a, a);
-    }
-
-    @Override
-    protected double bilinearFormUncheckedD(Vector a) {
-        return bilinearFormUncheckedDD(a, a);
-    }
-
-    @Override
     protected Vector linearFormUncheckedS(Vector b) {
         double[] resVector = new double[numberOfRows];
         for (IndexedVectorValue bj : b) {
@@ -184,101 +163,41 @@ public class DenseMatrix extends Matrix {
     }
 
     @Override
-    protected Matrix addUncheckedDF(Matrix other) {
+    protected Matrix addUncheckedD(Matrix other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
         for (int i = 0; i < newElements.length; i++) {
             newElements[i] += other.getAt(i);
         }
-        return new DenseMatrix(newElements, numberOfColumns);
+        return withElements(newElements);
     }
-
     @Override
-    protected Matrix addUncheckedDT(Matrix other) {
-        double[] newElements = Arrays.copyOf(elements, elements.length);
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                newElements[k] += other.getAt(i, j);
-                k++;
-            }
-        }
-        return new DenseMatrix(newElements, numberOfColumns);
-    }
-
-    @Override
-    protected Matrix addUncheckedSF(Matrix other) {
+    protected Matrix addUncheckedS(Matrix other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
         for (IndexedMatrixValue e : other) {
-            newElements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
+            newElements[getLinearIndex(e.getRowIndex(), e.getColIndex())] += e.getDoubleValue();
         }
-        return new DenseMatrix(newElements, numberOfColumns);
+        return withElements(newElements);
     }
 
     @Override
-    protected Matrix addUncheckedST(Matrix other) {
-        double[] newElements = Arrays.copyOf(elements, elements.length);
-        for (IndexedMatrixValue e : other) {
-            int i = e.getRowIndex(), j = e.getColIndex();
-            newElements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
-            if (i != j) {
-                newElements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
-            }
-        }
-        return new DenseMatrix(newElements, numberOfColumns);
-    }
-
-    @Override
-    protected void addInplaceUncheckedDF(Matrix other) {
+    protected void addInplaceUncheckedD(Matrix other) {
         for (int i = 0; i < elements.length; i++) {
             elements[i] += other.getAt(i);
         }
     }
 
     @Override
-    protected void addInplaceUncheckedDT(Matrix other) {
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                elements[k] += other.getAt(i, j);
-                k++;
-            }
-        }
-    }
-
-    @Override
-    protected void addInplaceUncheckedSF(Matrix other) {
+    protected void addInplaceUncheckedS(Matrix other) {
         for (IndexedMatrixValue e : other) {
-            elements[getFullMatrixIndex(e.getRowIndex(), e.getColIndex(), numberOfColumns)] += e.getDoubleValue();
+            elements[getLinearIndex(e.getRowIndex(), e.getColIndex())] += e.getDoubleValue();
         }
     }
 
-    @Override
-    protected void addInplaceUncheckedST(Matrix other) {
-        for (IndexedMatrixValue e : other) {
-            int i = e.getRowIndex(), j = e.getColIndex();
-            elements[getFullMatrixIndex(i, j, numberOfColumns)] += e.getDoubleValue();
-            if (i != j) {
-                elements[getFullMatrixIndex(j, i, numberOfColumns)] += e.getDoubleValue();
-            }
-        }
-    }
-
-    @Override
-    public Matrix multiply(double scalar) {
-        return new DenseMatrix(LinearAlgebraUtils.scale(elements, scalar),
-                numberOfColumns);
-    }
-
-    @Override
-    public void multiplyInplace(double scalar) {
-        LinearAlgebraUtils.scaleInplace(elements, scalar);
-    }
-
-    /* overridden accessors and transformations */
+    /* overridden accessors */
 
     @Override
     public double getAt(int rowIndex, int columnIndex) {
-        return elements[getFullMatrixIndex(rowIndex, columnIndex, numberOfColumns)];
+        return elements[getLinearIndex(rowIndex, columnIndex)];
     }
 
     @Override
@@ -286,43 +205,18 @@ public class DenseMatrix extends Matrix {
         return elements[linearIndex];
     }
 
+    protected abstract int getLinearIndex(int rowIndex, int columnIndex);
+
     @Override
     public Iterator<IndexedMatrixValue> iterator() {
         return indexValues(new ArrayList<>()).iterator();
     }
 
-    @Override
-    public Matrix transpose() {
-        double[] newElements = new double[elements.length];
-
-        int k = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                newElements[getFullMatrixIndex(j, i, numberOfRows)] = elements[k];
-                k++;
-            }
-        }
-
-        return new DenseMatrix(newElements, numberOfRows);
-    }
+    /* overridden transformations */
 
     @Override
     public Matrix deepCopy() {
-        return new DenseMatrix(Arrays.copyOf(elements, elements.length),
-                numberOfColumns);
-    }
-
-    @Override
-    public int getEffectiveSize() {
-        int effectiveSize = 0;
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                if (getAt(i, j) != 0) {
-                    effectiveSize++;
-                }
-            }
-        }
-        return effectiveSize;
+        return withElements(Arrays.copyOf(elements, elements.length));
     }
 
     @Override
@@ -341,10 +235,10 @@ public class DenseMatrix extends Matrix {
     /**
      * Adds all values of this vector to a pre-initialized list.
      *
-     * @param storage an empty list of indexed values
+     * @param storage an empty list
      * @return updated storage
      */
-    private List<IndexedMatrixValue> indexValues(final List<IndexedMatrixValue> storage) {
+    protected List<IndexedMatrixValue> indexValues(List<IndexedMatrixValue> storage) {
         assert storage.isEmpty();
 
         for (int i = 0; i < numberOfRows; i++) {
@@ -358,38 +252,5 @@ public class DenseMatrix extends Matrix {
         }
 
         return storage;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DenseMatrix that = (DenseMatrix) o;
-
-        return Arrays.equals(elements, that.elements);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(elements);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder res = new StringBuilder();
-
-        for (int i = 0; i < numberOfRows; i++) {
-            StringJoiner joiner = new StringJoiner(", ");
-            for (int j = 0; j < numberOfColumns; j++) {
-                joiner.add(Float.toString((float) getAt(i, j)));
-            }
-            res.append("[").append(joiner.toString()).append("]");
-            if (i != numberOfRows - 1) {
-                res.append("\n");
-            }
-        }
-
-        return res.toString();
     }
 }
