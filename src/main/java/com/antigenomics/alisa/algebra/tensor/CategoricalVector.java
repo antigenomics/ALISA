@@ -1,6 +1,7 @@
 package com.antigenomics.alisa.algebra.tensor;
 
 import com.antigenomics.alisa.algebra.Container;
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import com.antigenomics.alisa.algebra.VectorSpace;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -10,15 +11,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Note that categorical vector doesn't extend linear object. Operations such as
- * addition and multiplication are meaningless for a dense vector of category indices.
  */
 public class CategoricalVector
-        implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategory, CategoricalVector> {
-    private final int[] elements;
+        implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector> {
+    private final CategoryWeightPair[] elements;
     private final int numberOfCategories;
 
-    public CategoricalVector(int[] elements, int numberOfCategories) {
+    public CategoricalVector(CategoryWeightPair[] elements, int numberOfCategories) {
         this.elements = elements;
         this.numberOfCategories = numberOfCategories;
     }
@@ -36,11 +35,17 @@ public class CategoricalVector
         return false;
     }
 
+    public CategoryWeightPair getAt(int index) {
+        return elements[index];
+    }
+
     @Override
     public double getAt(int... indices) {
-        if (indices.length != 1)
+        if (indices.length != 2)
             throw new IllegalArgumentException();
-        return elements[indices[0]];
+        CategoryWeightPair categoryWeightPair = elements[indices[0]];
+
+        return categoryWeightPair.getCategory() == indices[1] ? categoryWeightPair.getWeight() : 0;
     }
 
     @Override
@@ -73,9 +78,10 @@ public class CategoricalVector
         double res = 0;
 
         for (int i = 0; i < elements.length; i++) {
-
-            if (elements[i] == b.elements[i]) {
-                res++;
+            CategoryWeightPair categoryWeightPair1 = elements[i],
+                    categoryWeightPair2 = b.elements[i];
+            if (categoryWeightPair1.getCategory() == categoryWeightPair2.getCategory()) {
+                res += categoryWeightPair1.getWeight() * categoryWeightPair2.getWeight();
             }
         }
 
@@ -84,7 +90,21 @@ public class CategoricalVector
 
     @Override
     public Tensor outerProduct(CategoricalVector b) {
+        double[] tensorElements = new double[elements.length * b.elements.length *
+                numberOfCategories * b.numberOfCategories];
 
+        for (int i = 0; i < elements.length; i++) {
+            CategoryWeightPair val1 = elements[i];
+            for (int j = 0; j < b.elements.length; j++) {
+                CategoryWeightPair val2 = b.elements[i];
+                tensorElements[LinearAlgebraUtils.getFullTensorIndex(i, j,
+                        val1.getCategory(), val2.getCategory(),
+                        b.elements.length, numberOfCategories, b.numberOfCategories)] = val1.getWeight() * val2.getWeight();
+            }
+        }
+
+        return new FullTensor(tensorElements, elements.length,
+                b.elements.length, numberOfCategories, b.numberOfCategories);
     }
 
     @Override
@@ -93,11 +113,13 @@ public class CategoricalVector
     }
 
     @Override
-    public Iterator<IndexedCategory> iterator() {
-        List<IndexedCategory> elementList = new ArrayList<>();
+    public Iterator<IndexedCategoryWeight> iterator() {
+        List<IndexedCategoryWeight> elementList = new ArrayList<>();
 
         for (int i = 0; i < elements.length; i++) {
-            elementList.add(new IndexedCategory(i, elements[i]));
+            CategoryWeightPair categoryWeightPair = elements[i];
+            elementList.add(new IndexedCategoryWeight(i,
+                    categoryWeightPair.getCategory(), categoryWeightPair.getWeight()));
         }
 
         return elementList.iterator();

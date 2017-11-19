@@ -191,12 +191,8 @@ public abstract class Matrix
 
     @Override
     public void addInplace(Matrix other) {
-        if (this == other) {
-            multiplyInplace(2.0);
-        } else {
-            checkSizeMatch(other);
-            addInplaceUnchecked(other);
-        }
+        checkSizeMatch(other);
+        addInplaceUnchecked(other);
     }
 
     /**
