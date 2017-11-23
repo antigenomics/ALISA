@@ -143,14 +143,16 @@ public final class SparseVector extends Vector {
 
     @Override
     public Matrix expand() {
-        // todo: can optimize here
         LinkedList<IndexedMatrixValue> matrixValues = new LinkedList<>();
         for (IndexedVectorValue e1 : this) {
+            int i = e1.getIndex();
             for (IndexedVectorValue e2 : this) {
-                int i = e1.getIndex(), j = e2.getIndex();
+                int j = e2.getIndex();
                 if (i >= j) {
                     matrixValues.add(new IndexedMatrixValue(i, j,
                             e1.getDoubleValue() * e2.getDoubleValue()));
+                } else {
+                    break;
                 }
             }
         }

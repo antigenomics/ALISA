@@ -129,8 +129,7 @@ public final class DenseVector extends Vector {
         int k = 0;
         for (int i = 0; i < elements.length; i++) {
             for (int j = 0; j <= i; j++) {
-                matElements[k] = elements[i] * elements[j];
-                k++;
+                matElements[k++] = elements[i] * elements[j];
             }
         }
 
