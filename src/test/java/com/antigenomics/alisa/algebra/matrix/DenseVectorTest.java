@@ -146,7 +146,7 @@ class DenseVectorTest {
 
         Matrix v4exp = v4.expand();
 
-        assertTrue(equalUpToTol(Matrix.DENSE(new double[][]{
+        assertTrue(equalUpToTol(new DenseTriangularMatrix(new double[][]{
                         {9, 6, 3},
                         {6, 4, 2},
                         {3, 2, 1}

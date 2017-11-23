@@ -1,6 +1,7 @@
 package com.antigenomics.alisa.algebra.matrix;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.StringJoiner;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.computeNumberOfFullMatrixRows;
@@ -13,7 +14,7 @@ public final class DenseFullMatrix extends DenseMatrix {
      * @param elements        matrix values
      * @param numberOfColumns number of columns in matrix
      */
-    private DenseFullMatrix(double[] elements, int numberOfColumns) {
+    protected DenseFullMatrix(double[] elements, int numberOfColumns) {
         this(elements, numberOfColumns, false);
     }
 
@@ -27,11 +28,20 @@ public final class DenseFullMatrix extends DenseMatrix {
      * @param numberOfColumns number of columns in resulting matrix
      * @param safe            if true will use a deep copy of the array
      */
-    public DenseFullMatrix(final double[] elements, int numberOfColumns, boolean safe) {
+    public DenseFullMatrix(double[] elements, int numberOfColumns, boolean safe) {
         super(elements, computeNumberOfFullMatrixRows(elements.length, numberOfColumns),
                 numberOfColumns, safe, false);
-        if (safe) {
-            assert elements.length == numberOfRows * numberOfColumns;
+        assert !safe || elements.length == numberOfRows * numberOfColumns;
+    }
+
+    protected DenseFullMatrix(double[][] elements) {
+        super(new double[elements.length * elements[0].length],
+                elements.length, elements[0].length, false, false);
+        int k = 0;
+        for (double[] row : elements) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                this.elements[k++] = row[j];
+            }
         }
     }
 
@@ -76,6 +86,12 @@ public final class DenseFullMatrix extends DenseMatrix {
         }
 
         return new DenseFullMatrix(newElements, numberOfRows);
+    }
+
+    @Override
+    public Matrix asSparse() {
+        return new SparseFullMatrix(indexValues(new LinkedList<>()),
+                numberOfRows, numberOfColumns);
     }
 
     @Override

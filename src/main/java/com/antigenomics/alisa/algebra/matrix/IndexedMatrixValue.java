@@ -7,7 +7,7 @@ import com.antigenomics.alisa.algebra.IndexedValue;
  * The comparison operation first compares the row index, the the column index, corresponding
  * to linear indexing of an array with first row followed by second row and so on.
  */
-public class IndexedMatrixValue
+public final class IndexedMatrixValue
         implements IndexedValue<IndexedMatrixValue> {
     /**
      * An empty value, indices are set to -1 and value is set to zero.

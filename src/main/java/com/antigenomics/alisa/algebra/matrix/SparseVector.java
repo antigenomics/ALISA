@@ -14,8 +14,7 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
  * It also extends a vector space object and can be used in scalar and outer product with other vectors,
  * as well as linear, bilinear and symmetric bilinear forms with matrices.
  */
-public class SparseVector
-        extends Vector {
+public final class SparseVector extends Vector {
     /* Internal storage - typically a linked list */
     // todo: perhaps we need a custom List impl, although this one shows best performance in tests better than say GlueList, etc
     private final List<IndexedVectorValue> elementList;
@@ -127,10 +126,6 @@ public class SparseVector
 
     @Override
     public Matrix outerProduct(Vector b) {
-        if (this == b) {
-            return expand();
-        }
-
         if (b.isSparse()) {
             LinkedList<IndexedMatrixValue> matrixValues = new LinkedList<>();
             for (IndexedVectorValue e1 : this) {
@@ -139,7 +134,7 @@ public class SparseVector
                             e1.getDoubleValue() * e2.getDoubleValue()));
                 }
             }
-            return new SparseMatrix(matrixValues, this.length, b.length);
+            return new SparseFullMatrix(matrixValues, this.length, b.length);
         } else {
             return b.outerProduct(this).transpose();
         }
@@ -153,7 +148,7 @@ public class SparseVector
         for (IndexedVectorValue e1 : this) {
             for (IndexedVectorValue e2 : this) {
                 int i = e1.getIndex(), j = e2.getIndex();
-                if (i <= j) {
+                if (i >= j) {
                     matrixValues.add(new IndexedMatrixValue(i, j,
                             e1.getDoubleValue() * e2.getDoubleValue()));
                 }

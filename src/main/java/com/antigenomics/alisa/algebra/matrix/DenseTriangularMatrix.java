@@ -1,5 +1,7 @@
 package com.antigenomics.alisa.algebra.matrix;
 
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
+
 import java.util.*;
 
 import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
@@ -15,7 +17,7 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.*;
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
  * bilinear forms. Inplace addition only works if other matrix is also lower triangular.
  */
-public class DenseTriangularMatrix extends DenseMatrix {
+public final class DenseTriangularMatrix extends DenseMatrix {
     /* constructors */
 
     /**
@@ -25,6 +27,18 @@ public class DenseTriangularMatrix extends DenseMatrix {
      */
     protected DenseTriangularMatrix(double[] elements) {
         this(elements, false);
+    }
+
+    protected DenseTriangularMatrix(double[][] elements) {
+        super(new double[LinearAlgebraUtils.getTriangularMatrixLength(elements.length)],
+                elements.length, elements.length, false, true);
+        int k = 0;
+        for (int i = 0; i < numberOfRows; i++) {
+            double[] row = elements[i];
+            for (int j = 0; j <= i; j++) {
+                this.elements[k++] = row[j];
+            }
+        }
     }
 
     /**
@@ -87,7 +101,13 @@ public class DenseTriangularMatrix extends DenseMatrix {
 
     @Override
     public Matrix transpose() {
-        return this;
+        return deepCopy();
+    }
+
+    @Override
+    public Matrix asSparse() {
+        return new SparseTriangularMatrix(indexValues(new LinkedList<>()),
+                numberOfRows);
     }
 
     @Override
@@ -173,5 +193,46 @@ public class DenseTriangularMatrix extends DenseMatrix {
         }
 
         return res.toString();
+    }
+
+    @Override
+    public double norm1() {
+        double norm1 = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j <= i; j++) {
+                norm1 += Math.abs(getAt(i, j));
+            }
+        }
+
+        return norm1;
+    }
+
+    @Override
+    public double norm2() {
+        double norm2 = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j <= i; j++) {
+                double value = getAt(i, j);
+                norm2 += value * value;
+            }
+        }
+
+
+        return Math.sqrt(norm2);
+    }
+
+    @Override
+    public double normInf() {
+        double normInf = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j <= i; j++) {
+                normInf = Math.max(normInf, Math.abs(getAt(i, j)));
+            }
+        }
+
+        return normInf;
     }
 }

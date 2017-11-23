@@ -170,6 +170,7 @@ public abstract class DenseMatrix extends Matrix {
         }
         return withElements(newElements);
     }
+
     @Override
     protected Matrix addUncheckedS(Matrix other) {
         double[] newElements = Arrays.copyOf(elements, elements.length);
@@ -220,12 +221,6 @@ public abstract class DenseMatrix extends Matrix {
     }
 
     @Override
-    public Matrix asSparse() {
-        return new SparseMatrix(indexValues(new LinkedList<>()),
-                numberOfRows, numberOfColumns);
-    }
-
-    @Override
     public Matrix asDense() {
         return deepCopy();
     }
@@ -252,5 +247,46 @@ public abstract class DenseMatrix extends Matrix {
         }
 
         return storage;
+    }
+
+    @Override
+    public double norm1() {
+        double norm1 = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                norm1 += Math.abs(getAt(i, j));
+            }
+        }
+
+        return norm1;
+    }
+
+    @Override
+    public double norm2() {
+        double norm2 = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                double value = getAt(i, j);
+                norm2 += value * value;
+            }
+        }
+
+
+        return Math.sqrt(norm2);
+    }
+
+    @Override
+    public double normInf() {
+        double normInf = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            for (int j = 0; j < numberOfColumns; j++) {
+                normInf = Math.max(normInf, Math.abs(getAt(i, j)));
+            }
+        }
+
+        return normInf;
     }
 }

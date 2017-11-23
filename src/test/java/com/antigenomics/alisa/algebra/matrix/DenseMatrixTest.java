@@ -14,11 +14,11 @@ public class DenseMatrixTest {
     void instanceTest() {
         assertEquals(
                 Matrix.DENSE(new double[][]{{1, 0, 0}, {2, 3, 0}, {4, 5, 6}}),
-                new DenseMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6}, 3, true));
+                new DenseFullMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6}, 3, false));
 
         assertEquals(
-                Matrix.DENSE(new double[][]{{1, 0, 0}, {2, 3, 0}, {4, 5, 6}}),
-                new DenseMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6}, 3, false));
+                new DenseTriangularMatrix(new double[][]{{1, 0, 0}, {2, 3, 0}, {4, 5, 6}}),
+                new DenseTriangularMatrix(new double[]{1, 2, 3, 4, 5, 6}, false));
 
         List<IndexedMatrixValue> valueList = new ArrayList<>();
         valueList.add(new IndexedMatrixValue(0, 0, 1.0));
@@ -30,15 +30,15 @@ public class DenseMatrixTest {
 
         assertEquals(
                 Matrix.DENSE(new double[][]{{1, 4, 0}, {2, 5, 0}, {3, 6, 0}}),
-                new DenseMatrix(valueList, 3, 3));
+                new DenseFullMatrix(valueList, 3, 3));
 
         assertEquals(
-                new DenseMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6, 1, 2, 3},
+                new DenseFullMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6, 1, 2, 3},
                         3, false).getEffectiveSize(),
                 9);
 
         assertEquals(
-                new DenseMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6, 1, 2, 3, 4, 5, 6},
+                new DenseFullMatrix(new double[]{1, 0, 0, 2, 3, 0, 4, 5, 6, 1, 2, 3, 4, 5, 6},
                         3, false).getNumberOfRows(),
                 5);
     }
@@ -47,20 +47,20 @@ public class DenseMatrixTest {
     void safetyTest() {
         // out of bounds
 
-        assertThrows(Exception.class, () -> new DenseMatrix(new double[3], 2));
+        assertThrows(Exception.class, () -> new DenseFullMatrix(new double[3], 2));
 
         List<IndexedMatrixValue> valueList = new ArrayList<>();
         valueList.add(new IndexedMatrixValue(0, 0, 1));
         valueList.add(new IndexedMatrixValue(0, 1, 1));
         valueList.add(new IndexedMatrixValue(1, 0, 1));
         valueList.add(new IndexedMatrixValue(1, 1, 1));
-        assertThrows(Exception.class, () -> new DenseMatrix(valueList, 1, 2));
+        assertThrows(Exception.class, () -> new DenseFullMatrix(valueList, 1, 2));
 
         // modification
 
         double[] values = new double[9];
-        DenseMatrix m1 = new DenseMatrix(values, 3);
-        DenseMatrix m2 = new DenseMatrix(values, 3, true);
+        DenseMatrix m1 = new DenseFullMatrix(values, 3);
+        DenseMatrix m2 = new DenseFullMatrix(values, 3, true);
         values[1] = values[5] = values[7] = 1;
         assertNotEquals(m2, m1);
         Matrix m3 = m2.deepCopy();
@@ -69,8 +69,8 @@ public class DenseMatrixTest {
 
         // dimension match
 
-        DenseMatrix m4 = new DenseMatrix(valueList, 2, 2),
-                m5 = new DenseMatrix(valueList, 2, 3); // should work with missing elements
+        DenseMatrix m4 = new DenseFullMatrix(valueList, 2, 2),
+                m5 = new DenseFullMatrix(valueList, 2, 3); // should work with missing elements
         assertThrows(Exception.class, () -> m4.add(m5));
         assertThrows(Exception.class, () -> m4.addInplace(m5));
 
@@ -81,7 +81,7 @@ public class DenseMatrixTest {
 
         IndexedMatrixValue prevValue = IndexedMatrixValue.EMPTY;
 
-        for (IndexedMatrixValue v : new DenseMatrix(valueList, 5, 5)) {
+        for (IndexedMatrixValue v : new DenseFullMatrix(valueList, 5, 5)) {
             assertTrue(v.compareTo(prevValue) > 0);
             prevValue = v;
         }
@@ -143,9 +143,7 @@ public class DenseMatrixTest {
         assertEquals(v1.norm2() * v1.norm2(),
                 Matrix.DENSE_EYE(v1.length).bilinearForm(v1));
         assertEquals(v1.dotProduct(v2),
-                // todo: have to convert to 'full' matrix, as non-symmetric bilinear form is not impl in triangular
-                new DenseMatrix(Matrix.DENSE_EYE(v1.length), v1.length, v1.length)
-                        .bilinearForm(v1, v2));
+                Matrix.DENSE_EYE(v1.length).bilinearForm(v1, v2));
 
         /*
         // cartesian product

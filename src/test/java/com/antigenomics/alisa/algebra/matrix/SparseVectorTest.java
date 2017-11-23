@@ -163,7 +163,7 @@ public class SparseVectorTest {
 
         Matrix v4exp = v4.expand();
 
-        assertTrue(equalUpToTol(Matrix.SPARSE(new double[][]{
+        assertTrue(equalUpToTol(new SparseTriangularMatrix(new double[][]{
                         {9, 6, 3},
                         {6, 4, 2},
                         {3, 2, 1}

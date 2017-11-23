@@ -14,33 +14,9 @@ import java.util.stream.Collectors;
  * It also extends a bilinear map object and can be used to map vectors to scalars via linear and
  * bilinear forms.
  */
-public class SparseMatrix
+public abstract class SparseMatrix
         extends Matrix {
     protected final List<IndexedMatrixValue> elementList;
-
-    /**
-     * Internal. Unsafe constructor for full sparse matrix.
-     *
-     * @param elementList     matrix values
-     * @param numberOfRows    number of rows
-     * @param numberOfColumns number of columns
-     */
-    protected SparseMatrix(List<IndexedMatrixValue> elementList,
-                           int numberOfRows, int numberOfColumns) {
-        this(elementList, numberOfRows, numberOfColumns, false);
-    }
-
-    /**
-     * Internal. Unsafe constructor for symmetric (lower triangular) sparse matrix.
-     *
-     * @param elementList  matrix values
-     * @param numberOfRows number of rows, equal to number of columns
-     */
-    protected SparseMatrix(List<IndexedMatrixValue> elementList,
-                           int numberOfRows) {
-        super(numberOfRows);
-        this.elementList = elementList;
-    }
 
     /**
      * Create a sparse matrix with a specified number of rows and columns from a list of indexed values.
@@ -55,30 +31,60 @@ public class SparseMatrix
      * @param numberOfRows    number of rows
      * @param numberOfColumns number of columns
      * @param safe            if set to true, will check ordering and copy the values list
+     * @param lowerTriangular true if matrix is lower triangular
      */
-    public SparseMatrix(List<IndexedMatrixValue> elementList,
-                        int numberOfRows, int numberOfColumns,
-                        boolean safe) {
-        super(numberOfRows, numberOfColumns);
+    protected SparseMatrix(List<IndexedMatrixValue> elementList,
+                           int numberOfRows, int numberOfColumns,
+                           boolean safe, boolean lowerTriangular) {
+        super(numberOfRows, numberOfColumns, true, lowerTriangular);
         if (safe) {
-            this.elementList = checkAndSortIfNeeded(elementList, numberOfRows, numberOfColumns);
+            this.elementList = checkSortCopy(elementList, numberOfRows, numberOfColumns);
         } else {
             this.elementList = elementList;
         }
     }
 
+    /**
+     * Create a new matrix of the same type (full/lower triangular)
+     * from an array of elements
+     *
+     * @param elementList an array of matrix values
+     * @return a matrix
+     */
+    protected abstract Matrix withElements(List<IndexedMatrixValue> elementList);
+
     @Override
-    protected double bilinearFormUnchecked(Vector a, Vector b) {
-        return a.dotProduct(linearFormUnchecked(b));
+    protected double bilinearFormUncheckedDD(Vector a, Vector b) {
+        return a.dotProduct(linearFormUncheckedD(b));
     }
 
     @Override
-    protected double bilinearFormUnchecked(Vector a) {
-        return a.dotProduct(linearFormUnchecked(a));
+    protected double bilinearFormUncheckedDS(Vector a, Vector b) {
+        return bilinearFormUncheckedSS(a, b);
     }
 
     @Override
-    protected Vector linearFormUnchecked(Vector b) {
+    protected double bilinearFormUncheckedSD(Vector a, Vector b) {
+        return bilinearFormUncheckedDD(a, b);
+    }
+
+    @Override
+    protected double bilinearFormUncheckedSS(Vector a, Vector b) {
+        return a.dotProduct(linearFormUncheckedS(b));
+    }
+
+    @Override
+    protected double bilinearFormUncheckedD(Vector a) {
+        return bilinearFormUncheckedDD(a, a);
+    }
+
+    @Override
+    protected double bilinearFormUncheckedS(Vector a) {
+        return bilinearFormUncheckedSS(a, a);
+    }
+
+    @Override
+    protected Vector linearFormUncheckedD(Vector b) {
         LinkedList<IndexedVectorValue> values = new LinkedList<>();
 
         double res = 0;
@@ -86,33 +92,44 @@ public class SparseMatrix
         if (numberOfRows > 0) {
             int previousIndex = elementList.iterator().next().getRowIndex();
 
-            if (b.isSparse()) {
-                Iterator<IndexedVectorValue> iterB = b.iterator();
-                for (IndexedMatrixValue e : elementList) {
-                    int currentIndex = e.getRowIndex();
-                    if (currentIndex > previousIndex) {
+            for (IndexedMatrixValue e : elementList) {
+                int currentIndex = e.getRowIndex();
+                if (currentIndex > previousIndex) {
+                    if (res != 0)
                         values.add(new IndexedVectorValue(previousIndex, res));
-                        previousIndex = currentIndex;
-                        res = 0;
-                        iterB = b.iterator();
-                    } else {
-                        IndexedVectorValue elemB = null;
-                        while (iterB.hasNext() && (elemB = iterB.next()).getIndex() < e.getColIndex()) ;
-                        if (elemB != null && elemB.getIndex() == e.getColIndex()) {
-                            res += e.getDoubleValue() * elemB.getDoubleValue();
-                        }
-                    }
+                    previousIndex = currentIndex;
+                    res = 0;
+                } else {
+                    res += e.getDoubleValue() * b.getAt(e.getColIndex());
                 }
-            } else {
-                for (IndexedMatrixValue e : elementList) {
-                    int currentIndex = e.getRowIndex();
-                    if (currentIndex > previousIndex) {
-                        if (res != 0)
-                            values.add(new IndexedVectorValue(previousIndex, res));
-                        previousIndex = currentIndex;
-                        res = 0;
-                    } else {
-                        res += e.getDoubleValue() * b.getAt(e.getColIndex());
+            }
+        }
+
+        return new SparseVector(values, numberOfRows);
+    }
+
+    @Override
+    protected Vector linearFormUncheckedS(Vector b) {
+        LinkedList<IndexedVectorValue> values = new LinkedList<>();
+
+        double res = 0;
+
+        if (numberOfRows > 0) {
+            int previousIndex = elementList.iterator().next().getRowIndex();
+
+            Iterator<IndexedVectorValue> iterB = b.iterator();
+            for (IndexedMatrixValue e : elementList) {
+                int currentIndex = e.getRowIndex();
+                if (currentIndex > previousIndex) {
+                    values.add(new IndexedVectorValue(previousIndex, res));
+                    previousIndex = currentIndex;
+                    res = 0;
+                    iterB = b.iterator();
+                } else {
+                    IndexedVectorValue elemB = null;
+                    while (iterB.hasNext() && (elemB = iterB.next()).getIndex() < e.getColIndex()) ;
+                    if (elemB != null && elemB.getIndex() == e.getColIndex()) {
+                        res += e.getDoubleValue() * elemB.getDoubleValue();
                     }
                 }
             }
@@ -122,56 +139,27 @@ public class SparseMatrix
     }
 
     @Override
-    protected Matrix addUnchecked(Matrix other) {
-        if (other.isSparse()) {
-            LinkedList<IndexedMatrixValue> newElements = new LinkedList<>();
-            if (other.isLowerTriangular) {
-                LinkedList<IndexedMatrixValue> other2 = new LinkedList<>();
-
-                for (IndexedMatrixValue indexedMatrixValue : other) {
-                    other2.add(indexedMatrixValue);
-                    int i = indexedMatrixValue.getRowIndex(),
-                            j = indexedMatrixValue.getColIndex();
-                    if (i != j) {
-                        other2.add(new IndexedMatrixValue(j, i, indexedMatrixValue.getDoubleValue()));
-                    }
-                }
-
-                other2.sort(Comparator.naturalOrder());
-
-                LinearAlgebraUtils.combineAdd(newElements, this, other2);
-            } else {
-                LinearAlgebraUtils.combineAdd(newElements, this, other);
-            }
-            return new SparseMatrix(newElements, numberOfRows, numberOfColumns);
-        } else {
-            return other.addUnchecked(this);
-        }
+    protected Matrix addUncheckedD(Matrix other) {
+        return other.addUncheckedS(this);
     }
 
     @Override
-    protected void addInplaceUnchecked(Matrix other) {
+    protected Matrix addUncheckedS(Matrix other) {
+        LinkedList<IndexedMatrixValue> newElements = new LinkedList<>();
+        LinearAlgebraUtils.combineAdd(newElements, this, other);
+        return withElements(newElements);
+    }
+
+    @Override
+    protected void addInplaceUncheckedD(Matrix other) {
+        addInplaceUncheckedS(other);
+    }
+
+    @Override
+    protected void addInplaceUncheckedS(Matrix other) {
         List<IndexedMatrixValue> elementsCopy = copyList();
         elementList.clear();
-
-        if (other.isLowerTriangular) {
-            LinkedList<IndexedMatrixValue> other2 = new LinkedList<>();
-
-            for (IndexedMatrixValue indexedMatrixValue : other) {
-                other2.add(indexedMatrixValue);
-                int i = indexedMatrixValue.getRowIndex(),
-                        j = indexedMatrixValue.getColIndex();
-                if (i != j) {
-                    other2.add(new IndexedMatrixValue(j, i, indexedMatrixValue.getDoubleValue()));
-                }
-            }
-
-            other2.sort(Comparator.naturalOrder());
-
-            LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other2);
-        } else {
-            LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other);
-        }
+        LinearAlgebraUtils.combineAdd(elementList, elementsCopy, other);
     }
 
     @Override
@@ -191,16 +179,10 @@ public class SparseMatrix
 
     @Override
     public Matrix transpose() {
-        return new SparseMatrix(elementList.
+        return withElements(elementList.
                 stream()
                 .map(x -> new IndexedMatrixValue(x.getColIndex(), x.getRowIndex(), x.getDoubleValue()))
-                .collect(Collectors.toCollection(LinkedList::new)),
-                numberOfColumns, numberOfRows);
-    }
-
-    @Override
-    public boolean isSparse() {
-        return true;
+                .collect(Collectors.toCollection(LinkedList::new)));
     }
 
     @Override
@@ -215,15 +197,15 @@ public class SparseMatrix
 
     @Override
     public Matrix asDense() {
-        return new DenseMatrix(elementList, numberOfRows, numberOfColumns);
+        return isLowerTriangular ? new DenseTriangularMatrix(elementList, numberOfRows)
+                : new DenseFullMatrix(elementList, numberOfRows, numberOfColumns);
     }
 
     @Override
     public Matrix multiply(double scalar) {
         LinkedList<IndexedMatrixValue> newElements = new LinkedList<>();
         LinearAlgebraUtils.scale(newElements, elementList, scalar);
-
-        return new SparseMatrix(newElements, numberOfRows, numberOfColumns);
+        return withElements(newElements);
     }
 
     @Override
@@ -235,7 +217,7 @@ public class SparseMatrix
 
     @Override
     public Matrix deepCopy() {
-        return new SparseMatrix(copyList(), numberOfRows, numberOfColumns);
+        return withElements(copyList());
     }
 
     @Override
@@ -264,8 +246,8 @@ public class SparseMatrix
      * @return checked input matrix linear storage
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static List<IndexedMatrixValue> checkAndSortIfNeeded(List<IndexedMatrixValue> elementList,
-                                                                int numberOfRows, int numberOfColumns) {
+    protected static List<IndexedMatrixValue> checkSortCopy(List<IndexedMatrixValue> elementList,
+                                                            int numberOfRows, int numberOfColumns) {
         int prevRowIndex = -1, prevColIndex = -1;
         boolean sorted = true;
         List<IndexedMatrixValue> elementListCopy = new LinkedList<>();
@@ -328,11 +310,44 @@ public class SparseMatrix
 
         SparseMatrix that = (SparseMatrix) o;
 
-        return elementList != null ? elementList.equals(that.elementList) : that.elementList == null;
+        return elementList.equals(that.elementList);
     }
 
     @Override
     public int hashCode() {
-        return elementList != null ? elementList.hashCode() : 0;
+        return elementList.hashCode();
+    }
+
+    @Override
+    public double norm1() {
+        double norm1 = 0;
+
+        for (IndexedMatrixValue x : this) {
+            norm1 += Math.abs(x.getDoubleValue());
+        }
+
+        return norm1;
+    }
+
+    @Override
+    public double norm2() {
+        double norm2 = 0;
+
+        for (IndexedMatrixValue x : this) {
+            norm2 += x.getDoubleValue() * x.getDoubleValue();
+        }
+
+        return Math.sqrt(norm2);
+    }
+
+    @Override
+    public double normInf() {
+        double normInf = 0;
+
+        for (IndexedMatrixValue x : this) {
+            normInf = Math.max(normInf, Math.abs(x.getDoubleValue()));
+        }
+
+        return normInf;
     }
 }

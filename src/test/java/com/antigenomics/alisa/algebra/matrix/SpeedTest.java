@@ -42,7 +42,7 @@ public class SpeedTest {
 
         ///
 
-        input = new DenseMatrix(new double[ndim * ndim], ndim);
+        input = Matrix.DENSE_ZEROS(ndim, ndim);
         startTime = System.currentTimeMillis();
         for (Vector v : dense) {
             for (Vector v2 : dense) {
@@ -55,7 +55,7 @@ public class SpeedTest {
 
         //////
 
-        input = new DenseMatrix(new double[ndim * ndim], ndim);
+        input = Matrix.DENSE_ZEROS(ndim, ndim);
         startTime = System.currentTimeMillis();
         for (Vector v : sparse) {
             for (Vector v2 : sparse) {
@@ -88,6 +88,6 @@ public class SpeedTest {
         System.out.println("Sparse vector a -> sparse storage -> norm2: " +
                 timeSparseExpandSum + "ms");
 
-        assertTrue(timeDenseExpandSum > 3 * timeSparseExpandSum);
+        assertTrue(timeDenseExpandSum > 2 * timeSparseExpandSum);
     }
 }

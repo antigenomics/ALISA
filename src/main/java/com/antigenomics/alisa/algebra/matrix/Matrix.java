@@ -26,6 +26,12 @@ public abstract class Matrix
 
     /* auxiliary constructors */
 
+    private static void checkArray(double[][] values) {
+        if (values.length == 0 || values[0].length == 0) {
+            throw new IllegalArgumentException("Zero size array");
+        }
+    }
+
     /**
      * Create a dense matrix from an array of elements.
      *
@@ -33,15 +39,8 @@ public abstract class Matrix
      * @return a dense matrix
      */
     public static DenseMatrix DENSE(double[][] values) {
-        int numberOfRows = values.length,
-                numberOfColumns = values[0].length;
-        double[] arr = new double[numberOfRows * numberOfColumns];
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                arr[i * numberOfColumns + j] = values[i][j];
-            }
-        }
-        return new DenseFullMatrix(arr, numberOfColumns, false);
+        checkArray(values);
+        return new DenseFullMatrix(values);
     }
 
     /**
@@ -51,19 +50,8 @@ public abstract class Matrix
      * @return a dense matrix
      */
     public static SparseMatrix SPARSE(double[][] values) {
-        int numberOfRows = values.length,
-                numberOfColumns = values[0].length;
-        List<IndexedMatrixValue> elements = new LinkedList<>();
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                double value = values[i][j];
-
-                if (value != 0) {
-                    elements.add(new IndexedMatrixValue(i, j, value));
-                }
-            }
-        }
-        return new SparseMatrix(elements, numberOfRows, numberOfColumns);
+        checkArray(values);
+        return new SparseFullMatrix(values);
     }
 
     /**
@@ -78,6 +66,10 @@ public abstract class Matrix
                 numberOfColumns, false);
     }
 
+    public static DenseMatrix DENSE_ZEROS_LT(int size) {
+        return new DenseTriangularMatrix(new double[size * size],false);
+    }
+
     /**
      * Creates an empty sparse matrix
      *
@@ -86,10 +78,9 @@ public abstract class Matrix
      * @return a sparse matrix
      */
     public static SparseMatrix SPARSE_ZEROS(int numberOfRows, int numberOfColumns) {
-        return new SparseMatrix(new LinkedList<>(), numberOfRows,
+        return new SparseFullMatrix(new LinkedList<>(), numberOfRows,
                 numberOfColumns);
     }
-
 
     /**
      * Creates a dense identity matrix with ones on the diagonal.
@@ -403,63 +394,5 @@ public abstract class Matrix
             return getAt(indices[0], indices[1]);
         }
         throw new IllegalArgumentException();
-    }
-
-    @Override
-    public double norm1() {
-        double norm1 = 0;
-
-        if (sparse) {
-            for (IndexedMatrixValue x : this) {
-                norm1 += Math.abs(x.getDoubleValue());
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
-                    norm1 += Math.abs(getAt(i, j));
-                }
-            }
-        }
-
-        return norm1;
-    }
-
-    @Override
-    public double norm2() {
-        double norm2 = 0;
-
-        if (sparse) {
-            for (IndexedMatrixValue x : this) {
-                norm2 += x.getDoubleValue() * x.getDoubleValue();
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
-                    double value = getAt(i, j);
-                    norm2 += value * value;
-                }
-            }
-        }
-
-        return Math.sqrt(norm2);
-    }
-
-    @Override
-    public double normInf() {
-        double normInf = 0;
-
-        if (isSparse()) {
-            for (IndexedMatrixValue x : this) {
-                normInf = Math.max(normInf, Math.abs(x.getDoubleValue()));
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < (isLowerTriangular ? i + 1 : numberOfColumns); j++) {
-                    normInf = Math.max(normInf, Math.abs(getAt(i, j)));
-                }
-            }
-        }
-
-        return normInf;
     }
 }

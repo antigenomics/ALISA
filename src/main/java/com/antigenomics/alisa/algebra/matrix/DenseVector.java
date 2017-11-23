@@ -12,8 +12,7 @@ import java.util.*;
  * It also extends a vector space object and can be used in scalar and outer product with other vectors,
  * as well as linear, bilinear and symmetric bilinear forms with matrices.
  */
-public class DenseVector
-        extends Vector {
+public final class DenseVector extends Vector {
     /* internal storage */
     private final double[] elements;
 
@@ -108,10 +107,6 @@ public class DenseVector
 
     @Override
     public Matrix outerProduct(Vector b) {
-        if (this == b) {
-            return expand();
-        }
-
         int numberOfColumns = b.getLength();
         double[] matElements = new double[elements.length * numberOfColumns];
 
@@ -123,7 +118,7 @@ public class DenseVector
             }
         }
 
-        return new DenseMatrix(matElements, numberOfColumns);
+        return new DenseFullMatrix(matElements, numberOfColumns);
     }
 
 

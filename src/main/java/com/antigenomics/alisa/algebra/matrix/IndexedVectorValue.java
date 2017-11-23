@@ -6,7 +6,7 @@ import com.antigenomics.alisa.algebra.IndexedValue;
  * An indexed vector element. Contains real value and its indexs.
  * The comparison operation first compares the index.
  */
-public class IndexedVectorValue
+public final class IndexedVectorValue
         implements IndexedValue<IndexedVectorValue> {
     public static final IndexedVectorValue EMPTY = new IndexedVectorValue(-1, 0);
 
