@@ -64,6 +64,10 @@ public abstract class Tensor
     }
 
     protected double bilinearFormUnchecked(CategoricalVector a, CategoricalVector b) {
+        if (a.getLength() > b.getLength()) {
+            return bilinearFormUnchecked(b, a);
+        }
+
         double res = 0;
 
         for (int i = 0; i < numberOfRows; i++) {

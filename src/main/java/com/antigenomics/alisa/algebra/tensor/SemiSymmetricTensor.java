@@ -24,7 +24,7 @@ public final class SemiSymmetricTensor extends Tensor {
     }
 
     protected SemiSymmetricTensor(double[][][][] elements) {
-        super(new double[elements.length * elements[0].length * elements[0][0].length * elements[0][0][0].length],
+        super(new double[getSemiTriangularTensorLength(elements.length, elements[0].length, elements[0][0].length)],
                 elements.length, elements[0].length, elements[0][0].length, elements[0][0][0].length,
                 false, true, false);
         int k = 0;

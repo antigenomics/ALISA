@@ -24,7 +24,7 @@ public final class SymmetricTensor extends Tensor {
     }
 
     protected SymmetricTensor(double[][][][] elements) {
-        super(new double[elements.length * elements[0].length * elements[0][0].length * elements[0][0][0].length],
+        super(new double[getTriangularTensorLength(elements.length, elements[0][0].length)],
                 elements.length, elements[0].length, elements[0][0].length, elements[0][0][0].length,
                 false, true, false);
         int k = 0;

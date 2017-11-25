@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class CategoricalVector
         implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector> {
-    private final CategoryWeightPair[] elements;
-    private final int numberOfCategories;
+    protected final CategoryWeightPair[] elements;
+    protected final int numberOfCategories;
 
     public CategoricalVector(CategoryWeightPair[] elements, int numberOfCategories) {
         this.elements = elements;
@@ -91,7 +91,6 @@ public class CategoricalVector
 
     @Override
     public Tensor outerProduct(CategoricalVector b) {
-        //todo
         double[] tensorElements = new double[elements.length * b.elements.length *
                 numberOfCategories * b.numberOfCategories];
 
