@@ -97,9 +97,10 @@ public final class DenseFullMatrix extends DenseMatrix {
     @Override
     public int getEffectiveSize() {
         int effectiveSize = 0;
+        int k = 0;
         for (int i = 0; i < numberOfRows; i++) {
             for (int j = 0; j < numberOfColumns; j++) {
-                if (getAt(i, j) != 0) {
+                if (elements[k++] != 0) {
                     effectiveSize++;
                 }
             }

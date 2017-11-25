@@ -1,46 +1,43 @@
 package com.antigenomics.alisa.algebra.tensor;
 
 import com.antigenomics.alisa.algebra.Container;
+import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import com.antigenomics.alisa.algebra.LinearSpaceObject;
 import com.antigenomics.alisa.algebra.VectorMapping;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.util.Arrays;
 
 public abstract class Tensor
         implements LinearSpaceObject<Tensor>,
         VectorMapping<CategoricalVector, Tensor>, Container<IndexedTensorValue, Tensor> {
+    /* internal storage */
+    protected final double[] elements;
+
     /* true tensor shape */
     protected final int numberOfRows, numberOfColumns,
             numberOfCategoryRows, numberOfCategoryColumns;
-    protected final boolean isSymmetric, isSemiSymmetric;
+    protected final boolean symmetric, semiSymmetric;
 
-    protected Tensor(int numberOfRows, int numberOfColumns,
-                     int numberOfCategoryRows, int numberOfCategoryColumns) {
+    protected Tensor(double[] elements,
+                     int numberOfRows, int numberOfColumns,
+                     int numberOfCategoryRows, int numberOfCategoryColumns,
+                     boolean symmetric, boolean semiSymmetric,
+                     boolean safe) {
+        if (safe) {
+            this.elements = Arrays.copyOf(elements, elements.length);
+        } else {
+            this.elements = elements;
+        }
         this.numberOfRows = numberOfRows;
         this.numberOfColumns = numberOfColumns;
         this.numberOfCategoryRows = numberOfCategoryRows;
         this.numberOfCategoryColumns = numberOfCategoryColumns;
-        this.isSymmetric = false;
-        this.isSemiSymmetric = false;
+        this.symmetric = symmetric;
+        this.semiSymmetric = semiSymmetric;
     }
 
-    protected Tensor(int numberOfRows, int numberOfColumns,
-                     int numberCategories) {
-        this.numberOfRows = numberOfRows;
-        this.numberOfColumns = numberOfColumns;
-        this.numberOfCategoryRows = numberCategories;
-        this.numberOfCategoryColumns = numberCategories;
-        this.isSymmetric = false;
-        this.isSemiSymmetric = true;
-    }
-
-    protected Tensor(int size,
-                     int numberCategories) {
-        this.numberOfRows = size;
-        this.numberOfColumns = size;
-        this.numberOfCategoryRows = numberCategories;
-        this.numberOfCategoryColumns = numberCategories;
-        this.isSymmetric = true;
-        this.isSemiSymmetric = false;
-    }
+    protected abstract Tensor withElements(double[] elements);
 
     public int getNumberOfRows() {
         return numberOfRows;
@@ -59,24 +56,45 @@ public abstract class Tensor
     }
 
     public boolean isSymmetric() {
-        return isSymmetric;
+        return symmetric;
     }
 
     public boolean isSemiSymmetric() {
-        return isSemiSymmetric;
+        return semiSymmetric;
     }
 
-    protected abstract double bilinearFormUnchecked(CategoricalVector a, CategoricalVector b);
+    protected double bilinearFormUnchecked(CategoricalVector a, CategoricalVector b) {
+        double res = 0;
+
+        for (int i = 0; i < numberOfRows; i++) {
+            CategoryWeightPair categoryWeightPair1 = a.getAt(i);
+            for (int j = 0; j < numberOfColumns; j++) {
+                CategoryWeightPair categoryWeightPair2 = b.getAt(i);
+                res += getAt(i, j, categoryWeightPair1.getCategory(), categoryWeightPair2.getCategory()) *
+                        categoryWeightPair1.getWeight() * categoryWeightPair2.getWeight();
+            }
+        }
+
+        return res;
+    }
 
     protected double bilinearFormUnchecked(CategoricalVector a) {
         return bilinearFormUnchecked(a, a);
     }
 
-    protected abstract CategoricalVector linearFormUnchecked(CategoricalVector b);
+    protected Tensor addUnchecked(Tensor other) {
+        double[] newElements = Arrays.copyOf(elements, elements.length);
+        for (int i = 0; i < newElements.length; i++) {
+            newElements[i] += other.getAt(i);
+        }
+        return withElements(newElements);
+    }
 
-    protected abstract Tensor addUnchecked(Tensor other);
-
-    protected abstract void addInplaceUnchecked(Tensor other);
+    protected void addInplaceUnchecked(Tensor other) {
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] += other.getAt(i);
+        }
+    }
 
     @Override
     public double bilinearForm(CategoricalVector a, CategoricalVector b) {
@@ -85,17 +103,16 @@ public abstract class Tensor
         return bilinearFormUnchecked(a, b);
     }
 
-
     @Override
     public CategoricalVector map(CategoricalVector b) {
-        checkSizeMatchRight(b);
-        return linearFormUnchecked(b);
+        throw new NotImplementedException();
     }
 
 
     @Override
     public double bilinearForm(CategoricalVector a) {
-        checkSizeMatchSymmetric(a);
+        checkSizeMatchLeft(a);
+        checkSizeMatchRight(a);
         return bilinearFormUnchecked(a);
     }
 
@@ -113,16 +130,47 @@ public abstract class Tensor
         addInplaceUnchecked(other);
     }
 
-    public abstract double getAt(int rowIndex, int columnIndex,
-                                 int rowCategory, int columnCategory);
+    @Override
+    public Tensor multiply(double scalar) {
+        return withElements(LinearAlgebraUtils.scale(elements, scalar));
+    }
 
-    /**
-     * Internal. Gets the value at a given liner index in the internal storage.
-     *
-     * @param linearIndex linear index.
-     * @return matrix value
-     */
-    protected abstract double getAt(int linearIndex);
+    @Override
+    public void multiplyInplace(double scalar) {
+        LinearAlgebraUtils.scaleInplace(elements, scalar);
+    }
+
+    public double getAt(int rowIndex, int columnIndex,
+                        int rowCategory, int columnCategory) {
+        return elements[getLinearIndex(rowIndex, columnIndex, rowCategory, columnCategory)];
+    }
+
+    protected double getAt(int linearIndex) {
+        return elements[linearIndex];
+    }
+
+    protected abstract int getLinearIndex(int rowIndex, int columnIndex,
+                                          int rowCategory, int columnCategory);
+
+    @Override
+    public boolean isSparse() {
+        return false;
+    }
+
+    @Override
+    public Tensor asSparse() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Tensor asDense() {
+        return deepCopy();
+    }
+
+    @Override
+    public Tensor deepCopy() {
+        return withElements(Arrays.copyOf(elements, elements.length));
+    }
 
     @Override
     public double getAt(int... indices) {
@@ -132,30 +180,20 @@ public abstract class Tensor
         throw new IllegalArgumentException();
     }
 
+
     /**
      * Internal check for object shape match.
      *
      * @param other other tensor
      */
     private void checkSizeMatch(Tensor other) {
-        if (numberOfRows != other.numberOfRows ||
+        if (symmetric != other.symmetric ||
+                semiSymmetric != other.semiSymmetric ||
+                numberOfRows != other.numberOfRows ||
                 numberOfColumns != other.numberOfColumns ||
                 numberOfCategoryRows != other.numberOfCategoryRows ||
                 numberOfCategoryColumns != other.numberOfCategoryColumns)
             throw new IllegalArgumentException("Dimensions of tensors don't match");
-    }
-
-    /**
-     * Internal check for object shape match.
-     *
-     * @param other a categorical vector
-     */
-    private void checkSizeMatchSymmetric(CategoricalVector other) {
-        if (!isSymmetric ||
-                numberOfRows != other.getLength() ||
-                numberOfCategoryRows != other.getNumberOfCategories())
-            throw new IllegalArgumentException("Tensor is non-symmetric or don't mach categorical vector " +
-                    "length/number of categories");
     }
 
     /**
@@ -182,73 +220,35 @@ public abstract class Tensor
                     "categorical vector length/number of categories");
     }
 
+
     @Override
     public double norm1() {
         double norm1 = 0;
 
-        if (isSparse()) {
-            for (IndexedTensorValue x : this) {
-                norm1 += Math.abs(x.getDoubleValue());
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
-                    for (int a = 0; a < numberOfCategoryRows; a++) {
-                        for (int b = 0; b < numberOfCategoryColumns; b++) {
-                            norm1 += Math.abs(getAt(i, j, a, b));
-                        }
-                    }
-                }
-            }
+        for (double element : elements) {
+            norm1 += Math.abs(element);
         }
 
         return norm1;
     }
 
-
     @Override
     public double norm2() {
         double norm2 = 0;
 
-        if (isSparse()) {
-            for (IndexedTensorValue x : this) {
-                norm2 += x.getDoubleValue() * x.getDoubleValue();
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
-                    for (int a = 0; a < numberOfCategoryRows; a++) {
-                        for (int b = 0; b < numberOfCategoryColumns; b++) {
-                            double value = getAt(i, j, a, b);
-                            norm2 += value * value;
-                        }
-                    }
-                }
-            }
+        for (double value : elements) {
+            norm2 += value * value;
         }
 
         return Math.sqrt(norm2);
     }
 
-
     @Override
     public double normInf() {
         double normInf = 0;
 
-        if (isSparse()) {
-            for (IndexedTensorValue x : this) {
-                normInf = Math.max(normInf, Math.abs(x.getDoubleValue()));
-            }
-        } else {
-            for (int i = 0; i < numberOfRows; i++) {
-                for (int j = 0; j < numberOfColumns; j++) {
-                    for (int a = 0; a < numberOfCategoryRows; a++) {
-                        for (int b = 0; b < numberOfCategoryColumns; b++) {
-                            normInf = Math.max(normInf, Math.abs(getAt(i, j, a, b)));
-                        }
-                    }
-                }
-            }
+        for (double element : elements) {
+            normInf = Math.max(normInf, Math.abs(element));
         }
 
         return normInf;

@@ -1,6 +1,5 @@
 package com.antigenomics.alisa.algebra.matrix;
 
-import com.antigenomics.alisa.algebra.matrix.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ public class SpeedTest {
         List<Vector> dense = new ArrayList<>(),
                 sparse = new ArrayList<>();
 
-        int ndim = 50, nvec = 1000;
+        int ndim = 50, nvec = 2000;
         double f = 0.1;
 
         System.out.println("Sparse vs dense vector test. Vector length='" + ndim +

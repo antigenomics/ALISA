@@ -18,6 +18,22 @@ public class IndexedTensorValue
         this.value = value;
     }
 
+    public int getRowIndex() {
+        return rowIndex;
+    }
+
+    public int getColumnIndex() {
+        return columnIndex;
+    }
+
+    public int getFirstCategoryIndex() {
+        return firstCategoryIndex;
+    }
+
+    public int getSecondCategoryIndex() {
+        return secondCategoryIndex;
+    }
+
     @Override
     public double getDoubleValue() {
         return value;

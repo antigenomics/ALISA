@@ -113,9 +113,10 @@ public final class DenseTriangularMatrix extends DenseMatrix {
     @Override
     public int getEffectiveSize() {
         int effectiveSize = 0;
+        int k = 0;
         for (int i = 0; i < numberOfRows; i++) {
             for (int j = 0; j <= i; j++) {
-                if (getAt(i, j) != 0) {
+                if (elements[k++] != 0) {
                     effectiveSize++;
                 }
             }
@@ -193,46 +194,5 @@ public final class DenseTriangularMatrix extends DenseMatrix {
         }
 
         return res.toString();
-    }
-
-    @Override
-    public double norm1() {
-        double norm1 = 0;
-
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j <= i; j++) {
-                norm1 += Math.abs(getAt(i, j));
-            }
-        }
-
-        return norm1;
-    }
-
-    @Override
-    public double norm2() {
-        double norm2 = 0;
-
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j <= i; j++) {
-                double value = getAt(i, j);
-                norm2 += value * value;
-            }
-        }
-
-
-        return Math.sqrt(norm2);
-    }
-
-    @Override
-    public double normInf() {
-        double normInf = 0;
-
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j <= i; j++) {
-                normInf = Math.max(normInf, Math.abs(getAt(i, j)));
-            }
-        }
-
-        return normInf;
     }
 }

@@ -171,6 +171,14 @@ public class LinearAlgebraUtils {
         return getFullMatrixIndex(i1, i2, getTriangularMatrixLength(l));
     }
 
+    public static int getSemiTriangularTensorLength(int n, int m, int k/*, int l*/) {
+        return n * m * getTriangularMatrixLength(k);
+    }
+
+    public static int getTriangularTensorLength(int n, /*int m,*/ int k/*, int l*/) {
+        return getTriangularMatrixLength(n) * getTriangularMatrixLength(k);
+    }
+
     public static int getTriangularMatrixLength(int n) {
         return (n * (n + 1)) / 2;
     }

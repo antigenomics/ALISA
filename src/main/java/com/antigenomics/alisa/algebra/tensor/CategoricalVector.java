@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * note, this is not a linear object
  */
 public class CategoricalVector
         implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector> {

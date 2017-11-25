@@ -253,10 +253,8 @@ public abstract class DenseMatrix extends Matrix {
     public double norm1() {
         double norm1 = 0;
 
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                norm1 += Math.abs(getAt(i, j));
-            }
+        for (double element : elements) {
+            norm1 += Math.abs(element);
         }
 
         return norm1;
@@ -266,13 +264,9 @@ public abstract class DenseMatrix extends Matrix {
     public double norm2() {
         double norm2 = 0;
 
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                double value = getAt(i, j);
-                norm2 += value * value;
-            }
+        for (double value : elements) {
+            norm2 += value * value;
         }
-
 
         return Math.sqrt(norm2);
     }
@@ -281,10 +275,8 @@ public abstract class DenseMatrix extends Matrix {
     public double normInf() {
         double normInf = 0;
 
-        for (int i = 0; i < numberOfRows; i++) {
-            for (int j = 0; j < numberOfColumns; j++) {
-                normInf = Math.max(normInf, Math.abs(getAt(i, j)));
-            }
+        for (double element : elements) {
+            normInf = Math.max(normInf, Math.abs(element));
         }
 
         return normInf;
