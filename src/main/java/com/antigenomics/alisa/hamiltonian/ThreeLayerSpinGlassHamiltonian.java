@@ -1,7 +1,6 @@
 package com.antigenomics.alisa.hamiltonian;
 
-import com.antigenomics.alisa.algebra.LinearSpaceObjectArray;
-import com.antigenomics.alisa.encoding.VectorEncoding;
+import com.antigenomics.alisa.algebra.*;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
 import com.antigenomics.alisa.encoding.ThreeLayerState;
@@ -9,8 +8,8 @@ import com.antigenomics.alisa.encoding.ThreeLayerState;
 import java.util.Arrays;
 
 public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends Entity, E3 extends Entity,
-        V extends VectorEncoding<V, M>,
-        M extends MatrixRepresentation<V, M>>
+        V extends VectorSpace<V, M> & ImmutableLinearSpaceObject<M>,
+        M extends VectorMapping<V, M> & LinearSpaceObject<M>>
         implements SpinGlassHamiltonian<ThreeLayerState<E1, E2, E3>, V, M> {
     private final Encoder<E1, V> firstEncoder;
     private final Encoder<E2, V> secondEncoder;

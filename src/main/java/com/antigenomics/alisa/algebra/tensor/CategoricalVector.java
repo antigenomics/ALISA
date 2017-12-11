@@ -17,7 +17,9 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.getTriangularTen
  * note, this is not a linear object
  */
 public class CategoricalVector
-        implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector>, Encoding {
+        implements VectorSpace<CategoricalVector, Tensor>,
+        Container<IndexedCategoryWeight, CategoricalVector>,
+        Encoding {
     protected final CategoryWeightPair[] elements;
     protected final int numberOfCategories;
 
