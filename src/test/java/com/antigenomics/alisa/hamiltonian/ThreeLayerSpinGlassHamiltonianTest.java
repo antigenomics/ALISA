@@ -32,7 +32,7 @@ public class ThreeLayerSpinGlassHamiltonianTest {
 
         LinearSpaceObjectArray params = new LinearSpaceObjectArray(Arrays.asList(H1, H2, H3, H12, H23, H13));
 
-        assertEquals(2 + 2 + 2 + 3*(2+3), hamiltonian.computeEnergy(new ThreeLayerState(s11, s11, s11), params));
+        assertEquals(2 + 2 + 2 + 3 * (2 + 3), hamiltonian.computeEnergy(new ThreeLayerState(s11, s11, s11), params));
         assertEquals(3, hamiltonian.computeEnergy(new ThreeLayerState(s10, s10, s10), params));
         assertEquals(3, hamiltonian.computeEnergy(new ThreeLayerState(s01, s01, s01), params));
         assertEquals(0, hamiltonian.computeEnergy(new ThreeLayerState(s00, s00, s00), params));
