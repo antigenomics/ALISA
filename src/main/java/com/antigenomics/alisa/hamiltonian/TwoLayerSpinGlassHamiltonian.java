@@ -70,7 +70,7 @@ public final class TwoLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends En
     }
 
     @Override
-    public LinearSpaceObjectArray<M> getNullParameters() {
+    public LinearSpaceObjectArray<M> getZeroParameters() {
         return zeroParameters;
     }
 }

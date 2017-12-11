@@ -27,7 +27,7 @@ public final class ContrastiveDivergence<S extends State,
                 .map(s -> simulator.simulate(s, parameters, hamiltonian))
                 .map(sL -> computeMcSimulationsGradient(sL, parameters, hamiltonian))
                 .collect(Collector.of(
-                        () -> hamiltonian.getNullParameters().deepCopy(),
+                        hamiltonian::getParameterGuess,
                         LinearSpaceObject::addInplace,
                         (result, newElement) -> {
                             newElement.addInplace(result);
@@ -39,7 +39,7 @@ public final class ContrastiveDivergence<S extends State,
     private R computeMcSimulationsGradient(final ArrayList<S> states,
                                            final R parameters,
                                            final H hamiltonian) {
-        final R xS = hamiltonian.getNullParameters().deepCopy();
+        final R xS = hamiltonian.getParameterGuess();
 
         for (S state : states) {
             xS.addInplace(hamiltonian.computeGradient(state, parameters));

@@ -7,5 +7,8 @@ public interface Hamiltonian<S extends State, R extends Representation> {
 
     R computeGradient(final S state, final R parameters);
 
-    R getNullParameters();
+    R getZeroParameters();
+
+    // this method should always copy
+    R getParameterGuess();
 }

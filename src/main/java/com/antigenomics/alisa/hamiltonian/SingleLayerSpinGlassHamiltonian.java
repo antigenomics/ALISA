@@ -14,11 +14,11 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
         M extends MatrixRepresentation<V, M>>
         implements SpinGlassHamiltonian<OneLayerState<E>, V, M> {
     private final Encoder<E, V> encoder;
-    private final LinearSpaceObjectArray<M> zeroParameters;
+    private final LinearSpaceObjectArray<M> nullParameters;
 
     public SingleLayerSpinGlassHamiltonian(final Encoder<E, V> encoder) {
         this.encoder = encoder;
-        this.zeroParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
+        this.nullParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
     }
 
     public Encoder<E, V> getEncoder() {
@@ -40,7 +40,7 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
     }
 
     @Override
-    public LinearSpaceObjectArray<M> getNullParameters() {
-        return zeroParameters;
+    public LinearSpaceObjectArray<M> getZeroParameters() {
+        return nullParameters;
     }
 }

@@ -92,7 +92,7 @@ public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends 
     }
 
     @Override
-    public LinearSpaceObjectArray<M> getNullParameters() {
+    public LinearSpaceObjectArray<M> getZeroParameters() {
         return zeroParameters;
     }
 }

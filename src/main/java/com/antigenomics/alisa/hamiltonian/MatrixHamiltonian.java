@@ -7,4 +7,8 @@ import com.antigenomics.alisa.encoding.State;
 public interface MatrixHamiltonian<S extends State,
         M extends LinearSpaceObject<M>>
         extends Hamiltonian<S, LinearSpaceObjectArray<M>> {
+    @Override
+    default LinearSpaceObjectArray<M> getParameterGuess() {
+        return getZeroParameters().asDense();
+    }
 }

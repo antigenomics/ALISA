@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public interface ParameterEstimator<S extends State, R extends Representation, H extends Hamiltonian<S, R>> {
     default ParameterEstimatorResults learn(final ArrayList<S> states, final H hamiltonian) {
-        return learn(states, hamiltonian, hamiltonian.getNullParameters());
+        return learn(states, hamiltonian, hamiltonian.getParameterGuess());
     }
 
     ParameterEstimatorResults<R> learn(final ArrayList<S> states, final H hamiltonian, final R parameterGuess);
