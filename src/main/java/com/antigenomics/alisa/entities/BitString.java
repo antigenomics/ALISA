@@ -10,4 +10,8 @@ public class BitString implements Entity {
     public boolean[] getBits() {
         return bits;
     }
+
+    public boolean getAt(int index) {
+        return bits[index];
+    }
 }

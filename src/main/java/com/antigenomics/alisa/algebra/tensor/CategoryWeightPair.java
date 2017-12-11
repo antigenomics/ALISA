@@ -12,6 +12,10 @@ public class CategoryWeightPair implements Serializable,
         this.weight = weight;
     }
 
+    public CategoryWeightPair(int category) {
+        this(category, 1.0);
+    }
+
     public int getCategory() {
         return category;
     }

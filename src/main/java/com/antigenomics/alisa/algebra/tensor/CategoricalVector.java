@@ -3,6 +3,7 @@ package com.antigenomics.alisa.algebra.tensor;
 import com.antigenomics.alisa.algebra.Container;
 import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 import com.antigenomics.alisa.algebra.VectorSpace;
+import com.antigenomics.alisa.encoding.Encoding;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -16,10 +17,11 @@ import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.getTriangularTen
  * note, this is not a linear object
  */
 public class CategoricalVector
-        implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector> {
+        implements VectorSpace<CategoricalVector, Tensor>, Container<IndexedCategoryWeight, CategoricalVector>, Encoding {
     protected final CategoryWeightPair[] elements;
     protected final int numberOfCategories;
 
+    // todo: safe parameter
     public CategoricalVector(CategoryWeightPair[] elements, int numberOfCategories) {
         this.elements = elements;
         this.numberOfCategories = numberOfCategories;

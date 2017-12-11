@@ -23,6 +23,10 @@ public final class IndexedVectorValue
         this.value = value;
     }
 
+    public IndexedVectorValue(int index) {
+        this(index, 1.0);
+    }
+
     /**
      * Gets the position in vector
      * @return index

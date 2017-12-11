@@ -1,4 +1,4 @@
-package com.antigenomics.alisa.impl;
+package com.antigenomics.alisa.impl.bitstring;
 
 import com.antigenomics.alisa.entities.BitString;
 import com.antigenomics.alisa.estimator.mc.EntityMutator;
