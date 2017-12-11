@@ -20,4 +20,6 @@ public interface LinearSpaceObject<O extends LinearSpaceObject<O>>
      * @param scalar a value
      */
     void multiplyInplace(final double scalar);
+
+    O asDense();
 }
