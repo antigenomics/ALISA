@@ -3,6 +3,7 @@ package com.antigenomics.alisa.algebra;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * An array of linear space objects. Supports elementwise addition and multiplication operations,
@@ -96,6 +97,21 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
     @Override
     public void multiplyInplace(final double scalar) {
         objectList.forEach(x -> x.multiplyInplace(scalar));
+    }
+
+    @Override
+    public LinearSpaceObjectArray<O> asDense() {
+        return map(LinearSpaceObject::asDense);
+    }
+
+    public LinearSpaceObjectArray<O> map(Function<O, ? extends O> fun) {
+        final List<O> newObjectList = new ArrayList<>(objectList.size());
+
+        for (O anObjectList : objectList) {
+            newObjectList.add(fun.apply(anObjectList));
+        }
+
+        return new LinearSpaceObjectArray<>(newObjectList);
     }
 
     @Override
