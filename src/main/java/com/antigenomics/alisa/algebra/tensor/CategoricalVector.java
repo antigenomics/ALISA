@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.antigenomics.alisa.algebra.LinearAlgebraUtils.getTriangularTensorLength;
+
 /**
  * note, this is not a linear object
  */
@@ -110,8 +112,18 @@ public class CategoricalVector
 
     @Override
     public Tensor expand() {
-        //todo
-        throw new NotImplementedException();
+        double[] tensorElements = new double[getTriangularTensorLength(elements.length, numberOfCategories)];
+
+        for (int i = 0; i < elements.length; i++) {
+            CategoryWeightPair val1 = elements[i];
+            for (int j = 0; j <= i; j++) {
+                CategoryWeightPair val2 = elements[j];
+                tensorElements[LinearAlgebraUtils.getTriangularTensorIndex(i, j,
+                        val1.getCategory(), val2.getCategory(), elements.length)] = val1.getWeight() * val2.getWeight();
+            }
+        }
+
+        return new SymmetricTensor(tensorElements, elements.length, numberOfCategories);
     }
 
     @Override
