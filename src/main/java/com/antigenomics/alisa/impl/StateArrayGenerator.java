@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -49,8 +47,7 @@ public class StateArrayGenerator implements Iterable<int[]> {
     @Override
     public Spliterator<int[]> spliterator() {
         return Spliterators.spliterator(iterator(), sizeEstimate,
-                Spliterator.NONNULL | Spliterator.DISTINCT | Spliterator.IMMUTABLE |
-                        Spliterator.CONCURRENT);
+                Spliterator.NONNULL | Spliterator.DISTINCT);
     }
 
     private class StateArrayIter implements Iterator<int[]> {
