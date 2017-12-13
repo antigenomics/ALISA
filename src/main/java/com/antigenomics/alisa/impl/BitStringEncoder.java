@@ -1,12 +1,11 @@
-package com.antigenomics.alisa.impl.bitstring;
+package com.antigenomics.alisa.impl;
 
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.encoding.Encoding;
-import com.antigenomics.alisa.entities.BitString;
+import com.antigenomics.alisa.entities.EntityGenerator;
+import com.antigenomics.alisa.entities.StateString;
 
-import java.util.List;
-
-public abstract class BitStringEncoder<E extends Encoding> implements Encoder<BitString, E> {
+public abstract class BitStringEncoder<E extends Encoding> implements Encoder<StateString, E> {
     protected final int length;
 
     public BitStringEncoder(int length) {
@@ -22,7 +21,7 @@ public abstract class BitStringEncoder<E extends Encoding> implements Encoder<Bi
     }
 
     @Override
-    public List<BitString> listPossibleStates() {
-        return null;
+    public EntityGenerator<StateString> getGenerator() {
+        return new StateStringGenerator(2, length);
     }
 }

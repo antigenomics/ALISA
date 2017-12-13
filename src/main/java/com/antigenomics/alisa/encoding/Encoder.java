@@ -1,8 +1,7 @@
 package com.antigenomics.alisa.encoding;
 
 import com.antigenomics.alisa.entities.Entity;
-
-import java.util.List;
+import com.antigenomics.alisa.entities.EntityGenerator;
 
 public interface Encoder<T extends Entity, E extends Encoding> {
     // todo: should have cache
@@ -11,5 +10,5 @@ public interface Encoder<T extends Entity, E extends Encoding> {
 
     E getZero();
 
-    List<T> listPossibleStates();
+    EntityGenerator<T> getGenerator();
 }

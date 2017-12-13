@@ -1,24 +1,22 @@
 package com.antigenomics.alisa.impl;
 
+import com.antigenomics.alisa.entities.EntityGenerator;
+import com.antigenomics.alisa.entities.StateString;
+
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class StateArrayGenerator implements Iterable<int[]> {
+public class StateStringGenerator implements EntityGenerator<StateString> {
     private final int bufferSize, numberOfElements, arrayLength;
     private final long sizeEstimate;
 
-    public StateArrayGenerator(int numberOfElements, int arrayLength) {
+    public StateStringGenerator(int numberOfElements, int arrayLength) {
         this(numberOfElements, arrayLength, 4096);
     }
 
-    public StateArrayGenerator(int numberOfElements, int arrayLength,
-                               int bufferSize) {
+    public StateStringGenerator(int numberOfElements, int arrayLength,
+                                int bufferSize) {
         this.numberOfElements = numberOfElements;
         this.arrayLength = arrayLength;
         this.bufferSize = bufferSize;
@@ -27,41 +25,25 @@ public class StateArrayGenerator implements Iterable<int[]> {
         this.sizeEstimate = sizeEstimate > Long.MAX_VALUE ? Long.MAX_VALUE : (long) sizeEstimate;
     }
 
+    @Override
     public long getSizeEstimate() {
         return sizeEstimate;
     }
 
-    public Stream<int[]> stream() {
-        return StreamSupport.stream(spliterator(), false);
-    }
-
-    public Stream<int[]> parallelStream() {
-
-        return StreamSupport.stream(spliterator(), true);
-    }
-
     @Override
-    public Iterator<int[]> iterator() {
+    public Iterator<StateString> iterator() {
         return new StateArrayBuffer();
     }
 
-    @Override
-    public Spliterator<int[]> spliterator() {
-        return Spliterators.spliterator(iterator(),
-                sizeEstimate,
-                Spliterator.CONCURRENT | Spliterator.NONNULL | Spliterator.ORDERED);
-    }
-
-    private class StateArrayBuffer implements Iterator<int[]> {
-        final LinkedBlockingQueue<int[]> queue = new LinkedBlockingQueue<>(bufferSize);
-        final int[] LAST = new int[0];
-        volatile int[] next;
+    private class StateArrayBuffer implements Iterator<StateString> {
+        final LinkedBlockingQueue<StateString> queue = new LinkedBlockingQueue<>(bufferSize);
+        volatile StateString next;
 
         StateArrayBuffer() {
             new Thread(() -> {
                 generateStatesRecursive(new int[arrayLength], numberOfElements, arrayLength);
                 try {
-                    queue.put(LAST);
+                    queue.put(StateString.DUMMY);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -71,7 +53,7 @@ public class StateArrayGenerator implements Iterable<int[]> {
         private void generateStatesRecursive(int[] arr, int n, int k) {
             if (k == 0) {
                 try {
-                    queue.put(arr);
+                    queue.put(new StateString(arr, numberOfElements));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -93,11 +75,11 @@ public class StateArrayGenerator implements Iterable<int[]> {
                 throw new RuntimeException(e);
             }
 
-            return next != LAST;
+            return next != StateString.DUMMY;
         }
 
         @Override
-        public int[] next() {
+        public StateString next() {
             return next;
         }
     }

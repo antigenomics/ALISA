@@ -4,7 +4,7 @@ import com.antigenomics.alisa.algebra.LinearSpaceObjectArray;
 import com.antigenomics.alisa.algebra.matrix.Matrix;
 import com.antigenomics.alisa.encoding.TwoLayerState;
 import com.antigenomics.alisa.entities.BitString;
-import com.antigenomics.alisa.impl.bitstring.BitStringOneHotEncoder;
+import com.antigenomics.alisa.impl.BitStringOneHotEncoder;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -18,10 +18,10 @@ public class TwoLayerSpinGlassHamiltonianTest {
         TwoLayerSpinGlassHamiltonian hamiltonian = new TwoLayerSpinGlassHamiltonian(bitStringSpinEncoder,
                 bitStringSpinEncoder);
 
-        BitString s11 = new BitString(new boolean[]{true, true}),
-                s01 = new BitString(new boolean[]{false, true}),
-                s10 = new BitString(new boolean[]{true, false}),
-                s00 = new BitString(new boolean[]{false, false});
+        BitString s11 = new BitString(new int[]{1, 1}),
+                s01 = new BitString(new int[]{0, 1}),
+                s10 = new BitString(new int[]{1, 0}),
+                s00 = new BitString(new int[]{0, 0});
 
         Matrix H1 = Matrix.DENSE(new double[][]{{1, 0}, {0, 1}}),
                 H2 = Matrix.DENSE(new double[][]{{1, 0}, {0, 1}}),

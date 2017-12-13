@@ -1,9 +1,8 @@
-package com.antigenomics.alisa.impl.bitstring;
+package com.antigenomics.alisa.impl;
 
 import com.antigenomics.alisa.algebra.tensor.CategoricalVector;
 import com.antigenomics.alisa.algebra.tensor.CategoryWeightPair;
-import com.antigenomics.alisa.encoding.Encoder;
-import com.antigenomics.alisa.entities.BitString;
+import com.antigenomics.alisa.entities.StateString;
 
 public class BitStringCategoricalEncoder extends BitStringEncoder<CategoricalVector> {
     public BitStringCategoricalEncoder(int length) {
@@ -11,14 +10,18 @@ public class BitStringCategoricalEncoder extends BitStringEncoder<CategoricalVec
     }
 
     @Override
-    public CategoricalVector encode(BitString value) {
-        if (value.getBits().length != length) {
+    public CategoricalVector encode(StateString value) {
+        if (value.getLength() != length) {
             throw new IllegalArgumentException("Lengths don't match");
+        }
+
+        if (value.getNumberOfStates() != 2) {
+            throw new IllegalArgumentException("Bit string should have exactly 2 states");
         }
 
         CategoryWeightPair[] values = new CategoryWeightPair[length];
         for (int i = 0; i < length; i++) {
-            values[i] = new CategoryWeightPair(value.getAt(i) ? 0 : 1);
+            values[i] = new CategoryWeightPair(value.getAt(i));
         }
 
         return new CategoricalVector(values, 2);

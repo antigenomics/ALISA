@@ -1,8 +1,9 @@
-package com.antigenomics.alisa.impl.bitstring;
+package com.antigenomics.alisa.impl;
 
 import com.antigenomics.alisa.algebra.matrix.Vector;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.BitString;
+import com.antigenomics.alisa.impl.BitStringOneHotEncoder;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,10 +13,10 @@ public class EncoderTest {
     public void test() {
         Encoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);
 
-        BitString s11 = new BitString(new boolean[]{true, true}),
-                s01 = new BitString(new boolean[]{false, true}),
-                s10 = new BitString(new boolean[]{true, false}),
-                s00 = new BitString(new boolean[]{false, false});
+        BitString s11 = new BitString(new int[]{1, 1}),
+                s01 = new BitString(new int[]{0, 1}),
+                s10 = new BitString(new int[]{1, 0}),
+                s00 = new BitString(new int[]{0, 0});
 
         assertEquals(bitStringSpinEncoder.encode(s11),
                 Vector.SPARSE(1, 1));
