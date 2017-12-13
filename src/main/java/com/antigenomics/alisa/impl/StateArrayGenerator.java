@@ -6,6 +6,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -46,15 +47,14 @@ public class StateArrayGenerator implements Iterable<int[]> {
 
     @Override
     public Spliterator<int[]> spliterator() {
-        return Spliterators.spliterator(iterator(), sizeEstimate,
-                Spliterator.NONNULL | Spliterator.DISTINCT);
+        return new StateArraySpliter();
     }
 
-    private class StateArrayIter implements Iterator<int[]> {
-        private final ArrayBlockingQueue<int[]> results;
-        private final AtomicBoolean generatorFinished = new AtomicBoolean(false);
+    private class StateArrayGen {
+        protected final ArrayBlockingQueue<int[]> results;
+        protected final AtomicBoolean generatorFinished = new AtomicBoolean(false);
 
-        StateArrayIter() {
+        StateArrayGen() {
             this.results = new ArrayBlockingQueue<>(bufferSize);
 
             Thread thr = new Thread(() -> {
@@ -83,7 +83,9 @@ public class StateArrayGenerator implements Iterable<int[]> {
                 generateStatesRecursive(newArr, n, k - 1);
             }
         }
+    }
 
+    private class StateArrayIter extends StateArrayGen implements Iterator<int[]> {
         @Override
         public boolean hasNext() {
             return !(results.isEmpty() && generatorFinished.get());
@@ -96,6 +98,37 @@ public class StateArrayGenerator implements Iterable<int[]> {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private class StateArraySpliter extends StateArrayGen implements Spliterator<int[]> {
+        @Override
+        public synchronized boolean tryAdvance(Consumer<? super int[]> action) {
+            if (results.isEmpty() && generatorFinished.get()) {
+                return false;
+            }
+
+            try {
+                action.accept(results.take());
+                return true;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Spliterator<int[]> trySplit() {
+            return null;
+        }
+
+        @Override
+        public long estimateSize() {
+            return sizeEstimate;
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.CONCURRENT | Spliterator.NONNULL | Spliterator.ORDERED;
         }
     }
 }

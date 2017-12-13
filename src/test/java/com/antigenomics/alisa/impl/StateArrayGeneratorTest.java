@@ -12,16 +12,16 @@ public class StateArrayGeneratorTest {
     public void testPerformance() {
         StateArrayGenerator sag = new StateArrayGenerator(20, 5);
 
-        //long startTime = System.currentTimeMillis();
-        //assertEquals(sag.parallelStream().count(), sag.getSizeEstimate());
-        //long endTime = System.currentTimeMillis() - startTime;
-        //System.out.println("10AA generation parallel: "
-        //        + endTime + "ms");
-
         long startTime = System.currentTimeMillis();
-        assertEquals(sag.stream().count(), sag.getSizeEstimate());
+        assertEquals(sag.parallelStream().count(), sag.getSizeEstimate());
         long endTime = System.currentTimeMillis() - startTime;
-        System.out.println("10AA generation single: "
+        System.out.println("5AA generation parallel: "
+                + endTime + "ms");
+
+        startTime = System.currentTimeMillis();
+        assertEquals(sag.stream().count(), sag.getSizeEstimate());
+        endTime = System.currentTimeMillis() - startTime;
+        System.out.println("5AA generation single: "
                 + endTime + "ms");
     }
 
@@ -76,12 +76,12 @@ public class StateArrayGeneratorTest {
 
     @Test
     public void testParallel() {
-        /*StateArrayGenerator sag = new StateArrayGenerator(2, 10, 100);
+        StateArrayGenerator sag = new StateArrayGenerator(2, 10, 100);
 
         assertEquals(1024, sag.parallelStream().count());
 
         sag = new StateArrayGenerator(2, 13, 10000);
 
-        assertEquals(8192, sag.parallelStream().count());*/
+        assertEquals(8192, sag.parallelStream().count());
     }
 }
