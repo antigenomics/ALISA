@@ -6,4 +6,6 @@ public interface State<E extends Entity> {
     E getValue(final int layer);
 
     int getNumberOfLayers();
+
+    double getWeight();
 }

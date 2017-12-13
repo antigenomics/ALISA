@@ -9,19 +9,9 @@ import com.antigenomics.alisa.entities.BitString;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BitStringOneHotEncoder implements Encoder<BitString, SparseVector> {
-    private final int length;
-
+public class BitStringOneHotEncoder extends BitStringEncoder<SparseVector> {
     public BitStringOneHotEncoder(int length) {
-        this.length = length;
-
-        if (length <= 0) {
-            throw new IllegalArgumentException("Length should be greater than 0");
-        }
-    }
-
-    public int getLength() {
-        return length;
+        super(length);
     }
 
     @Override

@@ -5,19 +5,9 @@ import com.antigenomics.alisa.algebra.tensor.CategoryWeightPair;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.BitString;
 
-public class BitStringCategoricalEncoder implements Encoder<BitString, CategoricalVector> {
-    private final int length;
-
+public class BitStringCategoricalEncoder extends BitStringEncoder<CategoricalVector> {
     public BitStringCategoricalEncoder(int length) {
-        this.length = length;
-
-        if (length <= 0) {
-            throw new IllegalArgumentException("Length should be greater than 0");
-        }
-    }
-
-    public int getLength() {
-        return length;
+        super(length);
     }
 
     @Override

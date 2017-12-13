@@ -6,10 +6,19 @@ public final class TwoLayerState<E1 extends Entity, E2 extends Entity>
         implements State<Entity> {
     private final E1 firstValue;
     private final E2 secondValue;
+    private final double weight;
 
-    public TwoLayerState(final E1 firstValue, final E2 secondValue) {
+    public TwoLayerState(final E1 firstValue,
+                         final E2 secondValue) {
+        this(firstValue, secondValue, 1.0);
+    }
+
+    public TwoLayerState(final E1 firstValue,
+                         final E2 secondValue,
+                         double weight) {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
+        this.weight = weight;
     }
 
     public E1 getFirstValue() {
@@ -18,6 +27,11 @@ public final class TwoLayerState<E1 extends Entity, E2 extends Entity>
 
     public E2 getSecondValue() {
         return secondValue;
+    }
+
+    @Override
+    public double getWeight() {
+        return weight;
     }
 
     @Override
