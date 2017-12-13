@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,25 +54,29 @@ public class StateArrayGenerator implements Iterable<int[]> {
     }
 
     private class StateArrayIter implements Iterator<int[]> {
-        private final AtomicInteger counter = new AtomicInteger(0);
-        private final ConcurrentLinkedQueue<int[]> results;
+        private final ArrayBlockingQueue<int[]> results;
         private final AtomicBoolean generatorFinished = new AtomicBoolean(false);
 
         StateArrayIter() {
-            this.results = new ConcurrentLinkedQueue<>();
+            this.results = new ArrayBlockingQueue<>(bufferSize);
 
-            new Thread(() -> {
+            Thread thr = new Thread(() -> {
                 generateStatesRecursive(new int[arrayLength], numberOfElements, arrayLength);
                 generatorFinished.set(true);
-            }).start();
+            });
+
+            thr.setDaemon(true);
+
+            thr.start();
         }
 
         private void generateStatesRecursive(int[] arr, int n, int k) {
-            while (counter.get() >= bufferSize) ;
-
             if (k == 0) {
-                results.offer(arr);
-                counter.incrementAndGet();
+                try {
+                    results.put(arr);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 return;
             }
 
@@ -89,16 +94,11 @@ public class StateArrayGenerator implements Iterable<int[]> {
 
         @Override
         public int[] next() {
-            int[] res = null;
-
-            while (res == null) {
-                // wait as the element gets into the queue
-                res = results.poll();
+            try {
+                return results.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-
-            counter.decrementAndGet();
-
-            return res;
         }
     }
 }

@@ -1,22 +1,4 @@
 language: java
-sudo: false
+sudo: true
 jdk:
   - oraclejdk8
-
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "KUU3Ipmlyx8Xi0c7BoXcl9trRLV4jd8+Jn4pKvavwYtLk+bnOqHJHiTEMp1fm6/JwbM2RdYmQyuZixqdFQi0T6uaSIlH779YcwZCbcFXFop26FN1AGo6a0CyEAerkolWZFWj2fP0QuGI0MoaTd42APSq4/K7s6GdPwZ+p5qoVYXZwkPowpFo6bh4rg9Tm3lRvJ7ubCIXss5mYEloMH/9dfk7cXZCXQi/r3M4vagHU8ZOcJtnLtL7tGeVdDF5+Op+mlcTtg0PqvWgAsB8AwTyD+4n1Ao7Zjb3QjQujpFYMo0unFunk5PeSpRekPtPDwq8VBrVJmtcZk+/TR/HjWR60TajnKwAicDcf0WCJIUg+7+l63j/nv2SiwwL0GeOR01uLUhCVvEtEm5XBd8O1p+QxRO0dgXjHb6wqufZ8Lhl6lBDt/DrmyxEpHWndY2sBbqWyrhCDnWOkrYKJqj/E0SHMw0zyzuDp0jfYVsOFUTUxOlHZMYQXqaZUQF3lmxRoowzxYbkgoyuSI1YEqUKeRfCUZ9V2q7wjjJwp1A4o8CD3/ZdL34BOMtD6MMqOxkEOECsqpKM68YhBpIQdvQ9Ah3dMW3Tje49t3yhiBPtIRM8CJXrdRLfj8WhtG63f89DZuVm3Yux7/y1o2auNVBzs36XO2qOhV+v9ELUcgw8EtNV7GQ="
-
-before_install:
-      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-
-addons:
-  coverity_scan:
-    project:
-      name: "antigenomics/ALISA"
-      description: "Build submitted via Travis CI"
-    build_command_prepend: "mvn clean"
-    build_command:   "mvn compile"
-    branch_pattern: coverity_scan
