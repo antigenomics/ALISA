@@ -3,6 +3,7 @@ package com.antigenomics.alisa.algebra;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.Function;
 
 /**
@@ -133,5 +134,19 @@ public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
     @Override
     public Iterator<O> iterator() {
         return objectList.iterator();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+
+        StringJoiner joiner = new StringJoiner(",\n");
+        for (O obj : objectList) {
+            joiner.add(obj.toString());
+        }
+        res.append("[").append(joiner.toString()).append("]");
+
+
+        return res.toString();
     }
 }
