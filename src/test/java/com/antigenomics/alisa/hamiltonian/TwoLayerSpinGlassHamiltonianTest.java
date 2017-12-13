@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TwoLayerSpinGlassHamiltonianTest {
     @Test
-    public void instanceTest() {
+    public void energyTest() {
         BitStringOneHotEncoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);
         TwoLayerSpinGlassHamiltonian hamiltonian = new TwoLayerSpinGlassHamiltonian(bitStringSpinEncoder,
                 bitStringSpinEncoder);
