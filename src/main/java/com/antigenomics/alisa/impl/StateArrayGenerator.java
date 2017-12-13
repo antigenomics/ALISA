@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -37,40 +36,42 @@ public class StateArrayGenerator implements Iterable<int[]> {
     }
 
     public Stream<int[]> parallelStream() {
+
         return StreamSupport.stream(spliterator(), true);
     }
 
     @Override
     public Iterator<int[]> iterator() {
-        return new StateArrayIter();
+        return new StateArrayBuffer();
     }
 
     @Override
     public Spliterator<int[]> spliterator() {
-        return new StateArraySpliter();
+        return Spliterators.spliterator(iterator(),
+                sizeEstimate,
+                Spliterator.CONCURRENT | Spliterator.NONNULL | Spliterator.ORDERED);
     }
 
-    private class StateArrayGen {
-        protected final ArrayBlockingQueue<int[]> results;
-        protected final AtomicBoolean generatorFinished = new AtomicBoolean(false);
+    private class StateArrayBuffer implements Iterator<int[]> {
+        final LinkedBlockingQueue<int[]> queue = new LinkedBlockingQueue<>(bufferSize);
+        final int[] LAST = new int[0];
+        volatile int[] next;
 
-        StateArrayGen() {
-            this.results = new ArrayBlockingQueue<>(bufferSize);
-
-            Thread thr = new Thread(() -> {
+        StateArrayBuffer() {
+            new Thread(() -> {
                 generateStatesRecursive(new int[arrayLength], numberOfElements, arrayLength);
-                generatorFinished.set(true);
-            });
-
-            thr.setDaemon(true);
-
-            thr.start();
+                try {
+                    queue.put(LAST);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
         }
 
         private void generateStatesRecursive(int[] arr, int n, int k) {
             if (k == 0) {
                 try {
-                    results.put(arr);
+                    queue.put(arr);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -83,52 +84,21 @@ public class StateArrayGenerator implements Iterable<int[]> {
                 generateStatesRecursive(newArr, n, k - 1);
             }
         }
-    }
 
-    private class StateArrayIter extends StateArrayGen implements Iterator<int[]> {
         @Override
         public boolean hasNext() {
-            return !(results.isEmpty() && generatorFinished.get());
+            try {
+                next = queue.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            return next != LAST;
         }
 
         @Override
         public int[] next() {
-            try {
-                return results.take();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private class StateArraySpliter extends StateArrayGen implements Spliterator<int[]> {
-        @Override
-        public synchronized boolean tryAdvance(Consumer<? super int[]> action) {
-            if (results.isEmpty() && generatorFinished.get()) {
-                return false;
-            }
-
-            try {
-                action.accept(results.take());
-                return true;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public Spliterator<int[]> trySplit() {
-            return null;
-        }
-
-        @Override
-        public long estimateSize() {
-            return sizeEstimate;
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.CONCURRENT | Spliterator.NONNULL | Spliterator.ORDERED;
+            return next;
         }
     }
 }
