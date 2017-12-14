@@ -1,14 +1,14 @@
 package com.antigenomics.alisa.statistics;
 
-import com.antigenomics.alisa.Sampler;
+import com.antigenomics.alisa.RandomSampler;
 import com.antigenomics.alisa.estimator.mc.MonteCarloUtils;
 import com.antigenomics.alisa.hamiltonian.Hamiltonian;
 import com.antigenomics.alisa.hamiltonian.Representation;
 import com.antigenomics.alisa.state.State;
+import com.antigenomics.alisa.state.StateSpace;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ExactStateProbabilityDistribution<S extends State, R extends Representation> {
@@ -16,7 +16,14 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
     private final StateSpace<S> stateSpace;
     private final R parameters;
     private final double partitionFunctionValue;
-    private ExactStateSampler exactExactStateSampler = null;
+    private ExactStateRandomSampler exactExactStateSampler = null;
+
+    public ExactStateProbabilityDistribution(Hamiltonian<S, R> hamiltonian,
+                                             R parameters,
+                                             StateSpace<S> stateSpace) {
+        this(hamiltonian, parameters, stateSpace,
+                hamiltonian.hasTheoreticalPartitionFunction());
+    }
 
     public ExactStateProbabilityDistribution(Hamiltonian<S, R> hamiltonian,
                                              R parameters,
@@ -32,7 +39,7 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
             }
             partitionFunctionValue = hamiltonian.computePartitionFunction(parameters);
         } else {
-            partitionFunctionValue = stateSpace.getStateGenerator().parallelStream()
+            partitionFunctionValue = stateSpace.getStateSequence().parallelStream()
                     .mapToDouble(x -> x.getDegeneracy() * computeExpE(x)).sum();
         }
     }
@@ -63,21 +70,21 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
         return parameters;
     }
 
-    public ExactStateSampler createExactStateSampler() {
+    public ExactStateRandomSampler createExactStateSampler() {
         if (exactExactStateSampler == null) {
             if (stateSpace.getSize() > Integer.MAX_VALUE) {
                 throw new IllegalArgumentException("State space too large for exact sampler.");
             }
-            exactExactStateSampler = new ExactStateSampler();
+            exactExactStateSampler = new ExactStateRandomSampler();
         }
         return exactExactStateSampler;
     }
 
-    public class ExactStateSampler implements Sampler<S> {
+    public class ExactStateRandomSampler implements RandomSampler<S> {
         private final List<StateProbability<S>> stateProbabilities;
 
-        private ExactStateSampler() {
-            this.stateProbabilities = computeProbabilities(stateSpace.getStateGenerator().parallelStream());
+        private ExactStateRandomSampler() {
+            this.stateProbabilities = computeProbabilities(stateSpace.getStateSequence().parallelStream());
         }
 
         @Override
@@ -93,13 +100,6 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
             }
 
             return null;
-        }
-
-        @Override
-        public List<S> sample(int count) {
-            return IntStream.range(0, count).parallel()
-                    .mapToObj(x -> sample())
-                    .collect(Collectors.toList());
         }
     }
 

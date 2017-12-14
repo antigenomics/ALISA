@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StateStringGeneratorTest {
+public class StateStringSequenceGeneratorTest {
     @Test
     public void testPerformance() {
-        StateStringGenerator sag = new StateStringGenerator(20, 5);
+        StateStringSequence sag = new StateStringSequence(20, 5);
 
         long startTime = System.currentTimeMillis();
         assertEquals(sag.parallelStream().count(), sag.getCharacteristicSize());
@@ -29,22 +29,22 @@ public class StateStringGeneratorTest {
 
     @Test
     public void testConsistency() {
-        StateStringGenerator sag = new StateStringGenerator(7, 4);
+        StateStringSequence sag = new StateStringSequence(7, 4);
         Set<StateString> res = sag.stream().collect(Collectors.toSet());
         assertEquals(res.size(), sag.getCharacteristicSize());
 
-        sag = new StateStringGenerator(1, 4);
+        sag = new StateStringSequence(1, 4);
         res = sag.stream().collect(Collectors.toSet());
         assertEquals(res.size(), sag.getCharacteristicSize());
 
-        sag = new StateStringGenerator(10, 2);
+        sag = new StateStringSequence(10, 2);
         res = sag.stream().collect(Collectors.toSet());
         assertEquals(res.size(), sag.getCharacteristicSize());
     }
 
     @Test
     public void testIterator() {
-        StateStringGenerator sag = new StateStringGenerator(2, 8, 100);
+        StateStringSequence sag = new StateStringSequence(2, 8, 100);
 
         int count = 0;
         for (StateString s : sag) {
@@ -55,7 +55,7 @@ public class StateStringGeneratorTest {
         assertEquals(256, count);
         assertEquals(256, sag.getCharacteristicSize());
 
-        sag = new StateStringGenerator(2, 12, 100);
+        sag = new StateStringSequence(2, 12, 100);
 
         count = 0;
         for (StateString s : sag) {
@@ -67,22 +67,22 @@ public class StateStringGeneratorTest {
 
     @Test
     public void testStream() {
-        StateStringGenerator sag = new StateStringGenerator(2, 10, 100);
+        StateStringSequence sag = new StateStringSequence(2, 10, 100);
 
         assertEquals(1024, sag.stream().count());
 
-        sag = new StateStringGenerator(2, 13, 10000);
+        sag = new StateStringSequence(2, 13, 10000);
 
         assertEquals(8192, sag.stream().count());
     }
 
     @Test
     public void testParallel() {
-        StateStringGenerator sag = new StateStringGenerator(2, 10, 100);
+        StateStringSequence sag = new StateStringSequence(2, 10, 100);
 
         assertEquals(1024, sag.parallelStream().count());
 
-        sag = new StateStringGenerator(2, 13, 10000);
+        sag = new StateStringSequence(2, 13, 10000);
 
         assertEquals(8192, sag.parallelStream().count());
     }

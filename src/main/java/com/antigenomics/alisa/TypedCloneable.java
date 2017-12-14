@@ -1,4 +1,4 @@
-package com.antigenomics.alisa.algebra;
+package com.antigenomics.alisa;
 
 import java.io.Serializable;
 

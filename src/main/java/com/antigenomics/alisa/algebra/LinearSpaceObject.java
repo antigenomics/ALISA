@@ -1,5 +1,6 @@
 package com.antigenomics.alisa.algebra;
 
+import com.antigenomics.alisa.TypedCloneable;
 import com.antigenomics.alisa.hamiltonian.Representation;
 
 /**

@@ -5,7 +5,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public interface Generator<T> extends Iterable<T> {
+public interface SequenceGenerator<T> extends Iterable<T> {
     default Stream<T> stream() {
         return StreamSupport.stream(spliterator(), false);
     }

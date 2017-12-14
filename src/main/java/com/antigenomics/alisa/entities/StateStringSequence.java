@@ -4,16 +4,16 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public final class StateStringGenerator implements EntityGenerator<StateString> {
+public final class StateStringSequence implements EntitySequence<StateString> {
     private final int bufferSize, numberOfElements, arrayLength;
     private final long sizeEstimate;
 
-    public StateStringGenerator(int numberOfElements, int arrayLength) {
+    public StateStringSequence(int numberOfElements, int arrayLength) {
         this(numberOfElements, arrayLength, 4096);
     }
 
-    public StateStringGenerator(int numberOfElements, int arrayLength,
-                                int bufferSize) {
+    public StateStringSequence(int numberOfElements, int arrayLength,
+                               int bufferSize) {
         this.numberOfElements = numberOfElements;
         this.arrayLength = arrayLength;
         this.bufferSize = bufferSize;

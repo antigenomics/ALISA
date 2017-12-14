@@ -1,5 +1,7 @@
 package com.antigenomics.alisa.algebra;
 
+import com.antigenomics.alisa.TypedCloneable;
+
 import java.io.Serializable;
 
 /**
