@@ -1,7 +1,7 @@
 package com.antigenomics.alisa.estimator.mc;
 
 import com.antigenomics.alisa.hamiltonian.Representation;
-import com.antigenomics.alisa.encoding.State;
+import com.antigenomics.alisa.state.State;
 import com.antigenomics.alisa.hamiltonian.Hamiltonian;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package com.antigenomics.alisa.estimator;
 
 import com.antigenomics.alisa.algebra.LinearSpaceObject;
-import com.antigenomics.alisa.encoding.State;
+import com.antigenomics.alisa.state.State;
 import com.antigenomics.alisa.hamiltonian.Hamiltonian;
 
 import java.util.ArrayList;

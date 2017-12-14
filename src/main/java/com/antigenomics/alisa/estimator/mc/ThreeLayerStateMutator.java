@@ -1,7 +1,7 @@
 package com.antigenomics.alisa.estimator.mc;
 
 import com.antigenomics.alisa.entities.Entity;
-import com.antigenomics.alisa.encoding.ThreeLayerState;
+import com.antigenomics.alisa.state.ThreeLayerState;
 
 public final class ThreeLayerStateMutator<E1 extends Entity, E2 extends Entity, E3 extends Entity>
         implements StateMutator<ThreeLayerState<E1, E2, E3>> {

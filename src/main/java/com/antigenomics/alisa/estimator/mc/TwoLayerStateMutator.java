@@ -1,7 +1,7 @@
 package com.antigenomics.alisa.estimator.mc;
 
 import com.antigenomics.alisa.entities.Entity;
-import com.antigenomics.alisa.encoding.TwoLayerState;
+import com.antigenomics.alisa.state.TwoLayerState;
 
 public final class TwoLayerStateMutator<E1 extends Entity, E2 extends Entity>
         implements StateMutator<TwoLayerState<E1, E2>> {

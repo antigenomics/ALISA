@@ -2,9 +2,9 @@ package com.antigenomics.alisa.hamiltonian;
 
 import com.antigenomics.alisa.algebra.LinearSpaceObjectArray;
 import com.antigenomics.alisa.algebra.matrix.Matrix;
-import com.antigenomics.alisa.encoding.TwoLayerState;
+import com.antigenomics.alisa.state.TwoLayerState;
 import com.antigenomics.alisa.entities.BitString;
-import com.antigenomics.alisa.impl.BitStringOneHotEncoder;
+import com.antigenomics.alisa.encoding.BitStringOneHotEncoder;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

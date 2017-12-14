@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class StateString implements Entity {
     public static final StateString DUMMY = new StateString(new int[0], 0);
 
-    private final int[] states;
+    protected final int[] states;
     private final int numberOfStates;
 
     public StateString(int[] states, int numberOfStates) {

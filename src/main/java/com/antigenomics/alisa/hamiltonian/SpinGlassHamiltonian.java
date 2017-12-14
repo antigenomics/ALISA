@@ -4,7 +4,7 @@ import com.antigenomics.alisa.algebra.ImmutableLinearSpaceObject;
 import com.antigenomics.alisa.algebra.LinearSpaceObject;
 import com.antigenomics.alisa.algebra.VectorMapping;
 import com.antigenomics.alisa.algebra.VectorSpace;
-import com.antigenomics.alisa.encoding.State;
+import com.antigenomics.alisa.state.State;
 
 public interface SpinGlassHamiltonian<S extends State,
         V extends VectorSpace<V, M> & ImmutableLinearSpaceObject<M>,

@@ -1,6 +1,7 @@
 package com.antigenomics.alisa.hamiltonian;
 
-import com.antigenomics.alisa.encoding.State;
+import com.antigenomics.alisa.state.State;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.stream.StreamSupport;
 
@@ -9,13 +10,16 @@ public interface Hamiltonian<S extends State, R extends Representation> {
 
     R computeGradient(final S state, final R parameters);
 
-    default double computePartitionFunction(final Iterable<S> states, final R parameters) {
-        return StreamSupport.stream(states.spliterator(), true)
-                .mapToDouble(x -> x.getWeight() * Math.exp(computeEnergy(x, parameters))).sum();
-    }
-
     R getZeroParameters();
 
     // this method should always copy
-    R getParameterGuess();
+    R createParameterGuess();
+
+    default boolean hasTheoreticalPartitionFunction() {
+        return false;
+    }
+
+    default double computePartitionFunction(R parameters) {
+        throw new NotImplementedException();
+    }
 }

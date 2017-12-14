@@ -4,7 +4,7 @@ import com.antigenomics.alisa.algebra.*;
 
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
-import com.antigenomics.alisa.encoding.OneLayerState;
+import com.antigenomics.alisa.state.OneLayerState;
 
 import static java.util.Collections.singletonList;
 

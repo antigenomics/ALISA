@@ -3,7 +3,7 @@ package com.antigenomics.alisa.hamiltonian;
 import com.antigenomics.alisa.algebra.*;
 import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.Entity;
-import com.antigenomics.alisa.encoding.TwoLayerState;
+import com.antigenomics.alisa.state.TwoLayerState;
 
 import java.util.Arrays;
 
