@@ -2,7 +2,7 @@ package com.antigenomics.alisa.algebra.tensor;
 
 import com.antigenomics.alisa.algebra.LinearAlgebraUtils;
 
-public class CategoricalVectorS
+public final class CategoricalVectorS
         extends CategoricalVector {
     public CategoricalVectorS(CategoryWeightPair[] elements, int numberOfCategories) {
         super(elements, numberOfCategories);

@@ -7,7 +7,10 @@ import java.util.List;
 /**
  * INTERNAL
  */
-public class LinearAlgebraUtils {
+public final class LinearAlgebraUtils {
+    private LinearAlgebraUtils() {
+    }
+
     public static double norm1(double[] elements) {
         double res = 0;
 

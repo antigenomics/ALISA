@@ -1,4 +1,6 @@
 package com.antigenomics.alisa.encoding;
 
-public interface Encoding {
+import java.io.Serializable;
+
+public interface Encoding extends Serializable {
 }

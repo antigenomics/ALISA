@@ -2,7 +2,7 @@ package com.antigenomics.alisa.algebra.tensor;
 
 import java.io.Serializable;
 
-public class CategoryWeightPair implements Serializable,
+public final class CategoryWeightPair implements Serializable,
         Comparable<CategoryWeightPair> {
     private final int category;
     private final double weight;

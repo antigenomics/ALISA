@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @param <O> linear space object type.
  */
-public class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
+public final class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
         implements LinearSpaceObject<LinearSpaceObjectArray<O>>, Iterable<O> {
     /* internal storage */
     private final List<O> objectList;

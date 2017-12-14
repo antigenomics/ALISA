@@ -2,7 +2,7 @@ package com.antigenomics.alisa.algebra.tensor;
 
 import com.antigenomics.alisa.algebra.IndexedValue;
 
-public class IndexedTensorValue
+public final class IndexedTensorValue
         implements IndexedValue<IndexedTensorValue> {
     private final int rowIndex, columnIndex,
             firstCategoryIndex, secondCategoryIndex;

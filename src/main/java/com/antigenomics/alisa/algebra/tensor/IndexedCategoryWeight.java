@@ -3,7 +3,7 @@ package com.antigenomics.alisa.algebra.tensor;
 import com.antigenomics.alisa.algebra.IndexedValue;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class IndexedCategoryWeight
+public final class IndexedCategoryWeight
         implements IndexedValue<IndexedCategoryWeight> {
     private final int index, category;
     private final double weight;
