@@ -37,7 +37,7 @@ public class ExactStateProbabilityDistributionTest {
         assertEquals(1.0,
                 probs.computeProbabilities(states).stream()
                         .mapToDouble(x -> ((StateProbability) x).getProbability()).sum(),
-                1e-20);
+                1e-10);
     }
 
     @Test
