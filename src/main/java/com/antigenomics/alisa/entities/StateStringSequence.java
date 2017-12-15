@@ -1,8 +1,15 @@
 package com.antigenomics.alisa.entities;
 
+import com.antigenomics.alisa.state.State;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Function;
+
+// todo: need to make both full and random generators available
+// todo: perhaps create a factory and unify interfaces, the stream API is a problem here - need to choose correct semantics
+// todo: as we'll want to use both 'for/next' a '.stream' semantics (?)
 
 public final class StateStringSequence implements EntitySequence<StateString> {
     private final int bufferSize, numberOfElements, arrayLength;
@@ -29,14 +36,21 @@ public final class StateStringSequence implements EntitySequence<StateString> {
 
     @Override
     public Iterator<StateString> iterator() {
-        return new StateArrayBuffer();
+        return new StateArrayBuffer<>(Function.identity());
     }
 
-    private class StateArrayBuffer implements Iterator<StateString> {
+    @Override
+    public <S extends State> Iterator<S> iterator(Function<StateString, S> conversion) {
+        return new StateArrayBuffer<>(conversion);
+    }
+
+    private class StateArrayBuffer<S> implements Iterator<S> {
         final LinkedBlockingQueue<StateString> queue = new LinkedBlockingQueue<>(bufferSize);
+        final Function<StateString, S> conv;
         volatile StateString next;
 
-        StateArrayBuffer() {
+        StateArrayBuffer(Function<StateString, S> conv) {
+            this.conv = conv;
             new Thread(() -> {
                 generateStatesRecursive(new int[arrayLength], numberOfElements, arrayLength);
                 try {
@@ -76,8 +90,8 @@ public final class StateStringSequence implements EntitySequence<StateString> {
         }
 
         @Override
-        public StateString next() {
-            return next;
+        public S next() {
+            return conv.apply(next);
         }
     }
 }
