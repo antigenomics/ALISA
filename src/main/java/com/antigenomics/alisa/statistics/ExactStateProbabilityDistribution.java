@@ -70,6 +70,10 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
         return parameters;
     }
 
+    public double getPartitionFunctionValue() {
+        return partitionFunctionValue;
+    }
+
     public ExactStateRandomSampler createExactStateSampler() {
         if (exactExactStateSampler == null) {
             if (stateSpace.getSize() > Integer.MAX_VALUE) {

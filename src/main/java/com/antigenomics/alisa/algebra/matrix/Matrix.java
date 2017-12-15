@@ -3,7 +3,9 @@ package com.antigenomics.alisa.algebra.matrix;
 import com.antigenomics.alisa.algebra.VectorMapping;
 import com.antigenomics.alisa.algebra.Container;
 import com.antigenomics.alisa.algebra.LinearSpaceObject;
+import com.antigenomics.alisa.estimator.mc.MonteCarloUtils;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,8 +68,20 @@ public abstract class Matrix
                 numberOfColumns, false);
     }
 
+    public static DenseMatrix DENSE_ONES(int numberOfRows, int numberOfColumns) {
+        double[] elements = new double[numberOfRows * numberOfColumns];
+        Arrays.fill(elements, 1.0);
+        return new DenseFullMatrix(elements,
+                numberOfColumns, false);
+    }
+
+    public static DenseMatrix DENSE_RANDOM(int numberOfRows, int numberOfColumns) {
+        return new DenseFullMatrix(MonteCarloUtils.nextDoubleArray(numberOfRows * numberOfColumns),
+                numberOfColumns, false);
+    }
+
     public static DenseMatrix DENSE_ZEROS_LT(int size) {
-        return new DenseTriangularMatrix(new double[size * size],false);
+        return new DenseTriangularMatrix(new double[size * size], false);
     }
 
     /**

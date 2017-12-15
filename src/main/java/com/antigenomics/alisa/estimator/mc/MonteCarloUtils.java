@@ -14,4 +14,8 @@ public class MonteCarloUtils {
     public static double nextDouble() {
         return ThreadLocalRandom.current().nextDouble();
     }
+
+    public static double[] nextDoubleArray(int length) {
+        return ThreadLocalRandom.current().doubles(length).toArray();
+    }
 }
