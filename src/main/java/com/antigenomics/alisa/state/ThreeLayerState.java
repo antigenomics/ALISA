@@ -60,4 +60,10 @@ public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 exte
     public int getNumberOfLayers() {
         return 3;
     }
+
+
+    @Override
+    public String toString() {
+        return "{" + firstValue + ";" + secondValue + ";" + thirdValue + '}' + (weight != 1 ? ("^" + weight) : "");
+    }
 }

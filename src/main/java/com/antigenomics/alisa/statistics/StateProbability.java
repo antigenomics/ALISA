@@ -22,4 +22,9 @@ public final class StateProbability<S extends State> {
     public double getFullProbability() {
         return probability * state.getDegeneracy();
     }
+
+    @Override
+    public String toString() {
+        return "P(" + state + ")=" + probability;
+    }
 }

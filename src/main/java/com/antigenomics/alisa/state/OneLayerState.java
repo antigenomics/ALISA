@@ -10,6 +10,7 @@ public final class OneLayerState<E extends Entity>
     public OneLayerState(final E value) {
         this(value, 1.0);
     }
+
     public OneLayerState(final E value,
                          double weight) {
         this.value = value;
@@ -36,5 +37,10 @@ public final class OneLayerState<E extends Entity>
     @Override
     public double getDegeneracy() {
         return weight;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + value + '}' + (weight != 1 ? ("^" + weight) : "");
     }
 }

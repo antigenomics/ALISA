@@ -46,4 +46,9 @@ public class StateString implements Entity {
         result = 31 * result + numberOfStates;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(states);
+    }
 }

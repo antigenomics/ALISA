@@ -50,4 +50,9 @@ public final class TwoLayerState<E1 extends Entity, E2 extends Entity>
     public int getNumberOfLayers() {
         return 2;
     }
+
+    @Override
+    public String toString() {
+        return "{" + firstValue + ";" + secondValue + '}' + (weight != 1 ? ("^" + weight) : "");
+    }
 }
