@@ -23,18 +23,13 @@ public class CategoricalVector
     protected final CategoryWeightPair[] elements;
     protected final int numberOfCategories;
 
-    protected CategoricalVector(CategoryWeightPair[] elements,
-                                int numberOfCategories) {
-        this(elements, numberOfCategories, false);
-    }
-
     public CategoricalVector(CategoryWeightPair[] elements,
                              int numberOfCategories, boolean safe) {
         CategoryWeightPair[] elementsSafe;
         if (safe) {
             elementsSafe = new CategoryWeightPair[elements.length];
             for (int i = 0; i < elements.length; i++) {
-                if (elements[i].getCategory() > numberOfCategories) {
+                if (elements[i].getCategory() >= numberOfCategories) {
                     throw new IllegalArgumentException("Vector category index is greater than the " +
                             "pre-defined number of categories.");
                 }
@@ -45,6 +40,40 @@ public class CategoricalVector
         }
         this.elements = elementsSafe;
         this.numberOfCategories = numberOfCategories;
+    }
+
+    protected CategoricalVector(CategoryWeightPair[] elements,
+                                int numberOfCategories) {
+        this(elements, numberOfCategories, false);
+    }
+
+    public CategoricalVector(int[] categories,
+                             int numberOfCategories,
+                             boolean safe) {
+        this(transform(categories, numberOfCategories, safe), numberOfCategories);
+    }
+
+    private static CategoryWeightPair[] transform(int[] categories,
+                                                  int numberOfCategories,
+                                                  boolean safe) {
+        CategoryWeightPair[] wrappedElements = new CategoryWeightPair[categories.length];
+
+        if (safe) {
+            for (int i = 0; i < categories.length; i++) {
+                int category = categories[i];
+                if (category >= numberOfCategories) {
+                    throw new IllegalArgumentException("Vector category index is greater than the " +
+                            "pre-defined number of categories.");
+                }
+                wrappedElements[i] = new CategoryWeightPair(category);
+            }
+        } else {
+            for (int i = 0; i < categories.length; i++) {
+                wrappedElements[i] = new CategoryWeightPair(categories[i]);
+            }
+        }
+
+        return wrappedElements;
     }
 
     public int getLength() {
@@ -169,8 +198,12 @@ public class CategoricalVector
         CategoricalVector that = (CategoricalVector) o;
 
         if (numberOfCategories != that.numberOfCategories) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(elements, that.elements);
+        if (elements.length != that.elements.length) return false;
+
+        for (int i = 0; i < elements.length; i++)
+            if (!elements[i].equals(that.elements[i])) return false;
+
+        return true;
     }
 
     @Override
@@ -178,5 +211,10 @@ public class CategoricalVector
         int result = Arrays.hashCode(elements);
         result = 31 * result + numberOfCategories;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(elements) + "/" + numberOfCategories;
     }
 }
