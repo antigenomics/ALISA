@@ -25,7 +25,7 @@ public final class StateProbability<S extends State> {
 
     @Override
     public String toString() {
-        return "P(" + state + ")=" + probability;
+        return "P(" + state + ")=" + (float) probability;
     }
 
     @Override

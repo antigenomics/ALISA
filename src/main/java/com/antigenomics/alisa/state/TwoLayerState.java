@@ -53,7 +53,8 @@ public final class TwoLayerState<E1 extends Entity, E2 extends Entity>
 
     @Override
     public String toString() {
-        return "{" + firstValue + ";" + secondValue + '}' + (weight != 1 ? ("^" + weight) : "");
+        return "{" + firstValue + ";" + secondValue + '}' +
+                (weight != 1 ? ("^" + (float) weight) : "");
     }
 
     @Override

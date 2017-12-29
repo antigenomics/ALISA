@@ -41,7 +41,8 @@ public final class OneLayerState<E extends Entity>
 
     @Override
     public String toString() {
-        return "{" + value + '}' + (weight != 1 ? ("^" + weight) : "");
+        return "{" + value + '}' +
+                (weight != 1 ? ("^" + (float) weight) : "");
     }
 
     @Override

@@ -49,4 +49,9 @@ public final class CategoryWeightPair implements Serializable,
     public int compareTo(CategoryWeightPair o) {
         return Integer.compare(category, o.category);
     }
+
+    @Override
+    public String toString() {
+        return category + (weight != 1 ? ("(" + (float) weight + ")") : "");
+    }
 }

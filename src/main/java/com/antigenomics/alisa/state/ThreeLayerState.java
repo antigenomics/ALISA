@@ -64,7 +64,8 @@ public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 exte
 
     @Override
     public String toString() {
-        return "{" + firstValue + ";" + secondValue + ";" + thirdValue + '}' + (weight != 1 ? ("^" + weight) : "");
+        return "{" + firstValue + ";" + secondValue + ";" + thirdValue + '}' +
+                (weight != 1 ? ("^" + (float) weight) : "");
     }
 
     @Override
