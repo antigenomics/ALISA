@@ -8,6 +8,10 @@ public final class CategoricalVectorS
         super(elements, numberOfCategories);
     }
 
+    public CategoricalVectorS(CategoryWeightPair[] elements, int numberOfCategories, boolean safe) {
+        super(elements, numberOfCategories, safe);
+    }
+
     @Override
     public Tensor outerProduct(CategoricalVector b) {
         assert numberOfCategories == b.numberOfCategories;

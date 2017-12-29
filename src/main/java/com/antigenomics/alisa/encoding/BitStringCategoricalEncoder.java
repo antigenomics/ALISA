@@ -24,7 +24,7 @@ public final class BitStringCategoricalEncoder extends BitStringEncoder<Categori
             values[i] = new CategoryWeightPair(value.getAt(i));
         }
 
-        return new CategoricalVector(values, 2);
+        return new CategoricalVector(values, 2, false);
     }
 
     @Override
@@ -33,6 +33,6 @@ public final class BitStringCategoricalEncoder extends BitStringEncoder<Categori
         for (int i = 0; i < length; i++) {
             values[i] = new CategoryWeightPair(0);
         }
-        return new CategoricalVector(values, 2);
+        return new CategoricalVector(values, 2, false);
     }
 }

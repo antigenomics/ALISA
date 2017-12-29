@@ -257,4 +257,32 @@ public abstract class Tensor
 
         return normInf;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tensor that = (Tensor) o;
+
+        if (numberOfRows != that.numberOfRows) return false;
+        if (numberOfColumns != that.numberOfColumns) return false;
+        if (numberOfCategoryRows != that.numberOfCategoryRows) return false;
+        if (numberOfCategoryColumns != that.numberOfCategoryColumns) return false;
+        if (symmetric != that.symmetric) return false;
+        if (semiSymmetric != that.semiSymmetric) return false;
+        return Arrays.equals(elements, that.elements);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(elements);
+        result = 31 * result + numberOfRows;
+        result = 31 * result + numberOfColumns;
+        result = 31 * result + numberOfCategoryRows;
+        result = 31 * result + numberOfCategoryColumns;
+        result = 31 * result + (symmetric ? 1 : 0);
+        result = 31 * result + (semiSymmetric ? 1 : 0);
+        return result;
+    }
 }

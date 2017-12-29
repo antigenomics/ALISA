@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// todo: random state generator and random sampler
 public class ExactStateProbabilityDistribution<S extends State, R extends Representation> {
     private final Hamiltonian<S, R> hamiltonian;
     private final StateSpace<S> stateSpace;
@@ -107,5 +108,28 @@ public class ExactStateProbabilityDistribution<S extends State, R extends Repres
         }
     }
 
-    // todo: random state generator and random sampler
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ExactStateProbabilityDistribution<?, ?> that = (ExactStateProbabilityDistribution<?, ?>) o;
+
+        if (Double.compare(that.partitionFunctionValue, partitionFunctionValue) != 0) return false;
+        if (!hamiltonian.equals(that.hamiltonian)) return false;
+        if (!stateSpace.equals(that.stateSpace)) return false;
+        return parameters.equals(that.parameters);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = hamiltonian.hashCode();
+        result = 31 * result + stateSpace.hashCode();
+        result = 31 * result + parameters.hashCode();
+        temp = Double.doubleToLongBits(partitionFunctionValue);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

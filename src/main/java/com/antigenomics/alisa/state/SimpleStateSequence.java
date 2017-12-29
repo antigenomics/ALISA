@@ -31,4 +31,22 @@ public class SimpleStateSequence<E extends Entity,
     public StateSpace<S> asStateSpace() {
         return () -> this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SimpleStateSequence<?, ?> that = (SimpleStateSequence<?, ?>) o;
+
+        if (!entitySequence.equals(that.entitySequence)) return false;
+        return conversion.equals(that.conversion);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = entitySequence.hashCode();
+        result = 31 * result + conversion.hashCode();
+        return result;
+    }
 }

@@ -149,4 +149,19 @@ public final class LinearSpaceObjectArray<O extends LinearSpaceObject<O>>
 
         return res.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LinearSpaceObjectArray<?> that = (LinearSpaceObjectArray<?>) o;
+
+        return objectList.equals(that.objectList);
+    }
+
+    @Override
+    public int hashCode() {
+        return objectList.hashCode();
+    }
 }

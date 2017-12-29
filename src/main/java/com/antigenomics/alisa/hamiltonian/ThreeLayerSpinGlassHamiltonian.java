@@ -94,4 +94,26 @@ public final class ThreeLayerSpinGlassHamiltonian<E1 extends Entity, E2 extends 
     public LinearSpaceObjectArray<M> getZeroParameters() {
         return zeroParameters;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ThreeLayerSpinGlassHamiltonian<?, ?, ?, ?, ?> that = (ThreeLayerSpinGlassHamiltonian<?, ?, ?, ?, ?>) o;
+
+        if (!firstEncoder.equals(that.firstEncoder)) return false;
+        if (!secondEncoder.equals(that.secondEncoder)) return false;
+        if (!thirdEncoder.equals(that.thirdEncoder)) return false;
+        return zeroParameters.equals(that.zeroParameters);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = firstEncoder.hashCode();
+        result = 31 * result + secondEncoder.hashCode();
+        result = 31 * result + thirdEncoder.hashCode();
+        result = 31 * result + zeroParameters.hashCode();
+        return result;
+    }
 }

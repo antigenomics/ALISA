@@ -13,11 +13,11 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
         M extends VectorMapping<V, M> & LinearSpaceObject<M>>
         implements SpinGlassHamiltonian<OneLayerState<E>, V, M> {
     private final Encoder<E, V> encoder;
-    private final LinearSpaceObjectArray<M> nullParameters;
+    private final LinearSpaceObjectArray<M> zeroParameters;
 
     public SingleLayerSpinGlassHamiltonian(final Encoder<E, V> encoder) {
         this.encoder = encoder;
-        this.nullParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
+        this.zeroParameters = new LinearSpaceObjectArray<>(singletonList(encoder.getZero().expand()));
     }
 
     public Encoder<E, V> getEncoder() {
@@ -40,6 +40,24 @@ public final class SingleLayerSpinGlassHamiltonian<E extends Entity,
 
     @Override
     public LinearSpaceObjectArray<M> getZeroParameters() {
-        return nullParameters;
+        return zeroParameters;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SingleLayerSpinGlassHamiltonian<?, ?, ?> that = (SingleLayerSpinGlassHamiltonian<?, ?, ?>) o;
+
+        if (!encoder.equals(that.encoder)) return false;
+        return zeroParameters.equals(that.zeroParameters);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = encoder.hashCode();
+        result = 31 * result + zeroParameters.hashCode();
+        return result;
     }
 }

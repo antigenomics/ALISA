@@ -55,4 +55,27 @@ public final class TwoLayerState<E1 extends Entity, E2 extends Entity>
     public String toString() {
         return "{" + firstValue + ";" + secondValue + '}' + (weight != 1 ? ("^" + weight) : "");
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TwoLayerState<?, ?> that = (TwoLayerState<?, ?>) o;
+
+        if (Double.compare(that.weight, weight) != 0) return false;
+        if (!firstValue.equals(that.firstValue)) return false;
+        return secondValue.equals(that.secondValue);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = firstValue.hashCode();
+        result = 31 * result + secondValue.hashCode();
+        temp = Double.doubleToLongBits(weight);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

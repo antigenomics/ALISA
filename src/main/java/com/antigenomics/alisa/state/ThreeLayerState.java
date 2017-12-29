@@ -66,4 +66,29 @@ public final class ThreeLayerState<E1 extends Entity, E2 extends Entity, E3 exte
     public String toString() {
         return "{" + firstValue + ";" + secondValue + ";" + thirdValue + '}' + (weight != 1 ? ("^" + weight) : "");
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ThreeLayerState<?, ?, ?> that = (ThreeLayerState<?, ?, ?>) o;
+
+        if (Double.compare(that.weight, weight) != 0) return false;
+        if (!firstValue.equals(that.firstValue)) return false;
+        if (!secondValue.equals(that.secondValue)) return false;
+        return thirdValue.equals(that.thirdValue);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = firstValue.hashCode();
+        result = 31 * result + secondValue.hashCode();
+        result = 31 * result + thirdValue.hashCode();
+        temp = Double.doubleToLongBits(weight);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

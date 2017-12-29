@@ -43,4 +43,25 @@ public final class OneLayerState<E extends Entity>
     public String toString() {
         return "{" + value + '}' + (weight != 1 ? ("^" + weight) : "");
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OneLayerState<?> that = (OneLayerState<?>) o;
+
+        if (Double.compare(that.weight, weight) != 0) return false;
+        return value.equals(that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(weight);
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + value.hashCode();
+        return result;
+    }
 }
