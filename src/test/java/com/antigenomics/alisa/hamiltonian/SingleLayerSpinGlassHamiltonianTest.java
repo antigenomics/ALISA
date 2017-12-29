@@ -8,10 +8,12 @@ import com.antigenomics.alisa.encoding.BitStringOneHotEncoder;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SingleLayerSpinGlassHamiltonianTest {
+    @SuppressWarnings("unchecked")
     @Test
     public void energyTest() {
         BitStringOneHotEncoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);
@@ -24,7 +26,7 @@ public class SingleLayerSpinGlassHamiltonianTest {
 
         Matrix Hij = Matrix.DENSE(new double[][]{{1, 2}, {3, 4}});
 
-        LinearSpaceObjectArray params = new LinearSpaceObjectArray(Arrays.asList(Hij));
+        LinearSpaceObjectArray params = new LinearSpaceObjectArray(Collections.singletonList(Hij));
 
         assertEquals(1 + 2 + 3 + 4, hamiltonian.computeEnergy(new OneLayerState(s11), params));
         assertEquals(4, hamiltonian.computeEnergy(new OneLayerState(s01), params));
@@ -32,6 +34,7 @@ public class SingleLayerSpinGlassHamiltonianTest {
         assertEquals(0, hamiltonian.computeEnergy(new OneLayerState(s00), params));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void gradientTest() {
         BitStringOneHotEncoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);
@@ -42,7 +45,7 @@ public class SingleLayerSpinGlassHamiltonianTest {
                 s10 = new BitString(new int[]{1, 0}),
                 s00 = new BitString(new int[]{0, 0});
 
-        LinearSpaceObjectArray params = new LinearSpaceObjectArray(Arrays.asList(bitStringSpinEncoder.getZero()));
+        LinearSpaceObjectArray params = new LinearSpaceObjectArray(Collections.singletonList(bitStringSpinEncoder.getZero()));
 
         assertEquals(Matrix.SPARSE(new double[][]{{1, 1}, {1, 1}}),
                 hamiltonian.computeGradient(new OneLayerState(s11), params).get(0));

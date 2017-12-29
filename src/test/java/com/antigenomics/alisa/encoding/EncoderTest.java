@@ -1,14 +1,13 @@
 package com.antigenomics.alisa.encoding;
 
 import com.antigenomics.alisa.algebra.matrix.Vector;
-import com.antigenomics.alisa.encoding.Encoder;
 import com.antigenomics.alisa.entities.BitString;
-import com.antigenomics.alisa.encoding.BitStringOneHotEncoder;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EncoderTest {
+    @SuppressWarnings("unchecked")
     @Test
     public void test() {
         Encoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);

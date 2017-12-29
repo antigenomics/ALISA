@@ -12,6 +12,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ThreeLayerSpinGlassHamiltonianTest {
+    @SuppressWarnings("unchecked")
     @Test
     public void energyTest() {
         BitStringOneHotEncoder bitStringSpinEncoder = new BitStringOneHotEncoder(2);
